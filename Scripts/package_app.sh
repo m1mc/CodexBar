@@ -278,7 +278,9 @@ fi
 BUNDLE_ID="com.steipete.codexbar"
 FEED_URL="https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml"
 AUTO_CHECKS=true
-if [[ "$LOWER_CONF" == "debug" ]]; then
+if [[ -n "${CODEXBAR_BUNDLE_ID:-}" ]]; then
+  BUNDLE_ID="$CODEXBAR_BUNDLE_ID"
+elif [[ "$LOWER_CONF" == "debug" ]]; then
   BUNDLE_ID="com.steipete.codexbar.debug"
   FEED_URL=""
   AUTO_CHECKS=false

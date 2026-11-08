@@ -58,17 +58,9 @@ jobs:
 
       - name: Build macOS GUI App
         run: |
-          xcodebuild -project codexbar.xcodeproj -scheme codexbar -configuration Release CODE_SIGNING_ALLOWED=NO -destination 'platform=macOS' -derivedDataPath .build/DerivedData build
-          BUILT_APP=$(find .build/DerivedData -name "codexbar.app" -type d | head -n 1)
-          if [ -n "$BUILT_APP" ]; then
-            mkdir -p dist/dmg-staging
-            cp -R "$BUILT_APP" dist/dmg-staging/CodexBar.app
-            mkdir -p dist/dmg-staging/CodexBar.app/Contents/Helpers
-            if [ -f dist/cli-macos-arm64/CodexBarCLI ]; then
-              cp dist/cli-macos-arm64/CodexBarCLI dist/dmg-staging/CodexBar.app/Contents/Helpers/
-            fi
-            hdiutil create -volname "CodexBar" -srcfolder dist/dmg-staging -ov -format UDZO dist/CodexBar-macOS.dmg
-          fi
+          CODEXBAR_SIGNING=adhoc ./Scripts/package_app.sh release
+          mkdir -p dist
+          ./scripts/package_dmg.sh --app CodexBar.app --version "${GITHUB_REF#refs/tags/v}" --output dist/CodexBar-macOS.dmg
 
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4

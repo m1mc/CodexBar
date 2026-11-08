@@ -26,6 +26,6 @@ class Codexbar < Formula
   end
 
   test do
-    assert_match "codexbar", shell_output("#{bin}/codexbar --version")
+    assert_match(/codexbar/i, shell_output("#{bin}/codexbar --version"))
   end
 end

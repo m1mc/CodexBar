@@ -70,11 +70,11 @@ trap cleanup EXIT
 
 mkdir -p "$(dirname "${output_path}")"
 
-ditto "${app_path}" "${staging_dir}/codexbar.app"
+ditto "${app_path}" "${staging_dir}/CodexBar.app"
 ln -s /Applications "${staging_dir}/Applications"
 
 hdiutil create \
-  -volname "codexbar ${version}" \
+  -volname "CodexBar" \
   -srcfolder "${staging_dir}" \
   -ov \
   -format UDZO \
