@@ -103,6 +103,22 @@ struct CLILoginRunnerTests {
         #expect(kill(childPID, 0) == -1 && errno == ESRCH)
     }
 
+    @Test
+    func `authorizationURL ignores local callback endpoints and captures remote auth URL`() {
+        let text = """
+        Starting local login server on http://localhost:1455.
+        If your browser did not open, navigate to this URL to authenticate:
+
+        https://auth.openai.com/oauth/authorize?response_type=code&client_id=app_test&redirect_uri=http%3A%2F%2F127.0.0.1%3A1455%2Fauth%2Fcallback
+        """
+        let url = CLILoginRunner.authorizationURL(in: text)
+        #expect(url?.host == "auth.openai.com")
+        #expect(url?.scheme == "https")
+
+        let onlyLocal = "Starting local login server on http://localhost:1455."
+        #expect(CLILoginRunner.authorizationURL(in: onlyLocal) == nil)
+    }
+
     private struct Fixture: Sendable {
         let root: URL
         let executable: URL

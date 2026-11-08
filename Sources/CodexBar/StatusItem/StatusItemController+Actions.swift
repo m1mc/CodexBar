@@ -547,6 +547,11 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
             return
         }
 
+        AppNotifications.shared.post(
+            idPrefix: "login-start-codex",
+            title: "CodexBar",
+            body: String(format: L("Opening browser to authorize %@…"), "Codex"))
+
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
@@ -739,6 +744,12 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
             self.activeLoginProvider = provider
             self.loginPhase = .requesting
             self.loginLogger.info("Starting login task", metadata: ["provider": provider.rawValue])
+
+            let providerName = ProviderDescriptorRegistry.descriptor(for: provider).metadata.displayName
+            AppNotifications.shared.post(
+                idPrefix: "login-start-\(provider.rawValue)",
+                title: "CodexBar",
+                body: String(format: L("Opening browser to authorize %@…"), providerName))
 
             let shouldRefresh = await self.runLoginFlow(provider: provider)
             if shouldRefresh {

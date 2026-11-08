@@ -69,6 +69,10 @@ struct TokenAccountCLISelectionTests {
         #expect(all.providerSelectionError([.codex, .claude]) == "account selection requires a single provider.")
         #expect(all.providerSelectionError([]) == "account selection requires a single provider.")
         #expect(all.providerSelectionError([.jetbrains]) == "jetbrains does not support token accounts.")
+        let labelSelection = TokenAccountCLISelection(label: "Primary", index: nil, allAccounts: false)
+        #expect(labelSelection.providerSelectionError([.codex]) == nil)
+        let indexSelection = TokenAccountCLISelection(label: nil, index: 0, allAccounts: false)
+        #expect(indexSelection.providerSelectionError([.codex]) == nil)
         let automatic = TokenAccountCLISelection(label: nil, index: nil, allAccounts: false)
         #expect(automatic.providerSelectionError([.jetbrains, .claude]) == nil)
     }
@@ -116,7 +120,7 @@ struct TokenAccountCLISelectionTests {
     }
 
     @Test
-    func `antigravity defaults to resolving all accounts when no filter is provided`() throws {
+    func `antigravity defaults to resolving active account when no filter is provided`() throws {
         let account1 = ProviderTokenAccount(id: UUID(), label: "First", token: "tok1", addedAt: 0, lastUsed: nil)
         let account2 = ProviderTokenAccount(id: UUID(), label: "Second", token: "tok2", addedAt: 0, lastUsed: nil)
         let config = CodexBarConfig(providers: [ProviderConfig(
@@ -129,7 +133,14 @@ struct TokenAccountCLISelectionTests {
             verbose: false,
             baseEnvironment: [:])
         let resolved = try context.resolvedAccounts(for: .antigravity)
-        #expect(resolved.map(\.label) == ["First", "Second"])
+        #expect(resolved.map(\.label) == ["First"])
+        let allContext = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: nil, index: nil, allAccounts: true),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:])
+        let allResolved = try allContext.resolvedAccounts(for: .antigravity)
+        #expect(allResolved.map(\.label) == ["First", "Second"])
     }
 
     @Test
@@ -255,6 +266,109 @@ struct TokenAccountCLISelectionTests {
             tokenAccounts: ProviderTokenAccountData(version: 1, accounts: [account], activeIndex: 0))])
         return try TokenAccountCLIContext(
             selection: selection, config: config, verbose: false, baseEnvironment: [:])
+    }
+
+    @Test
+    func `codex selection resolves visible accounts by email, label, index and allAccounts`() throws {
+        let storeDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("codex-cli-test-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: storeDir) }
+
+        let storeURL = storeDir.appendingPathComponent("managed-codex-accounts.json")
+        let account1 = ManagedCodexAccount(
+            id: UUID(),
+            email: "alice@example.com",
+            workspaceLabel: "Personal",
+            managedHomePath: storeDir.appendingPathComponent("home1").path,
+            createdAt: 0,
+            updatedAt: 0,
+            lastAuthenticatedAt: 0)
+        let account2 = ManagedCodexAccount(
+            id: UUID(),
+            email: "bob@example.com",
+            workspaceLabel: "Work",
+            managedHomePath: storeDir.appendingPathComponent("home2").path,
+            createdAt: 0,
+            updatedAt: 0,
+            lastAuthenticatedAt: 0)
+        let store = FileManagedCodexAccountStore(fileURL: storeURL)
+        try store.storeAccounts(ManagedCodexAccountSet(version: 3, accounts: [account1, account2]))
+
+        let config = CodexBarConfig(providers: [ProviderConfig(id: UsageProvider.codex.instanceID)])
+
+        // 1. Default without selection: resolves active/first account
+        let defaultCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: nil, index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: storeURL)
+        let defaultResolved = try defaultCtx.resolvedCodexAccounts()
+        #expect(defaultResolved.count == 1)
+        #expect(defaultResolved.first?.email == "alice@example.com")
+
+        // 2. allAccounts: resolves both accounts
+        let allCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: nil, index: nil, allAccounts: true),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: storeURL)
+        let allResolved = try allCtx.resolvedCodexAccounts()
+        #expect(allResolved.map(\.email) == ["alice@example.com", "bob@example.com"])
+
+        // 3. Selection by email: resolves bob
+        let bobCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: "bob@example.com", index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: storeURL)
+        let bobResolved = try bobCtx.resolvedCodexAccounts()
+        #expect(bobResolved.map(\.email) == ["bob@example.com"])
+
+        // 4. Selection by workspace label: resolves Work -> bob
+        let workCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: "Work", index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: storeURL)
+        let workResolved = try workCtx.resolvedCodexAccounts()
+        #expect(workResolved.map(\.email) == ["bob@example.com"])
+
+        // 5. Selection by index (0-based parsed index -> 1 is bob)
+        let indexCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: nil, index: 1, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: storeURL)
+        let indexResolved = try indexCtx.resolvedCodexAccounts()
+        #expect(indexResolved.map(\.email) == ["bob@example.com"])
+
+        // 6. Unknown label throws accountNotFound
+        let unknownCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: "unknown@example.com", index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: storeURL)
+        #expect(throws: TokenAccountCLIError.self) {
+            try unknownCtx.resolvedCodexAccounts()
+        }
+
+        // 7. Out of range index throws indexOutOfRange
+        let oobCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: nil, index: 5, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: storeURL)
+        #expect(throws: TokenAccountCLIError.self) {
+            try oobCtx.resolvedCodexAccounts()
+        }
     }
 
     private static func account(id: UUID = UUID(), token: String) -> ProviderTokenAccount {

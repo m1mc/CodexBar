@@ -16,8 +16,7 @@ struct TokenAccountCLISelection {
         guard providers.count == 1 else { return "account selection requires a single provider." }
         let provider = providers[0]
         // Provider-specific by design: Codex exposes reconciled live/managed accounts beyond token accounts.
-        let includesReconciledAccounts = provider == .codex && self.allAccounts && self.label == nil && self
-            .index == nil
+        let includesReconciledAccounts = provider == .codex
         guard includesReconciledAccounts || TokenAccountSupportCatalog.support(for: provider) != nil else {
             return "\(provider.rawValue) does not support token accounts."
         }
@@ -126,14 +125,34 @@ struct TokenAccountCLIContext {
             return [data.accounts[index]]
         }
 
-        // Provider-specific by design: Antigravity automatically displays all registered accounts
-        // when no specific account filter is requested.
-        if provider == .antigravity {
-            return data.accounts
+        // Align with ambient local agy login if present in registered accounts
+        if provider == .antigravity,
+           let ambientEmail = Self.ambientAntigravityEmail(),
+           let match = data.accounts.first(where: {
+               $0.label.lowercased() == ambientEmail
+                   || $0.externalIdentifier?.lowercased() == ambientEmail
+           })
+        {
+            return [match]
         }
 
         let clamped = data.clampedActiveIndex()
         return [data.accounts[clamped]]
+    }
+
+    static func ambientAntigravityEmail() -> String? {
+        let tokenURL = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".gemini/antigravity-cli/antigravity-oauth-token")
+        guard let data = try? Data(contentsOf: tokenURL),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+        if let idEmail = json["id_token_email"] as? String, !idEmail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return idEmail.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        }
+        if let email = json["email"] as? String, !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        }
+        return nil
     }
 
     func settingsSnapshot(
@@ -273,6 +292,46 @@ struct TokenAccountCLIContext {
     func visibleCodexAccounts() -> CodexVisibleAccountProjection {
         // Provider-specific by design: only Codex exposes reconciled live, managed, and profile-home accounts.
         self.codexAccountReconciler().loadVisibleAccounts()
+    }
+
+    func resolvedCodexAccounts() throws -> [CodexVisibleAccount] {
+        let projection = self.visibleCodexAccounts()
+        let accounts = projection.visibleAccounts
+        guard !accounts.isEmpty else {
+            if self.selection.usesOverride {
+                throw TokenAccountCLIError.noAccounts(.codex)
+            }
+            return []
+        }
+
+        if self.selection.allAccounts {
+            return accounts
+        }
+
+        if let label = self.selection.label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty {
+            let normalized = label.lowercased()
+            if let match = accounts.first(where: {
+                $0.email.lowercased() == normalized
+                    || $0.workspaceLabel?.lowercased() == normalized
+                    || $0.customName?.lowercased() == normalized
+                    || $0.id.lowercased() == normalized
+            }) {
+                return [match]
+            }
+            throw TokenAccountCLIError.accountNotFound(.codex, label)
+        }
+
+        if let index = self.selection.index {
+            guard index >= 0, index < accounts.count else {
+                throw TokenAccountCLIError.indexOutOfRange(.codex, index + 1, accounts.count)
+            }
+            return [accounts[index]]
+        }
+
+        if let active = accounts.first(where: { $0.isActive }) {
+            return [active]
+        }
+        return [accounts[0]]
     }
 
     func applyCodexVisibleAccountLabel(_ snapshot: UsageSnapshot, account: CodexVisibleAccount) -> UsageSnapshot {

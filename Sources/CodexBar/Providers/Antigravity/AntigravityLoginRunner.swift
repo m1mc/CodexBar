@@ -41,8 +41,16 @@ enum AntigravityLoginRunner {
                 oauthClient: oauthClient)
             onPhaseChange?(.waitingBrowser)
 
-            let opened = await MainActor.run {
-                NSWorkspace.shared.open(authURL)
+            let opened = await MainActor.run { () -> Bool in
+                let configuration = NSWorkspace.OpenConfiguration()
+                configuration.activates = true
+                if let appURL = NSWorkspace.shared.urlForApplication(toOpen: authURL) {
+                    NSWorkspace.shared.open([authURL], withApplicationAt: appURL, configuration: configuration) { app, _ in
+                        app?.activate(options: .activateAllWindows)
+                    }
+                    return true
+                }
+                return NSWorkspace.shared.open(authURL)
             }
             guard opened else {
                 server.stop()

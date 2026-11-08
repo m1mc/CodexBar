@@ -101,6 +101,30 @@ enum CLILoginRunner {
         return merged.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    static func authorizationURL(in text: String) -> URL? {
+        let pattern = #"https?://[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=%-]+"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let nsRange = NSRange(text.startIndex..<text.endIndex, in: text)
+        let matches = regex.matches(in: text, options: [], range: nsRange)
+        for match in matches {
+            guard let range = Range(match.range, in: text) else { continue }
+            var urlString = String(text[range])
+            while let last = urlString.unicodeScalars.last,
+                  CharacterSet(charactersIn: ".,;:)]}>\"'").contains(last)
+            {
+                urlString.unicodeScalars.removeLast()
+            }
+            guard let url = URL(string: urlString),
+                  let host = url.host?.lowercased(),
+                  host != "localhost",
+                  host != "127.0.0.1",
+                  host != "::1"
+            else { continue }
+            return url
+        }
+        return nil
+    }
+
     private static func pollProgress(
         stdout: ProcessPipeCapture,
         stderr: ProcessPipeCapture,
@@ -108,13 +132,13 @@ enum CLILoginRunner {
     {
         while !Task.isCancelled {
             let output = self.combinedOutput(stdout: stdout.currentSnapshot(), stderr: stderr.currentSnapshot())
-            if output.contains("http://") || output.contains("https://") {
+            if let _ = self.authorizationURL(in: output) {
                 guard !Task.isCancelled else { return }
                 onProgress(output)
                 return
             }
             do {
-                try await Task.sleep(for: .milliseconds(500))
+                try await Task.sleep(for: .milliseconds(100))
             } catch {
                 return
             }

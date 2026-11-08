@@ -278,9 +278,18 @@ extension CodexBarCLI {
             .PublishPartial? = nil) async -> UsageCommandOutput
     {
         // Provider-specific by design: Codex can enumerate reconciled live, managed, and profile-home accounts.
-        if provider == .codex, command.includeAllCodexAccounts {
+        if provider == .codex, command.includeAllCodexAccounts || tokenContext.selection.usesOverride {
+            let accounts: [CodexVisibleAccount]
+            do {
+                accounts = try tokenContext.resolvedCodexAccounts()
+            } catch {
+                return Self.usageOutputForAccountResolutionError(
+                    provider: provider,
+                    status: status,
+                    command: command,
+                    error: error)
+            }
             let projection = tokenContext.visibleCodexAccounts()
-            let accounts = projection.visibleAccounts
             let selections: [CodexVisibleAccount?] = accounts.isEmpty ? [nil] : accounts.map { Optional($0) }
             return await Self.collectAccountUsage(
                 provider: provider,
