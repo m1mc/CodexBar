@@ -71,7 +71,9 @@ does not read credentials, launch login flows, import cookies, or contact provid
 
 `setup` separately describes provider-owned setup routes. Copilot declares device login and token routes,
 OpenAI API distinguishes Admin access from legacy balance access, and Azure OpenAI requires a key, endpoint,
-and deployment. Other providers and user plugins report `status: "unknown"`, which means guidance has not
+and deployment. ElevenLabs declares an API-key route with `user_read` permission, including both environment
+names and the selected saved-account alternative. Its stdin command saves a standalone key; a selected saved
+account takes priority. Other providers and user plugins report `status: "unknown"`, which means guidance has not
 been declared, not that credentials are unnecessary or unsupported. Existing `authentication` fields stay unchanged.
 
 Routes are alternatives; all `requiredInputs` in one route are required together. Each input lists alternative
@@ -542,6 +544,10 @@ Grok purchased Extra Usage Credits appear in usage JSON as `usage.providerCost.b
 `currencyCode: "USD"` when the CLI proxy supplies a valid wallet. The amount is dollars (`1446` cents → `14.46`),
 separate from quota percentages; zero is retained and unavailable or invalid balances are omitted. The balance-only
 `used`/`limit` fields are zero and do not describe spending or a budget. See [Grok](grok.md#purchased-credits-in-cli-json).
+
+An explicit unrecognized `--provider` value in `usage`, `cost`, `cards`, or `diagnose` is an argument error
+(exit 1; commands supporting JSON report `kind: "args"`). Omitting `--provider` still uses the enabled providers; valid names,
+aliases, `both`, and `all` retain their existing meanings.
 
 ## Exit codes
 - 0: success
