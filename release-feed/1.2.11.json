@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "1.2.11",
+    "publishedAt": "2026-09-02T12:08:45Z",
+    "summary": "账号行新开 Codex Desktop 实例，隔离 profile 并共享会话池",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.11",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.11",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.11/codexbar-1.2.11-macOS.dmg",
+        "sha256": "88861b52923efd60f70821cd8ac620157edde254b0df8fc324c658e77ae44843"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.11/codexbar-1.2.11-macOS.zip",
+        "sha256": "1ff330d28d2f320ea16cb9587ea5a5ece364a6a45c4de077c5d6d3dc9c5722b8"
+      }
+    ]
+  }
+}

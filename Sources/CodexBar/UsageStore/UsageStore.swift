@@ -584,6 +584,30 @@ final class UsageStore {
         if let codexAccountUsageSnapshotStore = self.codexAccountUsageSnapshotStore {
             self.codexAccountSnapshots = codexAccountUsageSnapshotStore.load(
                 for: self.freshCodexVisibleAccountsForSnapshotHydration())
+            if let activeID = self.settings.codexVisibleAccountProjection.activeVisibleAccountID,
+               let cached = self.codexAccountSnapshots.first(where: { $0.id == activeID }),
+               let snapshot = cached.snapshot
+            {
+                self.snapshots[.codex] = snapshot
+                self.lastKnownResetSnapshots[.codex] = snapshot
+                self.credits = cached.credits
+                self.lastCreditsSnapshot = cached.credits
+                let currentGuard = self.freshCodexAccountScopedRefreshGuard(
+                    preferCurrentSnapshot: false,
+                    allowLastKnownLiveFallback: false)
+                self.lastCodexUsagePublicationGuard = currentGuard
+                self.lastCodexAccountScopedRefreshGuard = currentGuard
+            }
+        }
+        self.accountSnapshots = Self.loadTokenAccountSnapshotsFromDisk()
+        for provider in UsageProvider.allCases {
+            if let activeAccount = self.settings.effectiveSelectedTokenAccount(for: provider),
+               let cached = self.accountSnapshots[provider.instanceID]?.first(where: { $0.account.id == activeAccount.id }),
+               let snapshot = cached.snapshot
+            {
+                self.snapshots[provider.instanceID] = snapshot
+                self.lastKnownResetSnapshots[provider.instanceID] = snapshot
+            }
         }
         self.logStartupState()
         self.settings.onProviderFetchIdentityChange = { [weak self] instanceID in

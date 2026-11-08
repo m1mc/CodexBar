@@ -116,6 +116,23 @@ struct TokenAccountCLISelectionTests {
     }
 
     @Test
+    func `antigravity defaults to resolving all accounts when no filter is provided`() throws {
+        let account1 = ProviderTokenAccount(id: UUID(), label: "First", token: "tok1", addedAt: 0, lastUsed: nil)
+        let account2 = ProviderTokenAccount(id: UUID(), label: "Second", token: "tok2", addedAt: 0, lastUsed: nil)
+        let config = CodexBarConfig(providers: [ProviderConfig(
+            id: UsageProvider.antigravity.instanceID,
+            source: .auto,
+            tokenAccounts: ProviderTokenAccountData(version: 1, accounts: [account1, account2], activeIndex: 0))])
+        let context = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: nil, index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:])
+        let resolved = try context.resolvedAccounts(for: .antigravity)
+        #expect(resolved.map(\.label) == ["First", "Second"])
+    }
+
+    @Test
     func `other providers retain saved account overrides with CLI source`() throws {
         for selection in Self.accountOverrides {
             let context = try Self.context(provider: .claude, source: .cli, selection: selection)

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "1.2.13",
+    "publishedAt": "2026-09-22T00:00:00Z",
+    "summary": "显示 GPT Reserve 储备额度并兼容未来 Reserve 模型变更",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.13",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.13",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.13/codexbar-1.2.13-macOS.dmg",
+        "sha256": "79cb5902c238a4c717864a626b0c5f56bf5b4497c8c839ad39a91ed7c61d1032"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.13/codexbar-1.2.13-macOS.zip",
+        "sha256": "6ea64128fb0021f6c890b0694366cd2985f1650f4adf9221e8e7c0415ca597bd"
+      }
+    ]
+  }
+}

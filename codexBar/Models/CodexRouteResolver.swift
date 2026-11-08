@@ -1,0 +1,155 @@
+import Foundation
+
+struct ResolvedCodexRoute: Equatable {
+    let mode: CodexBarOpenAIAccountUsageMode
+    let authProvider: CodexBarProvider
+    let authAccount: CodexBarProviderAccount
+    let targetProvider: CodexBarProvider
+    let targetAccount: CodexBarProviderAccount
+    let effectiveModel: String
+    let usesFixedOAuthIdentity: Bool
+    let routesOpenAITargetThroughGateway: Bool
+
+    var requiresOpenAIAuth: Bool {
+        self.usesFixedOAuthIdentity && self.targetProvider.kind != .openAIOAuth
+    }
+}
+
+enum CodexRouteResolver {
+    static func resolve(config: CodexBarConfig) throws -> ResolvedCodexRoute {
+        switch config.openAI.accountUsageMode {
+        case .switchAccount:
+            return try self.resolveSwitchRoute(config: config)
+        case .aggregateGateway:
+            return try self.resolveAggregateRoute(config: config)
+        }
+    }
+
+    private static func resolveSwitchRoute(config: CodexBarConfig) throws -> ResolvedCodexRoute {
+        let target = try self.resolveRequestTarget(config: config)
+        return try self.makeRoute(
+            config: config,
+            mode: .switchAccount,
+            targetProvider: target.provider,
+            targetAccount: target.account
+        )
+    }
+
+    private static func resolveAggregateRoute(config: CodexBarConfig) throws -> ResolvedCodexRoute {
+        if let target = try self.resolveConfiguredRequestTarget(config: config) {
+            return try self.makeRoute(
+                config: config,
+                mode: .aggregateGateway,
+                targetProvider: target.provider,
+                targetAccount: target.account
+            )
+        }
+
+        guard let provider = config.oauthProvider() else {
+            throw CodexSyncError.missingActiveProvider
+        }
+        guard let account = provider.accounts.first(where: { $0.id == config.active.accountId }) ?? provider.activeAccount else {
+            throw CodexSyncError.missingActiveAccount
+        }
+        return try self.makeRoute(
+            config: config,
+            mode: .aggregateGateway,
+            targetProvider: provider,
+            targetAccount: account
+        )
+    }
+
+    private static func resolveRequestTarget(config: CodexBarConfig) throws -> (provider: CodexBarProvider, account: CodexBarProviderAccount) {
+        if let target = try self.resolveConfiguredRequestTarget(config: config) {
+            return target
+        }
+        guard let provider = config.activeProvider() else {
+            throw CodexSyncError.missingActiveProvider
+        }
+        guard let account = config.activeAccount() else {
+            throw CodexSyncError.missingActiveAccount
+        }
+        return (provider, account)
+    }
+
+    private static func resolveConfiguredRequestTarget(
+        config: CodexBarConfig
+    ) throws -> (provider: CodexBarProvider, account: CodexBarProviderAccount)? {
+        guard let selection = config.openAI.hybridTargetSelection else { return nil }
+        guard let provider = config.provider(id: selection.providerId) else {
+            throw CodexSyncError.missingRequestTarget
+        }
+        if provider.kind == .openAIOAuth {
+            guard let account = provider.accounts.first(where: { $0.id == selection.accountId }) ?? provider.activeAccount else {
+                throw CodexSyncError.missingRequestTarget
+            }
+            return (provider, account)
+        }
+        guard let accountID = selection.accountId,
+              let account = provider.accounts.first(where: { $0.id == accountID }) else {
+            throw CodexSyncError.missingRequestTarget
+        }
+        return (provider, account)
+    }
+
+    private static func makeRoute(
+        config: CodexBarConfig,
+        mode: CodexBarOpenAIAccountUsageMode,
+        targetProvider: CodexBarProvider,
+        targetAccount: CodexBarProviderAccount
+    ) throws -> ResolvedCodexRoute {
+        let effectiveModel = try self.effectiveModel(config: config, provider: targetProvider, account: targetAccount)
+        if targetProvider.kind == .openAIOAuth, ReserveModelPolicy.isReserve(effectiveModel) {
+            return ResolvedCodexRoute(
+                mode: mode,
+                authProvider: targetProvider,
+                authAccount: targetAccount,
+                targetProvider: targetProvider,
+                targetAccount: targetAccount,
+                effectiveModel: effectiveModel,
+                usesFixedOAuthIdentity: false,
+                routesOpenAITargetThroughGateway: false
+            )
+        }
+
+        let configuredRemoteAccount = config.remoteConnectionAccount()
+        if config.openAI.remoteConnectionAccountID != nil && configuredRemoteAccount == nil {
+            throw CodexSyncError.missingRemoteConnectionAccount
+        }
+        let authAccount = configuredRemoteAccount ?? targetAccount
+        let authProvider = authAccount.kind == .oauthTokens
+            ? (config.oauthProvider() ?? targetProvider)
+            : targetProvider
+        let usesFixedOAuthIdentity = configuredRemoteAccount != nil
+        let routesOpenAITargetThroughGateway = targetProvider.kind == .openAIOAuth &&
+            (mode == .aggregateGateway || usesFixedOAuthIdentity)
+        return ResolvedCodexRoute(
+            mode: mode,
+            authProvider: authProvider,
+            authAccount: authAccount,
+            targetProvider: targetProvider,
+            targetAccount: targetAccount,
+            effectiveModel: effectiveModel,
+            usesFixedOAuthIdentity: usesFixedOAuthIdentity,
+            routesOpenAITargetThroughGateway: routesOpenAITargetThroughGateway
+        )
+    }
+
+    private static func effectiveModel(
+        config: CodexBarConfig,
+        provider: CodexBarProvider,
+        account: CodexBarProviderAccount
+    ) throws -> String {
+        switch provider.kind {
+        case .openRouter:
+            guard let model = provider.openRouterEffectiveModelID else {
+                throw CodexSyncError.missingOpenRouterModel
+            }
+            return model
+        case .openAICompatible:
+            return provider.compatibleEffectiveModelID ?? config.global.defaultModel
+        case .openAIOAuth:
+            return account.selectedModelID ?? provider.defaultModel ?? config.global.defaultModel
+        }
+    }
+}

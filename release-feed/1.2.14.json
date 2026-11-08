@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "1.2.14",
+    "publishedAt": "2026-09-26T00:00:00Z",
+    "summary": "服务档位跟随 Codex 模型目录自动调整，修复 flex 被后端拒绝的问题",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.14",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.14",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.14/codexbar-1.2.14-macOS.dmg",
+        "sha256": "4d314ad97fb5abc0530f223c7c0eb1a24a46feac017c57eed686ef53c53eba1f"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.14/codexbar-1.2.14-macOS.zip",
+        "sha256": "b1e0e7301bab5d53061610c397ba0966c1636fd6b7103a1b5dbb3f7ba325c0af"
+      }
+    ]
+  }
+}

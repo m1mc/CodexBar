@@ -109,6 +109,22 @@ extension UsageStore {
 
         self.clearCodexOpenAIWebStateForAccountTransition(targetEmail: self.codexAccountEmailForOpenAIDashboard())
 
+        if accountChanged,
+           let targetAccountID = self.settings.codexVisibleAccountProjection.activeVisibleAccountID,
+           let cached = self.codexAccountSnapshots.first(where: { $0.id == targetAccountID }),
+           let snapshot = cached.snapshot
+        {
+            self.snapshots[.codex] = snapshot
+            self.lastKnownResetSnapshots[.codex] = snapshot
+            self.errors[.codex] = cached.error
+            self.lastSourceLabels[.codex] = cached.sourceLabel
+            self.lastCodexUsagePublicationGuard = currentGuard
+            if let credits = cached.credits {
+                self.credits = credits
+                self.lastCreditsSnapshot = credits
+            }
+        }
+
         self.persistWidgetSnapshot(reason: "codex-account-invalidate")
         return true
     }

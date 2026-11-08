@@ -404,6 +404,12 @@ struct BurnDownState {
 
     var secondaryGloballyCapsPrimary: Bool {
         guard let provider = self.entry.provider.firstPartyProvider else { return false }
+        if provider == .claude, !UserDefaults.standard.bool(forKey: "ClaudeCapSessionOnWeeklyExhaustion") {
+            return false
+        }
+        if provider == .codex, !UserDefaults.standard.bool(forKey: "CodexCapSessionOnWeeklyExhaustion") {
+            return false
+        }
         return ProviderDescriptorRegistry.descriptor(for: provider).presentation.secondaryGloballyCapsPrimary
     }
 

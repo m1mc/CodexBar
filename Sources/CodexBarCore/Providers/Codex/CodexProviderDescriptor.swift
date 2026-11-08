@@ -249,6 +249,11 @@ public enum CodexProviderDescriptor {
     }
 
     private static func weeklyCapsSession(_ weekly: RateWindow?, now: Date) -> Bool {
+        // By default, do not override session quota when weekly quota is exhausted.
+        // Users can opt-in to capping session quota via UserDefaults: "CodexCapSessionOnWeeklyExhaustion".
+        guard UserDefaults.standard.bool(forKey: "CodexCapSessionOnWeeklyExhaustion") else {
+            return false
+        }
         guard let weekly, weekly.remainingPercent <= 0 else { return false }
         return weekly.resetsAt.map { $0 > now } ?? true
     }

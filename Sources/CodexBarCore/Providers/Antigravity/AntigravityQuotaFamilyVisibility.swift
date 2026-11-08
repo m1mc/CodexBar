@@ -26,6 +26,11 @@ public enum AntigravityQuotaFamilyVisibility {
     /// Window IDs that display surfaces should drop. Empty when every family is untouched, so a card
     /// or widget right after a reset still renders its lanes instead of an empty list.
     public static func idleWindowIDs(in snapshot: UsageSnapshot) -> Set<String> {
+        // By default, do not hide untouched model families so users can monitor 100% available quotas.
+        // Users can opt-in to hiding untouched families via UserDefaults: "AntigravityHideIdleFamilies".
+        guard UserDefaults.standard.bool(forKey: "AntigravityHideIdleFamilies") else {
+            return []
+        }
         let windows = (snapshot.extraRateWindows ?? [])
             .filter { AntigravityStatusSnapshot.isQuotaSummaryWindowID($0.id) }
         guard !windows.isEmpty else { return [] }

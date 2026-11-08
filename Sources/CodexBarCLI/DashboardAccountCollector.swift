@@ -101,8 +101,30 @@ extension CodexBarCLI {
         inventoryIncomplete: Bool = false,
         minimumDelay: Duration? = nil,
         publishPartial: CLIServeOperationCoordinator<UsageCommandOutput>.PublishPartial? = nil,
-        fetch: @Sendable (Int) async -> UsageCommandOutput) async -> UsageCommandOutput
+        fetch: @escaping @Sendable (Int) async -> UsageCommandOutput) async -> UsageCommandOutput
     {
+        if minimumDelay == nil, publishPartial == nil, accounts.count > 1 {
+            return await withTaskGroup(of: (Int, UsageCommandOutput).self) { group in
+                for index in accounts.indices {
+                    group.addTask {
+                        var result = await fetch(index)
+                        result.attachDashboardAccount(accounts[index], inventoryIncomplete: inventoryIncomplete)
+                        return (index, result)
+                    }
+                }
+                var results: [(Int, UsageCommandOutput)] = []
+                for await item in group {
+                    results.append(item)
+                }
+                results.sort(by: { $0.0 < $1.0 })
+                var output = UsageCommandOutput()
+                for (_, res) in results {
+                    output.merge(res)
+                }
+                return output
+            }
+        }
+
         var output = UsageCommandOutput()
         for index in accounts.indices {
             var fallback = output

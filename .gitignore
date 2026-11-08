@@ -4,18 +4,23 @@ xcuserdata/
 .codexbar/config.json
 *.env
 *.local
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+*.xcscmblueprint
+*.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 
 # Build products
 .build/
-DerivedData
+DerivedData/
+build/
+dist/
 
 # Bundles / artifacts
-# Main app bundle (any variation)
 CodexBar.app/
 CodexBar *.app/
 CodexBar_*.app/
 Codexbar.app/
-# Release artifacts
 *.ipa
 *.dSYM*
 *.xcarchive/
@@ -29,19 +34,41 @@ Codexbar.app/
 Icon.iconset
 debug_*.swift
 
-# Misc
+# CocoaPods / Carthage / Fastlane
+Pods/
+Podfile.lock
+Carthage/Build/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Misc / macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
 .vscode/
 .codex/environments/
 .swiftpm-cache/
 .tmp-clang/
 __pycache__/
 
+# Local agent state / release artifacts
+.omx/
+.ufoo/
+.playwright-cli/
+output/
+
+# Sensitive
+antigravity-oauth-client.json
+*.p12
+*.mobileprovision
+*.provisionprofile
+
 # Debug/analysis docs
 docs/*-analysis.md
 docs/.viewport-audit/
 docs/.astro/
-
-# Swift Package Manager metadata (leave sources tracked)
-# Packages/
-# Package.resolved

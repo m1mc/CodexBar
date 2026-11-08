@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "1.2.9",
+    "publishedAt": "2026-08-28T20:50:01Z",
+    "summary": "账号用户名显示、重复会话崩溃修复与刷新稳定性改进",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.9",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.9",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "format": "dmg",
+        "architecture": "arm64",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.9/codexbar-1.2.9-macOS.dmg",
+        "sha256": "88d4113ef99ecb8105e9e4f10226025a2831218147a3904e98803d1a5ad4f198"
+      },
+      {
+        "format": "zip",
+        "architecture": "arm64",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.9/codexbar-1.2.9-macOS.zip",
+        "sha256": "1213ec3300633ab16062bd0e9fdbbafa80ded14113d06793e437efba84688acf"
+      }
+    ]
+  }
+}

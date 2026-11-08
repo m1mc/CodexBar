@@ -1,0 +1,795 @@
+import Foundation
+import XCTest
+
+final class OpenAIRunningThreadAttributionServiceTests: CodexBarTestCase {
+    func testInitializationDefersSessionStoreResolution() {
+        var resolutionCount = 0
+
+        _ = OpenAIRunningThreadAttributionService(
+            sessionLogStoreProvider: {
+                resolutionCount += 1
+                return .shared
+            }
+        )
+
+        XCTAssertEqual(resolutionCount, 0)
+    }
+
+    func testLoadPrefersAggregateRouteJournalOverSwitchJournal() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        let runtimeStore = self.makeRuntimeStore()
+        let routeJournalStore = OpenAIAggregateRouteJournalStore(
+            fileURL: CodexPaths.openAIGatewayRouteJournalURL
+        )
+        let journalStore = SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        try journalStore.appendActivation(
+            providerID: "openai-oauth",
+            accountID: "acct-switch",
+            timestamp: self.date("2026-04-05T11:59:50Z")
+        )
+        routeJournalStore.recordRoute(
+            threadID: "thread-aggregate-1",
+            accountID: "acct-routed",
+            timestamp: self.date("2026-04-05T11:59:58Z")
+        )
+
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-aggregate-1",
+                    source: "vscode",
+                    cwd: "/repo/app",
+                    title: "Aggregate thread",
+                    createdAt: 1_775_389_000,
+                    updatedAt: 1_775_390_399
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-aggregate-1",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        let attribution = OpenAIRunningThreadAttributionService(
+            runtimeStore: runtimeStore,
+            switchJournalStore: journalStore,
+            aggregateRouteJournalStore: routeJournalStore
+        ).load(
+            now: now,
+            recentActivityWindow: 5
+        )
+
+        XCTAssertEqual(attribution.summary.runningThreadCount(for: "acct-routed"), 1)
+        XCTAssertEqual(attribution.summary.runningThreadCount(for: "acct-switch"), 0)
+        XCTAssertEqual(attribution.summary.unknownThreadCount, 0)
+        XCTAssertEqual(attribution.threads.first?.accountID, "acct-routed")
+    }
+
+    func testLoadAttributesRunningThreadsByLatestRuntimeLogTime() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        let runtimeStore = self.makeRuntimeStore()
+        let journalStore = SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        try journalStore.appendActivation(
+            providerID: "openai-oauth",
+            accountID: "acct_a",
+            timestamp: self.date("2026-04-05T11:59:50Z")
+        )
+        try journalStore.appendActivation(
+            providerID: "custom-provider",
+            accountID: "custom",
+            timestamp: self.date("2026-04-05T11:59:55Z")
+        )
+        try journalStore.appendActivation(
+            providerID: "openai-oauth",
+            accountID: "acct_b",
+            previousAccountID: "acct_a",
+            reason: .autoThreshold,
+            automatic: true,
+            timestamp: self.date("2026-04-05T11:59:57Z")
+        )
+
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-old-but-running-now",
+                    source: "vscode",
+                    cwd: "/repo/app",
+                    title: "App thread",
+                    createdAt: 1_775_389_000,
+                    updatedAt: 1_775_390_399
+                ),
+                .init(
+                    id: "thread-unknown",
+                    source: "cli",
+                    cwd: "/repo/cli",
+                    title: "CLI thread",
+                    createdAt: 1_775_389_100,
+                    updatedAt: 1_775_390_396
+                ),
+                .init(
+                    id: "thread-subagent",
+                    source: #"{"subagent":{"thread_spawn":{"parent_thread_id":"root","depth":1}}}"#,
+                    cwd: "/repo/subagent",
+                    title: "Subagent thread",
+                    createdAt: 1_775_389_200,
+                    updatedAt: 1_775_390_398
+                ),
+                .init(
+                    id: "thread-stale",
+                    source: "cli",
+                    cwd: "/repo/stale",
+                    title: "Stale thread",
+                    createdAt: 1_775_389_300,
+                    updatedAt: 1_775_390_390
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-old-but-running-now",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+                .init(
+                    threadID: "thread-unknown",
+                    timestamp: 1_775_390_396,
+                    target: "codex_api::sse::responses"
+                ),
+                .init(
+                    threadID: "thread-subagent",
+                    timestamp: 1_775_390_398,
+                    target: "log",
+                    body: "session_task.turn active"
+                ),
+                .init(
+                    threadID: "thread-stale",
+                    timestamp: 1_775_390_390,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        let attribution = OpenAIRunningThreadAttributionService(
+            runtimeStore: runtimeStore,
+            switchJournalStore: journalStore
+        ).load(
+            now: now,
+            recentActivityWindow: 5
+        )
+
+        XCTAssertEqual(attribution.threads.map(\.threadID), [
+            "thread-old-but-running-now",
+            "thread-subagent",
+            "thread-unknown",
+        ])
+        XCTAssertEqual(attribution.summary.runningThreadCount(for: "acct_b"), 2)
+        XCTAssertEqual(attribution.summary.runningThreadCount(for: "acct_a"), 0)
+        XCTAssertEqual(attribution.summary.unknownThreadCount, 1)
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 3)
+    }
+
+    func testLoadMarksUnavailableWhenRuntimeStoreCannotReadSqlite() {
+        let unavailableStore = CodexThreadRuntimeStore(
+            stateDBURL: CodexPaths.stateSQLiteURL,
+            logsDBURL: CodexPaths.logsSQLiteURL
+        )
+        let attribution = OpenAIRunningThreadAttributionService(
+            runtimeStore: unavailableStore,
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+        .load(
+            now: self.date("2026-04-05T12:00:00Z"),
+            recentActivityWindow: 5
+        )
+
+        XCTAssertTrue(attribution.summary.isUnavailable)
+        XCTAssertTrue(attribution.threads.isEmpty)
+        XCTAssertNotNil(attribution.diagnosticMessage)
+    }
+
+    func testLoadExcludesThreadsOutsideRunningWindow() throws {
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-stale",
+                    source: "vscode",
+                    cwd: "/repo/stale",
+                    title: "Stale thread",
+                    createdAt: 1,
+                    updatedAt: 1
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-stale",
+                    timestamp: 1_775_390_390,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        let journalStore = SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        try journalStore.appendActivation(
+            providerID: "openai-oauth",
+            accountID: "acct_a",
+            timestamp: self.date("2026-04-05T11:59:50Z")
+        )
+
+        let attribution = OpenAIRunningThreadAttributionService(
+            switchJournalStore: journalStore
+        )
+        .load(
+            now: self.date("2026-04-05T12:00:00Z"),
+            recentActivityWindow: 5
+        )
+
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 0)
+        XCTAssertEqual(attribution.summary.runningThreadCount(for: "acct_a"), 0)
+        XCTAssertEqual(attribution.summary.unknownThreadCount, 0)
+        XCTAssertTrue(attribution.threads.isEmpty)
+    }
+
+    func testLoadExcludesRecentlyCompletedSessionDespiteFreshRuntimeLog() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-completed",
+                    source: "vscode",
+                    cwd: "/repo/completed",
+                    title: "Completed thread",
+                    createdAt: 1,
+                    updatedAt: 1
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-completed",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        let sessionStore = self.makeSessionLogStore()
+        try self.writeSession(
+            id: "thread-completed",
+            fileName: "thread-completed.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: "2026-04-05T11:59:59Z",
+            modificationDate: self.date("2026-04-05T11:59:59Z")
+        )
+
+        let attribution = OpenAIRunningThreadAttributionService(
+            runtimeStore: self.makeRuntimeStore(),
+            sessionLogStore: sessionStore,
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+        .load(
+            now: now,
+            recentActivityWindow: 5
+        )
+
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 0)
+        XCTAssertEqual(attribution.summary.unknownThreadCount, 0)
+        XCTAssertTrue(attribution.threads.isEmpty)
+    }
+
+    func testLoadKeepsThreadWhenLatestSessionLifecycleIsStillRunning() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-running",
+                    source: "vscode",
+                    cwd: "/repo/running",
+                    title: "Running thread",
+                    createdAt: 1,
+                    updatedAt: 1
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-running",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        let sessionStore = self.makeSessionLogStore()
+        try self.writeSession(
+            id: "thread-running",
+            fileName: "thread-running.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: nil,
+            modificationDate: self.date("2026-04-05T11:59:59Z")
+        )
+
+        let attribution = OpenAIRunningThreadAttributionService(
+            runtimeStore: self.makeRuntimeStore(),
+            sessionLogStore: sessionStore,
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+        .load(
+            now: now,
+            recentActivityWindow: 5
+        )
+
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 1)
+        XCTAssertEqual(attribution.threads.map(\.threadID), ["thread-running"])
+    }
+
+    func testLoadDeduplicatesSessionLifecycleRecordsWithSameID() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-dup",
+                    source: "vscode",
+                    cwd: "/repo/dup",
+                    title: "Duplicate session files",
+                    createdAt: 1,
+                    updatedAt: 1
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-dup",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        let sessionStore = self.makeSessionLogStore()
+        // Older still-running copy and a newer completed copy of the same session id.
+        // uniqueKeysWithValues: used to trap here; uniquing must prefer the completed record.
+        try self.writeSession(
+            id: "thread-dup",
+            fileName: "thread-dup-running.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: nil,
+            modificationDate: self.date("2026-04-05T11:59:58Z")
+        )
+        try self.writeSession(
+            id: "thread-dup",
+            fileName: "thread-dup-completed.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: "2026-04-05T11:59:59Z",
+            modificationDate: self.date("2026-04-05T11:59:59Z")
+        )
+
+        let attribution = OpenAIRunningThreadAttributionService(
+            runtimeStore: self.makeRuntimeStore(),
+            sessionLogStore: sessionStore,
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+        .load(
+            now: now,
+            recentActivityWindow: 5
+        )
+
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 0)
+        XCTAssertTrue(attribution.threads.isEmpty)
+    }
+
+    func testLoadKeepsThreadWhenNewerDuplicateLifecycleRecordIsStillRunning() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-resumed",
+                    source: "vscode",
+                    cwd: "/repo/resumed",
+                    title: "Resumed duplicate session",
+                    createdAt: 1,
+                    updatedAt: 1
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-resumed",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        let sessionStore = self.makeSessionLogStore()
+        try self.writeSession(
+            id: "thread-resumed",
+            fileName: "thread-resumed-completed.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: "2026-04-05T11:59:58Z",
+            modificationDate: self.date("2026-04-05T11:59:58Z")
+        )
+        try self.writeSession(
+            id: "thread-resumed",
+            fileName: "thread-resumed-running.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:59Z",
+            taskCompletedAt: nil,
+            modificationDate: self.date("2026-04-05T11:59:59Z")
+        )
+
+        let attribution = OpenAIRunningThreadAttributionService(
+            runtimeStore: self.makeRuntimeStore(),
+            sessionLogStore: sessionStore,
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+        .load(
+            now: now,
+            recentActivityWindow: 5
+        )
+
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 1)
+        XCTAssertEqual(attribution.summary.unknownThreadCount, 1)
+        XCTAssertEqual(attribution.threads.map(\.threadID), ["thread-resumed"])
+    }
+
+    func testLoadPrefersCompletedDuplicateLifecycleRecordWhenActivityTimestampsTie() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-tie",
+                    source: "vscode",
+                    cwd: "/repo/tie",
+                    title: "Duplicate session timestamp tie",
+                    createdAt: 1,
+                    updatedAt: 1
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-tie",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        let sessionStore = self.makeSessionLogStore()
+        let sharedModificationDate = self.date("2026-04-05T11:59:59Z")
+        try self.writeSession(
+            id: "thread-tie",
+            fileName: "thread-tie-running.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: nil,
+            modificationDate: sharedModificationDate
+        )
+        try self.writeSession(
+            id: "thread-tie",
+            fileName: "thread-tie-completed.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: "2026-04-05T11:59:59Z",
+            modificationDate: sharedModificationDate
+        )
+
+        let attribution = OpenAIRunningThreadAttributionService(
+            runtimeStore: self.makeRuntimeStore(),
+            sessionLogStore: sessionStore,
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+        .load(
+            now: now,
+            recentActivityWindow: 5
+        )
+
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 0)
+        XCTAssertTrue(attribution.threads.isEmpty)
+    }
+
+    func testLoadPicksUpTaskCompletionAppendedToRunningSessionFile() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-appended",
+                    source: "vscode",
+                    cwd: "/repo/appended",
+                    title: "Appended thread",
+                    createdAt: 1,
+                    updatedAt: 1
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-appended",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        try self.writeSession(
+            id: "thread-appended",
+            fileName: "thread-appended.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: nil,
+            modificationDate: self.date("2026-04-05T11:59:58Z")
+        )
+        let service = OpenAIRunningThreadAttributionService(
+            runtimeStore: self.makeRuntimeStore(),
+            sessionLogStore: self.makeSessionLogStore(),
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+
+        XCTAssertEqual(service.load(now: now, recentActivityWindow: 5).summary.totalRunningThreadCount, 1)
+
+        // Codex appends to the rollout file; the second load resumes from the cached offset.
+        let fileURL = CodexPaths.codexRoot
+            .appendingPathComponent("sessions", isDirectory: true)
+            .appendingPathComponent("thread-appended.jsonl")
+        let handle = try FileHandle(forWritingTo: fileURL)
+        try handle.seekToEnd()
+        try handle.write(contentsOf: Data(
+            (#"{"timestamp":"2026-04-05T11:59:59Z","type":"event_msg","payload":{"type":"task_complete","turn_id":"turn-thread-appended","last_agent_message":null}}"# + "\n").utf8
+        ))
+        try handle.close()
+        try FileManager.default.setAttributes(
+            [.modificationDate: self.date("2026-04-05T11:59:59Z")],
+            ofItemAtPath: fileURL.path
+        )
+
+        let attribution = service.load(now: now, recentActivityWindow: 5)
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 0)
+        XCTAssertTrue(attribution.threads.isEmpty)
+    }
+
+    func testLoadReparsesSessionFileRewrittenInPlace() throws {
+        let now = self.date("2026-04-05T12:00:00Z")
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [
+                .init(
+                    id: "thread-rewritten",
+                    source: "vscode",
+                    cwd: "/repo/rewritten",
+                    title: "Rewritten thread",
+                    createdAt: 1,
+                    updatedAt: 1
+                ),
+            ]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [
+                .init(
+                    threadID: "thread-rewritten",
+                    timestamp: 1_775_390_399,
+                    target: "codex_api::endpoint::responses_websocket"
+                ),
+            ]
+        )
+
+        try self.writeSession(
+            id: "thread-rewritten",
+            fileName: "thread-rewritten.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: nil,
+            modificationDate: self.date("2026-04-05T11:59:58Z")
+        )
+        let service = OpenAIRunningThreadAttributionService(
+            runtimeStore: self.makeRuntimeStore(),
+            sessionLogStore: self.makeSessionLogStore(),
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+        XCTAssertEqual(service.load(now: now, recentActivityWindow: 5).summary.totalRunningThreadCount, 1)
+
+        // An atomic rewrite (new inode, longer content) must still yield the up-to-date lifecycle.
+        try self.writeSession(
+            id: "thread-rewritten",
+            fileName: "thread-rewritten.jsonl",
+            startedAt: "2026-04-05T11:59:50Z",
+            taskStartedAt: "2026-04-05T11:59:56Z",
+            taskCompletedAt: "2026-04-05T11:59:59Z",
+            modificationDate: self.date("2026-04-05T11:59:59Z")
+        )
+
+        XCTAssertEqual(service.load(now: now, recentActivityWindow: 5).summary.totalRunningThreadCount, 0)
+    }
+
+    func testLoadReparsesEqualLengthAtomicReplacement() throws {
+        let threadID = "thread-equal-rewrite"
+        let now = self.date("2026-04-05T12:00:00Z")
+        try RuntimeSQLiteFixtureSupport.writeStateDatabase(
+            at: CodexPaths.stateSQLiteURL,
+            threads: [.init(id: threadID, source: "vscode", cwd: "/repo/rewrite", title: "Rewritten thread",
+                            createdAt: 1, updatedAt: 1)]
+        )
+        try RuntimeSQLiteFixtureSupport.writeLogsDatabase(
+            at: CodexPaths.logsSQLiteURL,
+            logs: [.init(threadID: threadID, timestamp: 1_775_390_399,
+                         target: "codex_api::endpoint::responses_websocket")]
+        )
+        let directory = CodexPaths.codexRoot.appendingPathComponent("sessions", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let fileURL = directory.appendingPathComponent("\(threadID).jsonl")
+        let metadata = #"{"type":"session_meta","payload":{"id":"\#(threadID)","timestamp":"2026-04-05T11:59:50Z"}}"# + "\n"
+        let running = metadata + #"{"type":"event_msg","payload":{"type":"task_started" }}"# + "\n"
+        let completed = metadata + #"{"type":"event_msg","payload":{"type":"task_complete"}}"# + "\n"
+        XCTAssertEqual(running.utf8.count, completed.utf8.count)
+        try Data(running.utf8).write(to: fileURL, options: .atomic)
+        try FileManager.default.setAttributes([.modificationDate: self.date("2026-04-05T11:59:58Z")],
+                                             ofItemAtPath: fileURL.path)
+        let originalInode = try FileManager.default.attributesOfItem(atPath: fileURL.path)[.systemFileNumber] as? NSNumber
+        let service = OpenAIRunningThreadAttributionService(
+            runtimeStore: self.makeRuntimeStore(), sessionLogStore: self.makeSessionLogStore(),
+            switchJournalStore: SwitchJournalStore(fileURL: CodexPaths.switchJournalURL)
+        )
+        XCTAssertEqual(service.load(now: now, recentActivityWindow: 5).summary.totalRunningThreadCount, 1)
+
+        try Data(completed.utf8).write(to: fileURL, options: .atomic)
+        try FileManager.default.setAttributes([.modificationDate: self.date("2026-04-05T11:59:59Z")],
+                                             ofItemAtPath: fileURL.path)
+        let replacementInode = try FileManager.default.attributesOfItem(atPath: fileURL.path)[.systemFileNumber] as? NSNumber
+        XCTAssertNotEqual(originalInode, replacementInode)
+
+        let attribution = service.load(now: now, recentActivityWindow: 5)
+        XCTAssertEqual(attribution.summary.totalRunningThreadCount, 0)
+        XCTAssertTrue(attribution.threads.isEmpty)
+    }
+
+    func testLifecycleCacheReparsesAtomicReplacementWithPreservedSizeAndTimestamp() throws {
+        try self.assertLifecycleReparsedAfterRewrite(atomic: true, originalPadding: "", replacementPadding: "", preservesTimestamp: true)
+    }
+
+    func testLifecycleCacheReparsesGrowingAtomicReplacement() throws {
+        try self.assertLifecycleReparsedAfterRewrite(atomic: true, originalPadding: "", replacementPadding: "{}\n", preservesTimestamp: false)
+    }
+
+    func testLifecycleCacheReparsesEqualLengthInPlaceRewrite() throws {
+        try self.assertLifecycleReparsedAfterRewrite(atomic: false, originalPadding: "", replacementPadding: "", preservesTimestamp: false)
+    }
+
+    func testLifecycleCacheReparsesTruncatedFile() throws {
+        try self.assertLifecycleReparsedAfterRewrite(atomic: false, originalPadding: "{}\n", replacementPadding: "", preservesTimestamp: false)
+    }
+
+    private func assertLifecycleReparsedAfterRewrite(
+        atomic: Bool,
+        originalPadding: String,
+        replacementPadding: String,
+        preservesTimestamp: Bool,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let directory = CodexPaths.codexRoot.appendingPathComponent("sessions", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let fileURL = directory.appendingPathComponent("thread-rewrite.jsonl")
+        let metadata = #"{"type":"session_meta","payload":{"id":"thread-rewrite","timestamp":"2026-04-05T11:59:50Z"}}"# + "\n"
+        let running = metadata + #"{"type":"event_msg","payload":{"type":"task_started" }}"# + "\n" + originalPadding
+        let completed = metadata + #"{"type":"event_msg","payload":{"type":"task_complete"}}"# + "\n" + replacementPadding
+        let modifiedAt = self.date("2026-04-05T11:59:58Z")
+        try Data(running.utf8).write(to: fileURL, options: .atomic)
+        try FileManager.default.setAttributes([.modificationDate: modifiedAt], ofItemAtPath: fileURL.path)
+        let originalInode = try XCTUnwrap(
+            FileManager.default.attributesOfItem(atPath: fileURL.path)[.systemFileNumber] as? NSNumber,
+            file: file, line: line
+        )
+        let store = self.makeSessionLogStore()
+        XCTAssertEqual(store.currentSessionLifecycleRecords().first?.taskLifecycleState, .running, file: file, line: line)
+
+        if atomic {
+            try Data(completed.utf8).write(to: fileURL, options: .atomic)
+        } else {
+            let handle = try FileHandle(forWritingTo: fileURL)
+            defer { try? handle.close() }
+            try handle.truncate(atOffset: 0)
+            try handle.write(contentsOf: Data(completed.utf8))
+        }
+        try FileManager.default.setAttributes(
+            [.modificationDate: preservesTimestamp ? modifiedAt : modifiedAt.addingTimeInterval(1)],
+            ofItemAtPath: fileURL.path
+        )
+        let replacementInode = try XCTUnwrap(
+            FileManager.default.attributesOfItem(atPath: fileURL.path)[.systemFileNumber] as? NSNumber,
+            file: file, line: line
+        )
+        XCTAssertEqual(originalInode == replacementInode, !atomic, file: file, line: line)
+        let records = store.currentSessionLifecycleRecords()
+        XCTAssertEqual(records.count, 1, file: file, line: line)
+        XCTAssertEqual(records.first?.taskLifecycleState, .completed, file: file, line: line)
+    }
+
+    private func date(_ value: String) -> Date {
+        ISO8601DateFormatter().date(from: value) ?? Date(timeIntervalSince1970: 0)
+    }
+
+    private func makeRuntimeStore() -> CodexThreadRuntimeStore {
+        CodexThreadRuntimeStore(
+            stateDBURL: CodexPaths.stateSQLiteURL,
+            logsDBURL: CodexPaths.logsSQLiteURL
+        )
+    }
+
+    private func makeSessionLogStore() -> SessionLogStore {
+        SessionLogStore(
+            codexRootURL: CodexPaths.codexRoot,
+            persistedCacheURL: CodexPaths.costSessionCacheURL
+        )
+    }
+
+    private func writeSession(
+        id: String,
+        fileName: String,
+        startedAt: String,
+        taskStartedAt: String,
+        taskCompletedAt: String?,
+        modificationDate: Date
+    ) throws {
+        let directory = CodexPaths.codexRoot.appendingPathComponent("sessions", isDirectory: true)
+        let fileURL = directory.appendingPathComponent(fileName)
+        var lines = [
+            #"{"payload":{"type":"session_meta","id":"\#(id)","timestamp":"\#(startedAt)"}}"#,
+            #"{"payload":{"type":"turn_context","model":"gpt-5.5"}}"#,
+            #"{"timestamp":"\#(taskStartedAt)","type":"event_msg","payload":{"type":"task_started","turn_id":"turn-\#(id)"}}"#,
+            #"{"timestamp":"\#(taskStartedAt)","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":100,"cached_input_tokens":0,"output_tokens":50}}}}"#,
+        ]
+        if let taskCompletedAt {
+            lines.append(
+                #"{"timestamp":"\#(taskCompletedAt)","type":"event_msg","payload":{"type":"task_complete","turn_id":"turn-\#(id)","last_agent_message":null}}"#
+            )
+        }
+
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try lines.joined(separator: "\n").appending("\n").write(
+            to: fileURL,
+            atomically: true,
+            encoding: .utf8
+        )
+        try FileManager.default.setAttributes(
+            [.modificationDate: modificationDate],
+            ofItemAtPath: fileURL.path
+        )
+    }
+}

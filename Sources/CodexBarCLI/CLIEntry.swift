@@ -464,10 +464,61 @@ enum CodexBarCLI {
         CodexBarLog.parseLevel(rawLevel) ?? (verbose ? .debug : .error)
     }
 
+    private static let knownCommands: Set<String> = [
+        "codex-accounts", "cards", "usage", "guard", "cost",
+        "sessions", "serve", "dashboard", "config", "hooks",
+        "cache", "cookie", "diagnose", "plugins"
+    ]
+
+    private static let providerOptionCommands: Set<String> = [
+        "usage", "cards", "cost", "guard"
+    ]
+
+    private static let valueTakingOptions: Set<String> = [
+        "--format", "-f", "--source", "--account", "--account-index",
+        "--web-timeout", "--min-remaining", "--window", "--timeout", "--log-level"
+    ]
+
+    private static func isProviderName(_ arg: String) -> Bool {
+        ProviderSelection(argument: arg) != nil
+    }
+
     static func effectiveArgv(_ argv: [String]) -> [String] {
         guard let first = argv.first else { return ["usage"] }
         if first.hasPrefix("-") {
-            return ["usage"] + argv
+            return self.normalizeProviderInCommand(["usage"] + argv)
+        }
+        if !self.knownCommands.contains(first) && self.isProviderName(first) {
+            return self.normalizeProviderInCommand(["usage", "--provider", first] + argv.dropFirst())
+        }
+        return self.normalizeProviderInCommand(argv)
+    }
+
+    private static func normalizeProviderInCommand(_ argv: [String]) -> [String] {
+        guard let first = argv.first, self.providerOptionCommands.contains(first) else {
+            return argv
+        }
+        guard !argv.contains("--provider") else {
+            return argv
+        }
+        var i = 1
+        while i < argv.count {
+            let arg = argv[i]
+            if arg.hasPrefix("-") {
+                if !arg.contains("="), self.valueTakingOptions.contains(arg) {
+                    i += 2
+                } else {
+                    i += 1
+                }
+            } else {
+                if self.isProviderName(arg) {
+                    var modified = argv
+                    modified.remove(at: i)
+                    modified.insert(contentsOf: ["--provider", arg], at: 1)
+                    return modified
+                }
+                i += 1
+            }
         }
         return argv
     }

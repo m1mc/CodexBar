@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "2.0.0",
+    "publishedAt": "2026-10-02T00:00:00Z",
+    "summary": "全新多工具用量看板、趋势图表、OpenCode 独立额度来源与 OpenAI 账号/Provider 大幅升级",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v2.0.0",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v2.0.0",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v2.0.0/codexbar-2.0.0-macOS.dmg",
+        "sha256": "b69920198c0c75950b9fd6e14a2844675fa09054ca934f13dbdc25a8954076fd"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v2.0.0/codexbar-2.0.0-macOS.zip",
+        "sha256": "768200c7cea81a2bb8675566986bc57972f2cbe85deb6f79952d2063930dd4e2"
+      }
+    ]
+  }
+}

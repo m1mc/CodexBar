@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "2.0.1",
+    "publishedAt": "2026-10-07T12:17:18Z",
+    "summary": "统一八页下拉导航、默认额度页与图标，完善五类软件的账号和额度管理，修复来源隔离与连接校验",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v2.0.1",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v2.0.1",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v2.0.1/codexbar-2.0.1-macOS.dmg",
+        "sha256": "0c38222901e8a62fbec2198264675977e6530650ff7768c84358ee75b1d48b16"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v2.0.1/codexbar-2.0.1-macOS.zip",
+        "sha256": "171b3163b57a468c1dfe87fd1cc7798476de4f2138fed9e68d8a7b2ccc5f8210"
+      }
+    ]
+  }
+}

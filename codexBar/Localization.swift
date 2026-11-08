@@ -1,0 +1,863 @@
+import Foundation
+
+/// Bilingual string helper — detects system language at runtime, with user override.
+enum L {
+    /// nil = follow system, true = force Chinese, false = force English
+    nonisolated static var languageOverride: Bool? {
+        get {
+            let d = UserDefaults.standard
+            guard d.object(forKey: "languageOverride") != nil else { return nil }
+            return d.bool(forKey: "languageOverride")
+        }
+        set {
+            if let v = newValue {
+                UserDefaults.standard.set(v, forKey: "languageOverride")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "languageOverride")
+            }
+        }
+    }
+
+    nonisolated static var zh: Bool {
+        if let override = languageOverride { return override }
+        let lang = Locale.current.language.languageCode?.identifier ?? ""
+        return lang.hasPrefix("zh")
+    }
+
+    // MARK: - Status Bar
+    static var weeklyLimit: String { zh ? "周限额" : "Weekly Limit" }
+    static var hourLimit: String   { zh ? "5h限额" : "5h Limit" }
+    static func quotaWindowLimit(_ label: String) -> String {
+        zh ? "\(label) 限额" : "\(label) Limit"
+    }
+    nonisolated static var lunaReserve: String { "GPT Reserve" }
+
+    // MARK: - MenuBarView
+    static var noAccounts: String      { zh ? "还没有账号"          : "No Accounts" }
+    static var addAccountHint: String  { zh ? "点击下方 + 添加账号"   : "Tap + below to add an account" }
+    static var refreshUsage: String    { zh ? "刷新用量"            : "Refresh Usage" }
+    static var checkForUpdates: String { zh ? "检查更新"            : "Check for Updates" }
+    static func menuUpdateAvailableTitle(_ version: String) -> String {
+        zh ? "发现新版本 v\(version)" : "Version \(version) Is Available"
+    }
+    static func menuUpdateAvailableSubtitle(_ currentVersion: String, _ latestVersion: String) -> String {
+        zh ? "当前为 \(currentVersion)，现在可以继续下载或安装 \(latestVersion)。" : "You're on \(currentVersion). Download or install \(latestVersion) now."
+    }
+    static var menuUpdateAction: String { zh ? "更新" : "Update" }
+    static var addAccount: String      { zh ? "添加账号"            : "Add Account" }
+    static var openAICSVToolbar: String { zh ? "导入或导出 OpenAI 账号" : "Import or Export OpenAI Accounts" }
+    static var exportOpenAICSVAction: String { zh ? "导出 OpenAI 账号" : "Export OpenAI Accounts" }
+    static var importOpenAICSVAction: String { zh ? "导入 OpenAI 账号" : "Import OpenAI Accounts" }
+    static var contextWindowCustomAction: String { zh ? "自定义..." : "Custom..." }
+    static var contextWindowUseModelDefaultAction: String { zh ? "模型默认" : "Use Model Default" }
+    static func contextWindowMenuHelp(_ model: String) -> String {
+        zh ? "修改 \(model) 的上下文窗口" : "Change the context window for \(model)"
+    }
+    static var contextWindowCustomTitle: String { zh ? "自定义上下文窗口" : "Custom Context Window" }
+    static func contextWindowCustomMessage(_ model: String) -> String {
+        zh
+            ? "只会保存到当前模型 \(model)。可输入整数，或使用 272k、512k、1.05m 这类简写。"
+            : "This only applies to the current model \(model). Enter an integer or shorthand such as 272k, 512k, or 1.05m."
+    }
+    static var contextWindowLargeConfirmationTitle: String {
+        zh ? "确认较大的上下文窗口" : "Confirm Larger Context Window"
+    }
+    static func contextWindowLargeConfirmationMessage(_ model: String, _ window: String, _ defaultWindow: String, catalogMaximum: String? = nil) -> String {
+        if let catalogMaximum {
+            return zh
+                ? "你正在把 \(model) 的上下文窗口设置为 \(window)，超过本地模型目录标示的上限 \(catalogMaximum)。仍要保存此自定义值吗？实际可用长度取决于 Codex 和服务商，保存设置不会扩展模型能力。"
+                : "You are setting \(model)'s context window to \(window), above the \(catalogMaximum) maximum listed in the local model catalog. Save this override anyway? The usable length depends on Codex and the provider; saving this setting does not expand the model's capabilities."
+        }
+        return zh
+            ? "你正在把 \(model) 的上下文窗口设置为 \(window)，超过默认 \(defaultWindow)。请确认该模型支持对应长度。"
+            : "You are setting \(model)'s context window to \(window), above the default \(defaultWindow). Please confirm the model supports that length."
+    }
+    static var contextWindowLargeConfirmationConfirm: String { zh ? "确认设置" : "Confirm" }
+    static var contextWindowInvalidTitle: String { zh ? "上下文窗口无效" : "Invalid Context Window" }
+    static var contextWindowInvalidMessage: String {
+        zh ? "请输入正整数，或使用 258k、512k、1.05m 这类简写。" : "Enter a positive integer, or shorthand like 258k, 512k, or 1.05m."
+    }
+    static var settings: String { zh ? "设置" : "Settings" }
+    static func updateInstallActionHelp(_ version: String) -> String {
+        zh ? "下载或安装 \(version)" : "Download or Install \(version)"
+    }
+    static var updateInstallLocationOther: String {
+        zh ? "非标准路径" : "Non-standard Location"
+    }
+    static var updateArchitectureUniversal: String {
+        zh ? "通用构建" : "Universal Build"
+    }
+    static var updateSignatureUnknown: String {
+        zh ? "未能读取应用签名信息" : "Unable to read the app signature"
+    }
+    static var updateBlockerGuidedDownloadOnlyRelease: String {
+        zh ? "当前可用版本仍要求走引导下载/安装，不宣称自动替换闭环。" : "The current release still requires guided download/install instead of automatic replacement."
+    }
+    static func updateBlockerBootstrapRequired(_ currentVersion: String, _ minimumAutomaticVersion: String) -> String {
+        zh
+            ? "Bootstrap / Rollout Gate 未满足：\(currentVersion) 仍需先人工安装到 \(minimumAutomaticVersion) 或更高版本，自动更新闭环才从后续版本开始。"
+            : "Bootstrap / rollout gate not satisfied: \(currentVersion) must first be manually upgraded to \(minimumAutomaticVersion) or later before automatic updates can be closed-loop."
+    }
+    static var updateBlockerAutomaticUpdaterUnavailable: String {
+        zh ? "当前仓库尚未接入可用的成熟自动更新引擎。" : "A mature automatic update engine is not wired into this repository yet."
+    }
+    static func updateBlockerMissingTrustedSignature(_ summary: String) -> String {
+        zh
+            ? "当前安装缺少可用于成熟 updater 的可信签名：\(summary)"
+            : "This installation lacks a trusted signature suitable for a mature updater: \(summary)"
+    }
+    static func updateBlockerGatekeeperAssessment(_ summary: String) -> String {
+        zh
+            ? "当前安装未通过 Gatekeeper / 分发前置条件：\(summary)"
+            : "This installation does not satisfy the Gatekeeper / distribution prerequisites: \(summary)"
+    }
+    static func updateBlockerUnsupportedInstallLocation(_ pathDescription: String) -> String {
+        zh
+            ? "当前安装路径为 \(pathDescription)，尚未纳入可自动替换的受支持范围。"
+            : "The current install location is \(pathDescription), which is not yet in the supported auto-replace matrix."
+    }
+    static var updateErrorMissingReleasesURL: String {
+        zh ? "未配置 GitHub Releases API 地址。" : "The GitHub Releases API URL is not configured."
+    }
+    static func updateErrorInvalidCurrentVersion(_ version: String) -> String {
+        zh ? "当前版本号无效：\(version)" : "Invalid current version: \(version)"
+    }
+    static func updateErrorInvalidReleaseVersion(_ version: String) -> String {
+        zh ? "最新稳定版本号无效：\(version)" : "Invalid latest stable version: \(version)"
+    }
+    static var updateErrorInvalidResponse: String {
+        zh ? "GitHub Releases 响应无效。" : "The GitHub Releases response is invalid."
+    }
+    static func updateErrorUnexpectedStatusCode(_ statusCode: Int) -> String {
+        zh ? "GitHub Releases API 返回异常状态码：\(statusCode)" : "The GitHub Releases API returned status code \(statusCode)."
+    }
+    static var updateErrorNoInstallableStableRelease: String {
+        zh ? "GitHub Releases 中未找到可安装的正式稳定版本。" : "No installable stable release was found on GitHub Releases."
+    }
+    static func updateErrorNoCompatibleArtifact(_ architecture: String) -> String {
+        zh ? "最新稳定版本中缺少适用于 \(architecture) 的安装包。" : "The latest stable release does not contain a compatible installer for \(architecture)."
+    }
+    static func updateErrorFailedToOpenDownloadURL(_ url: String) -> String {
+        zh ? "无法打开下载链接：\(url)" : "Failed to open the download URL: \(url)"
+    }
+    static var updateErrorAutomaticUpdateUnavailable: String {
+        zh ? "当前构建尚未接入可执行的自动更新引擎。" : "An executable automatic update engine is not available in this build."
+    }
+    static var settingsWindowTitle: String { self.settings }
+    static var settingsWindowHint: String {
+        zh
+            ? "左侧切换账户、记录、用量和更新设置。账户/用量修改会先保存在草稿里；记录页只负责浏览与刷新，不进入 Save / Cancel 草稿流。"
+            : "Use the sidebar to switch between account, records, usage, and update settings. Account and usage changes stay in a draft; the records page is browse/refresh only and does not participate in Save or Cancel."
+    }
+    static var settingsAccountsPageTitle: String { zh ? "账户设置" : "Account Settings" }
+    static var settingsRecordsPageTitle: String { zh ? "记录" : "Records" }
+    static var settingsUsagePageTitle: String { zh ? "用量设置" : "Usage Settings" }
+    static var settingsUpdatesPageTitle: String { zh ? "更新" : "Updates" }
+    static var settingsUpdatesPageHint: String {
+        zh
+            ? "从这里检查 GitHub Releases 上首个可安装的正式稳定版本，并继续下载或安装当前可用更新。"
+            : "Check the first installable stable release on GitHub Releases here, then continue to download or install the current update."
+    }
+    static var settingsUpdatesCurrentVersionTitle: String { zh ? "当前版本" : "Current Version" }
+    static var settingsUpdatesLatestVersionTitle: String { zh ? "GitHub 最新稳定版本" : "Latest Stable Version on GitHub" }
+    static var settingsUpdatesStatusTitle: String { zh ? "更新状态" : "Update Status" }
+    static var settingsUpdatesUnknownVersion: String { zh ? "尚未检查" : "Not Checked Yet" }
+    static var settingsUpdatesCheckAction: String { zh ? "检查 GitHub 上的最新稳定版本" : "Check the Latest Stable Version on GitHub" }
+    static var settingsUpdatesInstallAction: String { zh ? "继续下载或安装更新" : "Continue Download or Install" }
+    static var settingsUpdatesChecking: String { zh ? "正在检查 GitHub 上的最新稳定版本…" : "Checking the latest stable version on GitHub..." }
+    static var settingsUpdatesIdle: String { zh ? "尚未发起更新检查。" : "No update check has been started yet." }
+    static var settingsUpdatesSourceNote: String {
+        zh
+            ? "运行时会扫描 GitHub Releases 列表，只认非 draft、非 prerelease、且带 dmg/zip 安装包的正式 release。"
+            : "Runtime checks scan the GitHub Releases list and only accept non-draft, non-prerelease releases that ship installable dmg/zip assets."
+    }
+    static var settingsUpdatesReissueLimitNote: String {
+        zh
+            ? "如果你已安装首发 1.1.9，同版本重发不会自动显示为可升级；需要手工下载重发 build。"
+            : "If you already installed the first 1.1.9 build, a same-version reissue will not show up as an upgrade automatically; you must download the reissued build manually."
+    }
+    static func settingsUpdatesUpToDate(_ version: String) -> String {
+        zh ? "当前版本 \(version) 已与 GitHub 上的最新稳定版本一致。" : "The current version \(version) already matches the latest stable version on GitHub."
+    }
+    static func settingsUpdatesAvailable(_ currentVersion: String, _ latestVersion: String) -> String {
+        zh ? "当前版本 \(currentVersion)，GitHub 上可用最新稳定版本 \(latestVersion)。" : "Current version \(currentVersion); the latest stable version on GitHub is \(latestVersion)."
+    }
+    static func settingsUpdatesExecuting(_ version: String) -> String {
+        zh ? "正在处理 \(version) 的更新动作。" : "Processing the update action for \(version)."
+    }
+    static func settingsUpdatesFailed(_ message: String) -> String {
+        zh ? "更新失败：\(message)" : "Update failed: \(message)"
+    }
+    static var settingsRecordsPageHint: String {
+        zh
+            ? "Records 以 Sessions 为主视图，Models 只作为辅区摘要。首屏会先显示内存中的旧快照（如果有），再异步拉取最新增量；手动点击后才会做全量重扫。"
+            : "Records uses Sessions as the primary view and keeps Models as a secondary summary. The page shows an in-memory snapshot first when available, then refreshes incrementally in the background; full rebuilds only happen when you click refresh."
+    }
+    static var settingsRecordsSearchPlaceholder: String { zh ? "按 session ID 或 model 搜索" : "Search by session ID or model" }
+    static var settingsRecordsRefreshAction: String { zh ? "全量刷新记录" : "Refresh All Records" }
+    static var settingsRecordsGoToUsageAction: String { zh ? "去 Usage 编辑价格" : "Open Usage to Edit Pricing" }
+    static var settingsRecordsLoading: String { zh ? "正在加载 records…" : "Loading records..." }
+    static var settingsRecordsRefreshingIncremental: String { zh ? "正在增量刷新 records…" : "Refreshing records incrementally..." }
+    static var settingsRecordsRefreshingAll: String { zh ? "正在全量刷新 records…" : "Refreshing all records..." }
+    static var settingsRecordsIdle: String { zh ? "尚未加载 records。" : "Records have not been loaded yet." }
+    static func settingsRecordsLastUpdated(_ text: String) -> String {
+        zh ? "最近更新：\(text)" : "Last updated: \(text)"
+    }
+    static var settingsRecordsRefreshTimeout: String {
+        zh ? "全量刷新超时，旧快照已保留。" : "The full refresh timed out. The previous snapshot was kept."
+    }
+    static var settingsRecordsRetryAction: String { zh ? "重试加载" : "Retry" }
+    static var settingsRecordsEmptyState: String {
+        zh ? "还没有可显示的 records 快照。你可以稍后重试，或直接触发一次全量刷新。" : "There is no records snapshot to show yet. Retry later or trigger a full refresh."
+    }
+    static var settingsRecordsSessionsMetric: String { zh ? "Sessions" : "Sessions" }
+    static var settingsRecordsModelsMetric: String { zh ? "Models" : "Models" }
+    static var settingsRecordsArchivedMetric: String { zh ? "Archived" : "Archived" }
+    static var settingsRecordsAllResults: String { zh ? "当前显示全部结果" : "Showing all results" }
+    static func settingsRecordsFilteredResults(_ visible: Int, total: Int) -> String {
+        zh ? "已筛出 \(visible) / \(total)" : "Filtered \(visible) / \(total)"
+    }
+    static var settingsRecordsActiveModelsFootnote: String {
+        zh ? "按当前筛选显示的模型数" : "Models visible in the current filter"
+    }
+    static func settingsRecordsActiveArchivedFootnote(_ activeCount: Int) -> String {
+        zh ? "当前活跃 \(activeCount)" : "Active now: \(activeCount)"
+    }
+    static var settingsRecordsSessionsTitle: String { zh ? "Sessions" : "Sessions" }
+    static var settingsRecordsSessionsHint: String {
+        zh ? "主视图按最近活动时间倒序展示 session 记录；列表只消费单个完整 snapshot。" : "Primary view sorted by latest activity descending. The list always renders from one complete snapshot."
+    }
+    static var settingsRecordsSessionsEmpty: String {
+        zh ? "当前没有 session 记录。" : "There are no session records yet."
+    }
+    static var settingsRecordsNoSearchResults: String {
+        zh ? "当前筛选没有匹配到 session。" : "No sessions match the current filter."
+    }
+    static var settingsRecordsArchivedBadge: String { zh ? "Archived" : "Archived" }
+    static var settingsRecordsCurrentBadge: String { zh ? "Current" : "Current" }
+    static var settingsRecordsStartedAtTitle: String { zh ? "Started" : "Started" }
+    static var settingsRecordsLastActivityTitle: String { zh ? "Last Activity" : "Last Activity" }
+    static var settingsRecordsTotalTokensTitle: String { zh ? "Total Tokens" : "Total Tokens" }
+    static var settingsRecordsModelsTitle: String { zh ? "Models 摘要" : "Models Summary" }
+    static var settingsRecordsModelsHint: String {
+        zh ? "辅区按最近使用时间展示模型摘要；model pricing 仍在 Usage 页编辑。" : "Secondary summary of models sorted by recent usage. Model pricing stays on the Usage page."
+    }
+    static var settingsRecordsModelsEmpty: String {
+        zh ? "当前没有可显示的模型摘要。" : "There are no models to summarize yet."
+    }
+    static func settingsRecordsModelSummary(_ sessionCount: Int) -> String {
+        zh ? "\(sessionCount) 个 session" : "\(sessionCount) sessions"
+    }
+    static func settingsRecordsWarningsTitle(_ count: Int) -> String {
+        zh ? "读取告警（\(count)）" : "Warnings (\(count))"
+    }
+    static var settingsRecordsWarningsHint: String {
+        zh ? "只有数据层返回的告警会显示在这里；UI 不会自行拼接额外 warning。" : "Only warnings returned by the data layer appear here; the UI does not synthesize extra warnings."
+    }
+    static var usageDisplayModeTitle: String { zh ? "用量显示方式" : "Usage Display" }
+    static var menuBarUsageTextTitle: String {
+        zh ? "在图标内显示当前百分比" : "Show the current percentage inside the icon"
+    }
+    static var menuBarUsageTextHint: String {
+        zh
+            ? "开启后在图标顶部显示最短实际额度窗口的百分比；没有 5 小时时自动显示 7 天。图标宽度保持不变。"
+            : "When enabled, the top of the icon shows the shortest available quota window; it automatically shows 7d when 5h is unavailable. The icon width stays fixed."
+    }
+    static var remainingUsageDisplay: String { zh ? "剩余用量" : "Remaining Quota" }
+    static var usedQuotaDisplay: String { zh ? "已用额度" : "Used Quota" }
+    static var remainingShort: String { zh ? "剩余" : "Remaining" }
+    static var usedShort: String { zh ? "已用" : "Used" }
+    static var quotaSortSettingsTitle: String { zh ? "用量排序参数" : "Quota Sort Parameters" }
+    static var quotaSortSettingsHint: String {
+        zh
+            ? "排序仍按用量规则计算，正在使用和运行中的账号优先。这里仅调整套餐权重换算：默认 free=1、plus=10、pro=plus×10（可调 5 到 30）、team=plus×1.5。"
+            : "Sorting still follows quota usage rules, with active and running accounts first. These controls only adjust plan weighting: by default free=1, plus=10, pro=plus×10 (adjustable from 5 to 30), and team=plus×1.5."
+    }
+    static var modelPricingSectionTitle: String { zh ? "历史模型价格" : "Historical Model Pricing" }
+    static var modelPricingSectionHint: String {
+        zh
+            ? "单价按每 1M tokens 美元计，只用于本地 session 成本估算。token 统计始终来自本地 session，口径固定为 input + cached input + output；未配置价格的模型默认按 0 处理。"
+            : "Prices are in USD per 1M tokens and only used for local session cost estimates. Token counts always come from local sessions using input + cached input + output, and models without pricing default to 0."
+    }
+    static var modelPricingSectionEmpty: String {
+        zh ? "还没有从本地 session 里提取到历史模型。" : "No historical models have been extracted from local sessions yet."
+    }
+    static var modelPricingInputTitle: String { zh ? "Input 单价 / 1M" : "Input / 1M" }
+    static var modelPricingCachedInputTitle: String { zh ? "Cached Input 单价 / 1M" : "Cached Input / 1M" }
+    static var modelPricingOutputTitle: String { zh ? "Output 单价 / 1M" : "Output / 1M" }
+    static var quotaSortPlusWeightTitle: String { zh ? "Plus 相对 Free 权重" : "Plus Weight vs Free" }
+    static var quotaSortProRatioTitle: String { zh ? "Pro 相对 Plus 倍数" : "Pro Ratio vs Plus" }
+    static var quotaSortTeamRatioTitle: String { zh ? "Team 相对 Plus 倍数" : "Team Ratio vs Plus" }
+    static var accountUsageModeTitle: String { zh ? "账号使用模式" : "Account Usage Mode" }
+    static var accountUsageModeHint: String {
+        zh
+            ? "切换模式只影响额度账号选择；聚合模式会把 OpenAI OAuth 账号作为本地账号池。OAuth 登录身份和请求目标在下方独立选择。"
+            : "Switch mode only changes the quota account selection. Aggregate mode treats OpenAI OAuth accounts as a local pool. Choose the OAuth login identity and request target below."
+    }
+    static var aggregateGatewayProxyTitle: String {
+        zh ? "聚合模式上游代理" : "Aggregate Upstream Proxy"
+    }
+    static var reserveActiveAccountQuotaTitle: String {
+        zh ? "为当前账号预留 5 小时额度" : "Reserve the current account’s 5-hour quota"
+    }
+    static var reserveActiveAccountQuotaPercentTitle: String { zh ? "预留比例" : "Reserved percentage" }
+    static func reserveActiveAccountQuotaHint(percent: Int) -> String {
+        let reserved = CodexBarOpenAISettings.normalizedReserveActiveAccountQuotaPercent(percent)
+        let usedThreshold = 100 - reserved
+        return zh
+            ? "默认关闭，仅影响聚合模式。预留比例可设为 1%–100%，默认 5%。启用后，当前账号的 5 小时已用额度达到 \(usedThreshold)% 时停止接收新聚合请求，保留最后 \(reserved)%。其他账号耗尽时也不会动用预留额度。正在执行的请求不会被中断。"
+            : "Off by default; only affects aggregate mode. Choose 1%–100%, default 5%. At \(usedThreshold)% reported 5-hour usage, the selected account stops receiving new aggregate requests, reserving its last \(reserved)%. The reserve is not used when other accounts are exhausted. Requests already in progress are not interrupted."
+    }
+    static var aggregateGatewayProxyHint: String {
+        zh
+            ? "留空时沿用系统代理安全策略；填写后，聚合模式访问 OpenAI 上游会显式走这个代理。"
+            : "Leave blank to use the system-proxy safety policy; when set, aggregate upstream OpenAI traffic uses this proxy explicitly."
+    }
+    static var aggregateGatewayProxyPlaceholder: String {
+        "http://127.0.0.1:7890"
+    }
+    static var webSocketSupportTitle: String {
+        zh ? "Codex WebSocket" : "Codex WebSocket"
+    }
+    static var webSocketSupportHint: String {
+        zh
+            ? "如果代理无法完成 WebSocket 握手，可强制关闭 WebSocket，让 Codex 使用 HTTP Streaming。"
+            : "If your proxy cannot complete the WebSocket handshake, turn WebSocket off to use HTTP streaming."
+    }
+    static var webSocketSupportAutomatic: String { zh ? "跟随 Codex 默认" : "Use Codex Default" }
+    static var webSocketSupportAutomaticDetail: String {
+        zh
+            ? "OpenAI 使用 Codex 内置连接方式；其他服务沿用自身默认值。"
+            : "OpenAI uses Codex's built-in transport; other providers keep their defaults."
+    }
+    static var webSocketSupportEnabled: String { zh ? "启用 WebSocket" : "Enable WebSocket" }
+    static var webSocketSupportEnabledDetail: String {
+        zh
+            ? "为支持该传输的第三方 Responses 服务启用；OpenAI 保持内置连接方式。"
+            : "Enable it for custom Responses providers that support it; OpenAI keeps its built-in transport."
+    }
+    static var webSocketSupportDisabled: String { zh ? "关闭 WebSocket" : "Turn Off WebSocket" }
+    static var webSocketSupportDisabledDetail: String {
+        zh
+            ? "OpenAI 直连和第三方服务改用 HTTP Streaming；本地聚合网关保持原连接方式。"
+            : "Direct OpenAI and custom providers use HTTP streaming; the local aggregate gateway keeps its transport."
+    }
+    static var accountUsageModeAggregate: String { zh ? "聚合网关" : "Aggregate Gateway" }
+    static var accountUsageModeAggregateShort: String { zh ? "聚合" : "Aggregate" }
+    static var accountUsageModeAggregateHint: String {
+        zh
+            ? "OpenAI OAuth 账号会被当成一个本地账号池。Codex 连接本地 gateway，gateway 按会话粘性与 failover 规则挑选账号，不再依赖重启 Codex 才切号。"
+            : "Treat OpenAI OAuth accounts as one local pool. Codex talks to a local gateway, which applies session stickiness and failover instead of relying on process restarts to switch accounts."
+    }
+    static var accountUsageModeSwitch: String { zh ? "手动切换" : "Manual Switch" }
+    static var accountUsageModeSwitchShort: String { zh ? "切换" : "Switch" }
+    static var accountUsageModeSwitchHint: String {
+        zh
+            ? "手动点账号只切换额度视角；Codex 登录状态始终使用下方选择的 OAuth 登录身份。"
+            : "Manual account switching only changes the quota view. Codex stays signed in with the OAuth login identity selected below."
+    }
+    static var remoteConnectionAccountTitle: String { zh ? "OAuth 登录身份" : "OAuth Login Identity" }
+    static var remoteConnectionAccountHint: String {
+        zh
+            ? "为移动端 / ChatGPT / OAuth 连接选择固定登录身份。它只写入 auth，不决定额度消耗；模型请求目标由下面的“请求目标”决定。"
+            : "Choose the fixed login identity for mobile, ChatGPT, and OAuth-backed connections. Codex writes it to auth only; quota usage is decided by Request Target below."
+    }
+    static var remoteConnectionAccountDisabled: String { zh ? "不固定 OAuth 身份" : "Do Not Pin OAuth Identity" }
+    static var remoteConnectionAccountEmpty: String {
+        zh ? "还没有可选择的 OpenAI OAuth 账号。可以登录一个仅用于远程连接的账号。" : "No OpenAI OAuth account is available. You can sign in to a remote-only account."
+    }
+    static var remoteConnectionAccountLoginNew: String {
+        zh ? "登录新的 OAuth 身份" : "Sign In OAuth Identity"
+    }
+    static func remoteConnectionAccountRemoteOnlyOption(_ title: String) -> String {
+        zh ? "远程：\(title)" : "Remote: \(title)"
+    }
+    static func remoteConnectionAccountMissingOption(_ accountID: String) -> String {
+        zh ? "缺少 token：\(accountID)" : "Missing token: \(accountID)"
+    }
+    static func remoteConnectionAccountMissingDetail(_ accountID: String) -> String {
+        zh ? "当前 OAuth 登录身份缺少 token，请重新登录。\(accountID)" : "The selected OAuth identity is missing tokens. Sign in again. \(accountID)"
+    }
+    static var requestTargetTitle: String { zh ? "请求目标" : "Request Target" }
+    static var requestTargetHint: String {
+        zh
+            ? "选择模型请求实际发送到的目标。不选择时沿用当前激活目标；固定 OAuth 身份时，OpenAI 目标会通过本地 gateway 分开控制额度。"
+            : "Choose where model requests are sent. If unset, Codexbar uses the current active target; with a pinned OAuth identity, OpenAI targets go through the local gateway so quota remains separately controlled."
+    }
+    static var requestTargetDisabled: String { zh ? "沿用当前激活目标" : "Use Current Active Target" }
+    static var requestTargetEmpty: String {
+        zh ? "还没有可选择的 Provider 或 OpenRouter 账号。" : "No Provider or OpenRouter account is available."
+    }
+    static var requestTargetOpenAIPool: String {
+        zh ? "OpenAI OAuth 额度池" : "OpenAI OAuth Quota Pool"
+    }
+    static var requestTargetOpenAIPoolDetail: String {
+        zh
+            ? "请求走本地 OpenAI gateway；额度按当前模式、排序和会话粘性选择账号。"
+            : "Requests go through the local OpenAI gateway; quota accounts follow the current mode, ordering, and sticky-session routing."
+    }
+    static var requestTargetMissingModel: String { zh ? "OpenRouter 尚未选择模型" : "OpenRouter model is not selected" }
+    static var requestRouteSetupHint: String { zh ? "选择 OAuth 登录身份和请求目标后保存。" : "Choose an OAuth login identity and request target, then save." }
+    static func quotaSortPlusWeightValue(_ value: Double) -> String {
+        let formatted = String(format: "%.1f", value)
+        return zh ? "plus=\(formatted)" : "plus=\(formatted)"
+    }
+    static func quotaSortProRatioValue(_ value: Double, absoluteProWeight: Double) -> String {
+        let ratio = String(format: "%.1f", value)
+        let proWeight = String(format: "%.1f", absoluteProWeight)
+        return zh ? "pro=plus×\(ratio) (= \(proWeight))" : "pro=plus×\(ratio) (= \(proWeight))"
+    }
+    static func quotaSortTeamRatioValue(_ value: Double, absoluteTeamWeight: Double) -> String {
+        let ratio = String(format: "%.1f", value)
+        let teamWeight = String(format: "%.1f", absoluteTeamWeight)
+        return zh ? "team=plus×\(ratio) (= \(teamWeight))" : "team=plus×\(ratio) (= \(teamWeight))"
+    }
+    static var accountOrderTitle: String { zh ? "OpenAI 账号顺序" : "OpenAI Account Order" }
+    static var accountOrderingModeTitle: String { zh ? "账号排序方式" : "Account Ordering" }
+    static var accountOrderingModeHint: String {
+        zh
+            ? "可在“按用量排序”和“按手动顺序”之间切换。只有切到手动顺序时，下面的手动排序才会影响主菜单展示。"
+            : "Switch between quota-based sorting and manual order. The manual list below only affects the main menu when manual order is selected."
+    }
+    static var accountOrderingModeQuotaSort: String { zh ? "按用量排序" : "Sort by Quota" }
+    static var accountOrderingModeQuotaSortHint: String {
+        zh ? "直接按当前用量权重排序，剩余可用更多的账号优先。" : "Use the current quota-weighted ranking directly, with accounts that have more usable quota first."
+    }
+    static var accountOrderingModeManual: String { zh ? "按手动顺序" : "Manual Order" }
+    static var accountOrderingModeManualHint: String {
+        zh ? "按你保存的手动顺序展示；active / running 账号仍会临时浮顶。" : "Use your saved manual order for display; active and running accounts still float to the top temporarily."
+    }
+    static var accountOrderHint: String {
+        zh
+            ? "这里定义手动顺序。只有在上方选了“按手动顺序”后它才生效；active / running 账号仍会临时浮顶。"
+            : "This defines the manual order. It only takes effect when \"Manual Order\" is selected above, and active/running accounts still float to the top."
+    }
+    static var accountOrderInactiveHint: String {
+        zh ? "当前按用量排序；你仍可预先调整手动顺序，等切到“按手动顺序”后再生效。" : "Quota sorting is currently active. You can still prepare the manual order below, and it will apply once you switch to Manual Order."
+    }
+    static var noOpenAIAccountsForOrdering: String { zh ? "当前没有可排序的 OpenAI 账号。" : "There are no OpenAI accounts to reorder." }
+    static var moveUp: String { zh ? "上移" : "Move Up" }
+    static var moveDown: String { zh ? "下移" : "Move Down" }
+    static var manualActivationBehaviorTitle: String { zh ? "手动点击 OpenAI 账号时" : "When Manually Clicking an OpenAI Account" }
+    static var manualActivationBehaviorHint: String {
+        zh
+            ? "只影响 OpenAI OAuth 账号的手动点击，不会扩展到 custom provider。"
+            : "This only affects manual clicks on OpenAI OAuth accounts and does not extend to custom providers."
+    }
+    static var manualActivationUpdateConfigOnly: String { zh ? "只改默认目标" : "Default Target Only" }
+    static var manualActivationUpdateConfigOnlyHint: String {
+        zh ? "只更新 future default target；当前运行中的 thread 不保证切换。" : "Only updates the future default target; running threads are not guaranteed to switch."
+    }
+    static var manualActivationUpdateConfigOnlyOneTime: String { zh ? "只改默认目标（本次）" : "Default Target Only (This Time)" }
+    static var manualActivationSetDefaultTargetAction: String { zh ? "设为默认" : "Set Default" }
+    static var manualSwitchDefaultTargetUpdatedTitle: String {
+        zh ? "默认目标已更新" : "Default target updated"
+    }
+    static func manualSwitchDefaultTargetUpdatedDetail(_ target: String?) -> String {
+        if let target, target.isEmpty == false {
+            return zh
+                ? "后续新请求默认走 \(target)；当前运行中的 thread 不保证切换。"
+                : "New requests now default to \(target); running threads are not guaranteed to switch."
+        }
+        return zh
+            ? "后续新请求会使用新的默认目标；当前运行中的 thread 不保证切换。"
+            : "New requests will use the new default target; running threads are not guaranteed to switch."
+    }
+    static var aggregateRuntimeActiveTitle: String {
+        zh ? "聚合运行态仍在影响后续路由" : "Aggregate runtime is still affecting future routing"
+    }
+    static func aggregateRuntimeActiveDetail(_ routedAccount: String?) -> String {
+        if let routedAccount, routedAccount.isEmpty == false {
+            return zh
+                ? "最近路由摘要仍停留在 \(routedAccount)。同一 thread 可能继续沿用旧 sticky；这只是摘要，不代表全部 live thread。"
+                : "The latest route summary still points at \(routedAccount). The same thread may keep following an older sticky binding; this is only a summary, not the truth for every live thread."
+        }
+        return zh
+            ? "聚合 gateway 仍按会话路由 OpenAI 账号。最近路由只作摘要，不代表全部 live thread。"
+            : "The aggregate gateway is still routing OpenAI accounts per session. The latest route is only a summary, not the truth for every live thread."
+    }
+    static var aggregateRuntimeSwitchBackTitle: String {
+        zh ? "新流量已回手动切换，旧聚合线程仍在续跑" : "New traffic is back on switch mode while old aggregate threads keep running"
+    }
+    static func aggregateRuntimeSwitchBackDetail(
+        targetAccount: String?,
+        routedAccount: String?
+    ) -> String {
+        if let targetAccount, targetAccount.isEmpty == false,
+           let routedAccount, routedAccount.isEmpty == false {
+            return zh
+                ? "默认目标是 \(targetAccount)，但最近路由摘要仍停留在 \(routedAccount)。这通常是旧 aggregate lease 或 sticky 尚未自然收敛，不代表切号失败。"
+                : "The default target is \(targetAccount), but the latest route summary still points at \(routedAccount). That usually means an older aggregate lease or sticky binding has not naturally drained yet, not that switching failed."
+        }
+        if let targetAccount, targetAccount.isEmpty == false {
+            return zh
+                ? "默认目标已回到 \(targetAccount)，但旧 aggregate lease 或 sticky 仍可能影响未结束的线程。这不代表切号失败。"
+                : "The default target is back on \(targetAccount), but an older aggregate lease or sticky binding may still affect threads that have not finished. That does not mean switching failed."
+        }
+        return zh
+            ? "新流量已回手动切换，但旧 aggregate lease 或 sticky 仍可能影响尚未结束的线程。这不代表切号失败。"
+            : "New traffic is back on switch mode, but an older aggregate lease or sticky binding may still affect threads that have not finished. That does not mean switching failed."
+    }
+    static var aggregateRuntimeClearStaleStickyAction: String {
+        zh ? "清理过期 sticky" : "Clear Stale Sticky"
+    }
+    static var aggregateRuntimeClearStaleStickyHint: String {
+        zh
+            ? "清理后只影响 future routing / new thread，不接管正在运行的 thread。"
+            : "Clearing it only affects future routing / new threads and does not take over running threads."
+    }
+    static var quotaWindowStartSettingTitle: String {
+        zh ? "显示“对齐额度”入口" : "Show “Align Quota”"
+    }
+    static var alignQuotaAction: String { zh ? "对齐额度" : "Align Quota" }
+    static var alignQuotaProxyUnavailable: String {
+        zh ? "所选代理无法用于额度对齐，未直连发送请求；请检查代理配置或认证要求。"
+            : "The selected proxy could not be used for quota alignment. No direct request was sent; check its configuration or authentication requirements."
+    }
+    static var alignQuotaHint: String {
+        zh
+            ? "手动对齐多账号额度重置时间，使用默认模型发送短请求，会消耗额度。进行中的 5 小时窗口无法重新对齐。"
+            : "Manually align account quota reset times using short requests to the default model. This consumes quota. Active 5-hour windows cannot be realigned."
+    }
+    static var alignQuotaNoEligibleAccounts: String {
+        zh ? "暂无可对齐窗口" : "No eligible windows"
+    }
+    static var alignQuotaVerified: String { zh ? "已验证对齐" : "Alignment verified" }
+    static func alignQuotaCompleted(_ count: Int, skipped: Int) -> String {
+        if skipped > 0 {
+            return zh
+                ? "完成 \(count)，跳过 \(skipped)；未确认对齐"
+                : "Done \(count), skipped \(skipped); alignment unverified"
+        }
+        return zh ? "完成 \(count)，未确认对齐" : "Done \(count); alignment unverified"
+    }
+    static var alignQuotaModelUnavailable: String {
+        zh ? "默认模型不可用" : "Default model unavailable"
+    }
+    static var alignQuotaFailed: String {
+        zh ? "请求或刷新失败" : "Request or refresh failed"
+    }
+    static func alignQuotaFailedHTTP(_ code: Int) -> String {
+        zh ? "请求失败 HTTP \(code)" : "Request failed HTTP \(code)"
+    }
+    static func alignQuotaPartialFailure(completed: Int, failed: Int, skipped: Int) -> String {
+        zh
+            ? "完成 \(completed)，失败 \(failed)，跳过 \(skipped)"
+            : "\(completed) completed, \(failed) failed, \(skipped) skipped"
+    }
+    static var save: String { zh ? "保存" : "Save" }
+    static var openAICSVExportPrompt: String { zh ? "导出" : "Export" }
+    static var openAICSVImportPrompt: String { zh ? "导入" : "Import" }
+    static var noOpenAIAccountsToExport: String {
+        zh ? "没有可导出的 OpenAI 账号" : "No OpenAI accounts available to export"
+    }
+    static func openAICSVExportSucceeded(_ count: Int) -> String {
+        zh ? "已导出 \(count) 个 OpenAI 账号。" : "Exported \(count) OpenAI account\(count == 1 ? "" : "s")."
+    }
+    static func openAICSVImportSucceeded(
+        added: Int,
+        updated: Int,
+        activeChanged: Bool,
+        providerChanged: Bool,
+        preservedCompatibleProvider: Bool
+    ) -> String {
+        let prefix = zh
+            ? "已导入 OpenAI 账号：新增 \(added) 个，覆盖 \(updated) 个。"
+            : "Imported OpenAI accounts: \(added) added, \(updated) updated."
+        let suffix: String
+        if preservedCompatibleProvider {
+            suffix = zh ? " 当前使用 provider 保持不变。" : " The current provider was left unchanged."
+        } else if providerChanged {
+            suffix = zh ? " 当前 provider 已切换到 OpenAI。" : " The current provider was switched to OpenAI."
+        } else if activeChanged {
+            suffix = zh ? " 当前 OpenAI 账号已更新。" : " The current OpenAI account was updated."
+        } else {
+            suffix = zh ? " 当前 active 选择未变化。" : " The current active selection was unchanged."
+        }
+        return prefix + suffix
+    }
+    static var openAIAccountDataEmptyFile: String { zh ? "账号文件为空。" : "The account file is empty." }
+    static var openAIAccountDataInvalidFile: String { zh ? "账号文件格式无效。" : "The account file format is invalid." }
+    static var openAIAccountDataUnsupportedType: String { zh ? "不支持的账号文件类型。" : "Unsupported account file type." }
+    static var openAIAccountDataNoImportableAccounts: String { zh ? "文件里没有可导入的 OpenAI OAuth 账号。" : "The file does not contain any importable OpenAI OAuth accounts." }
+    static func openAIAccountDataMissingRequiredValue(_ index: Int) -> String {
+        zh ? "第 \(index) 个 OpenAI 账号缺少必填字段。" : "OpenAI account \(index) is missing required fields."
+    }
+    static func openAIAccountDataInvalidAccount(_ index: Int) -> String {
+        zh ? "第 \(index) 个 OpenAI 账号的 token 校验失败。" : "OpenAI account \(index) failed token validation."
+    }
+    static var openAIAccountDataMissingColumns: String { zh ? "旧版账号文件缺少必需列。" : "The legacy account file is missing required columns." }
+    static var openAIAccountDataUnsupportedVersion: String { zh ? "不支持的旧版账号文件版本。" : "Unsupported legacy account file version." }
+    static func openAIAccountDataInvalidRow(_ row: Int) -> String {
+        zh ? "旧版账号文件第 \(row) 行格式无效。" : "Legacy account file row \(row) has an invalid format."
+    }
+    static func openAIAccountDataAccountIDMismatch(_ row: Int) -> String {
+        zh ? "旧版账号文件第 \(row) 行的 account_id 校验失败。" : "Legacy account file row \(row) failed account_id validation."
+    }
+    static func openAIAccountDataEmailMismatch(_ row: Int) -> String {
+        zh ? "旧版账号文件第 \(row) 行的 email 校验失败。" : "Legacy account file row \(row) failed email validation."
+    }
+    static var openAIAccountDataDuplicateAccounts: String { zh ? "账号文件中存在重复的 account_id。" : "The account file contains duplicate account_id values." }
+    static var openAIAccountDataMultipleActiveAccounts: String { zh ? "旧版账号文件中包含多个 is_active=true 的账号。" : "The legacy account file contains multiple accounts marked as is_active=true." }
+    static func openAIAccountDataInvalidActiveValue(_ row: Int) -> String {
+        zh ? "旧版账号文件第 \(row) 行的 is_active 值无效。" : "Legacy account file row \(row) has an invalid is_active value."
+    }
+    static var quit: String            { zh ? "退出"               : "Quit" }
+    static var cancel: String          { zh ? "取消"               : "Cancel" }
+    static var copied: String          { zh ? "已复制"             : "Copied" }
+    static var justUpdated: String     { zh ? "刚刚更新"            : "Just updated" }
+    static var authRecoveryDeferredMsg: String {
+        zh ? "授权恢复尚未完成，请稍后再试" : "Auth recovery is not finished yet. Please try again shortly."
+    }
+    static var authValidationFailedMsg: String {
+        zh ? "授权校验失败，请稍后重试" : "Authorization check failed. Please try again later."
+    }
+    static func usageEndpointAccessDeniedMsg(_ statusCode: Int) -> String {
+        zh
+            ? "额度接口返回 HTTP \(statusCode)，账号仍可切换"
+            : "The usage endpoint returned HTTP \(statusCode); account switching remains available."
+    }
+
+    static func available(_ n: Int, _ total: Int) -> String {
+        zh ? "\(n)/\(total) 可用" : "\(n)/\(total) Available"
+    }
+    static func minutesAgo(_ m: Int) -> String {
+        zh ? "\(m) 分钟前更新" : "Updated \(m) min ago"
+    }
+    static func hoursAgo(_ h: Int) -> String {
+        zh ? "\(h) 小时前更新" : "Updated \(h) hr ago"
+    }
+    // MARK: - AccountRowView
+    static var reauth: String          { zh ? "重新授权"     : "Re-authorize" }
+    static var useBtn: String          { zh ? "使用"         : "Use" }
+    static var switchBtn: String       { useBtn }
+    static var tokenExpiredMsg: String { zh ? "Token 已过期，请重新授权" : "Token expired, please re-authorize" }
+    static var bannedMsg: String       { zh ? "账号已停用"   : "Account suspended" }
+    static var deleteBtn: String       { zh ? "删除"         : "Delete" }
+    static var deleteConfirm: String   { zh ? "删除"         : "Delete" }
+    static var nextUseTitle: String    { zh ? "下一次使用"   : "Next Use" }
+    static var inUseNone: String       { zh ? "未检测到正在使用的 OpenAI 会话" : "No live OpenAI sessions detected" }
+    static var runningThreadNone: String { zh ? "未检测到运行中的 OpenAI 线程" : "No running OpenAI threads detected" }
+    static var runningThreadUnavailable: String { zh ? "运行中状态不可用" : "Running status unavailable" }
+    static var runningThreadUnavailableRuntimeLogMissing: String {
+        zh ? "运行中状态不可用（未找到运行日志库）" : "Running status unavailable (runtime log database missing)"
+    }
+    static var runningThreadUnavailableRuntimeLogUninitialized: String {
+        zh ? "运行中状态不可用（运行日志库未初始化）" : "Running status unavailable (runtime logs not initialized)"
+    }
+
+    static func inUseSessions(_ count: Int) -> String {
+        zh ? "使用中 · \(count) 个会话" : "In Use · \(count) session\(count == 1 ? "" : "s")"
+    }
+
+    static func runningThreads(_ count: Int) -> String {
+        zh ? "运行 \(count)" : "Running \(count)"
+    }
+
+    static func inUseSummary(_ sessions: Int, _ accounts: Int) -> String {
+        if zh {
+            return "使用中 · \(sessions) 个会话 / \(accounts) 个账号"
+        }
+        return "In Use · \(sessions) session\(sessions == 1 ? "" : "s") across \(accounts) account\(accounts == 1 ? "" : "s")"
+    }
+
+    static func runningThreadSummary(_ threads: Int, _ accounts: Int) -> String {
+        if zh {
+            return "运行中 · \(threads) 个线程 / \(accounts) 个账号"
+        }
+        return "Running · \(threads) thread\(threads == 1 ? "" : "s") / \(accounts) account\(accounts == 1 ? "" : "s")"
+    }
+
+    static func inUseUnknownSessions(_ count: Int) -> String {
+        zh ? "另有 \(count) 个未归因会话" : "\(count) unattributed session\(count == 1 ? "" : "s")"
+    }
+
+    static func runningThreadUnknown(_ count: Int) -> String {
+        zh ? "另有 \(count) 个未归因线程" : "\(count) unattributed thread\(count == 1 ? "" : "s")"
+    }
+
+    static func openAIRouteSummaryCompact(_ value: String) -> String {
+        zh ? "约\(value)" : "~\(value)"
+    }
+
+    static var delete: String         { zh ? "删除"     : "Delete" }
+    static var tokenExpiredHint: String { zh ? "Token 已过期，请重新授权" : "Token expired, please re-authorize" }
+    static var accountSuspended: String { zh ? "账号已停用" : "Account suspended" }
+    static var weeklyExhausted: String  { zh ? "周额度耗尽" : "Weekly quota exhausted" }
+    static var primaryExhausted: String { zh ? "5h 额度耗尽" : "5h quota exhausted" }
+    nonisolated static func compactResetDaysHours(_ days: Int, _ hours: Int) -> String {
+        zh ? "\(days)天\(hours)时" : "\(days)d \(hours)h"
+    }
+    nonisolated static func compactResetHoursMinutes(_ hours: Int, _ minutes: Int) -> String {
+        zh ? "\(hours)时\(minutes)分" : "\(hours)h \(minutes)m"
+    }
+    nonisolated static func compactResetMinutes(_ minutes: Int) -> String {
+        zh ? "\(minutes)分" : "\(minutes)m"
+    }
+    nonisolated static var compactResetSoon: String {
+        zh ? "1分内" : "<1m"
+    }
+
+    // MARK: - TokenAccount status
+    static var statusOk: String       { zh ? "正常"     : "OK" }
+    static var statusWarning: String  { zh ? "即将用尽" : "Warning" }
+    static var statusExceeded: String { zh ? "额度耗尽" : "Exceeded" }
+    static var statusBanned: String   { zh ? "已停用"   : "Suspended" }
+
+    // MARK: - Reset countdown
+    static var resetSoon: String { zh ? "即将重置" : "Resetting soon" }
+    static func resetInMin(_ m: Int) -> String {
+        zh ? "\(m) 分钟后重置" : "Resets in \(m) min"
+    }
+    static func resetInHr(_ h: Int, _ m: Int) -> String {
+        zh ? "\(h) 小时 \(m) 分后重置" : "Resets in \(h)h \(m)m"
+    }
+    static func resetInDay(_ d: Int, _ h: Int) -> String {
+        zh ? "\(d) 天 \(h) 小时后重置" : "Resets in \(d)d \(h)h"
+    }
+
+    // MARK: - Rate-limit reset credits
+    static var resetCreditsSectionTitle: String { zh ? "重置卡" : "Reset Credits" }
+    static var resetCreditUseSoonest: String { zh ? "使用最快到期" : "Use Soonest" }
+    static var resetCreditShowAllHint: String { zh ? "查看全部重置卡" : "Show all reset credits" }
+    static var resetCreditUse: String { zh ? "使用" : "Use" }
+    static var resetCreditConfirm: String { zh ? "确认使用" : "Confirm" }
+    static var resetCreditCancel: String { zh ? "取消" : "Cancel" }
+    static var resetCreditApproachingTitle: String { zh ? "重置卡即将过期" : "Reset Credit Expiring" }
+    static var resetCreditUrgentTitle: String { zh ? "重置卡将在 24 小时内过期" : "Reset Credit Expires Within 24h" }
+    static var resetCreditExpired: String { zh ? "已过期" : "Expired" }
+    static var resetCreditExpiresSoon: String { zh ? "即将过期" : "Expiring soon" }
+    static var resetCreditEmptyWindowWarning: String {
+        zh
+            ? "这个账号当前窗口几乎没用完。现在使用可能没有效果，或收益很小。"
+            : "This account’s windows are almost unused. Using a reset now may do nothing or help very little."
+    }
+    static var resetCreditNothingToReset: String {
+        zh ? "当前没有可重置的用量，重置卡未被消耗。" : "Nothing to reset right now, so the credit was not consumed."
+    }
+    static var resetCreditNoCredit: String {
+        zh ? "没有可用的重置卡。" : "No reset credit is available."
+    }
+    static var resetCreditConsumeFailed: String {
+        zh ? "使用重置卡失败。" : "Couldn’t use the reset credit."
+    }
+    static var resetCreditAlreadyRedeemed: String {
+        zh ? "这张重置卡已经用过了。" : "This reset credit was already redeemed."
+    }
+    static func resetCreditUsed(_ resetCount: Int?) -> String {
+        let suffix: String
+        if let resetCount, resetCount > 0 {
+            suffix = zh ? "已重置 \(resetCount) 个窗口。" : "\(resetCount) window(s) reset."
+        } else {
+            suffix = zh ? "正在刷新该账号额度。" : "Refreshing this account’s quota."
+        }
+        return (zh ? "已使用重置卡，" : "Reset credit used. ") + suffix
+    }
+    static func resetCreditMissingDetails(_ count: Int) -> String {
+        zh ? "有 \(count) 张可用重置卡，但缺少到期时间等信息，暂不展示。" : "\(count) available reset credit(s) are missing expiry details, so they’re not listed."
+    }
+    static var resetCreditNotificationTitle: String {
+        zh ? "重置卡即将过期" : "Reset Credit Expiring Soon"
+    }
+    static func resetCreditCount(_ count: Int) -> String {
+        zh ? "\(count)张" : "\(count) reset\(count == 1 ? "" : "s")"
+    }
+    static func resetCreditBannerDetail(_ account: String, _ expiry: String) -> String {
+        zh
+            ? "最早一张在「\(account)」，\(expiry)。"
+            : "Soonest credit is on \(account) and \(expiry)."
+    }
+    static func resetCreditInMin(_ m: Int) -> String {
+        zh ? "\(m) 分钟后过期" : "expires in \(m) min"
+    }
+    static func resetCreditInHr(_ h: Int, _ m: Int) -> String {
+        zh ? "\(h) 小时 \(m) 分后过期" : "expires in \(h)h \(m)m"
+    }
+    static func resetCreditInDay(_ d: Int, _ h: Int) -> String {
+        zh ? "\(d) 天 \(h) 小时后过期" : "expires in \(d)d \(h)h"
+    }
+    static func resetCreditConfirmMessage(
+        _ account: String,
+        _ expiry: String,
+        _ primaryLabel: String,
+        _ primaryUsed: Int,
+        _ secondaryLabel: String?,
+        _ secondaryUsed: Int?
+    ) -> String {
+        let primaryPart = "\(primaryLabel) 已用 \(primaryUsed)%"
+        let secondaryPart: String?
+        if let secondaryLabel, let secondaryUsed {
+            secondaryPart = "\(secondaryLabel) 已用 \(secondaryUsed)%"
+        } else {
+            secondaryPart = nil
+        }
+        return zh
+            ? "将使用「\(account)」的这张重置卡（\(expiry)）。当前 \(primaryPart)"
+                + (secondaryPart.map { "，\($0)" } ?? "")
+                + "。只会重置该账号自己的额度，不会切换当前写代码的账号。"
+            : "This uses this reset credit on \(account) (\(expiry)). \(primaryLabel) is \(primaryUsed)% used"
+                + (secondaryPart.map { " and \($0)" } ?? "")
+                + ". It only resets that account’s quota and won’t switch the account you’re coding on."
+    }
+    static func resetCreditNotificationBody(_ account: String, _ expiry: String) -> String {
+        zh
+            ? "「\(account)」有一张重置卡\(expiry)。"
+            : "\(account) has a reset credit that \(expiry)."
+    }
+
+    // MARK: - Provider presets / multi-model
+    static var providerPresetGroupDomestic: String { zh ? "国产模型" : "Domestic" }
+    static var providerPresetGroupForeign: String { zh ? "国外模型" : "Foreign" }
+    static var providerPresetNoteArkEndpoint: String {
+        zh ? "火山方舟使用接入点 ID 或模型名，请按控制台填写。" : "Volcengine Ark uses endpoint IDs or model names; fill in per your console."
+    }
+    static var providerPresetNoteGeminiCompat: String {
+        zh ? "使用 Gemini 的 OpenAI 兼容端点；部分工具能力可能受限。" : "Uses Gemini's OpenAI-compatible endpoint; some tool features may be limited."
+    }
+    static var addProviderPresetTab: String { zh ? "预设厂商" : "Presets" }
+    static var addProviderPresetVendor: String { zh ? "厂商" : "Vendor" }
+    static var addProviderWireAPI: String { zh ? "协议" : "Protocol" }
+    static var addProviderModel: String { zh ? "模型" : "Model" }
+    static var addProviderWireAPIChatHint: String {
+        zh ? "通过本地网关把 Chat Completions 转换为 Responses。" : "Routes through the local gateway converting Chat Completions to Responses."
+    }
+    static var providerChatCompatibilityTitle: String {
+        zh ? "已保存，请留意协议兼容性" : "Saved — Protocol Compatibility Note"
+    }
+    static var providerChatCompatibilityMessage: String {
+        zh
+            ? "此服务使用 Chat Completions，Codexbar 将通过本地网关为 Codex 转换请求。当前转换暂不支持多代理工具和联网搜索；如果 Codex 默认携带这些能力，请求也可能报错，即使本轮只执行普通任务。其他工具调用和流式输出的表现仍取决于服务商与模型。\n\n为获得更完整、稳定的使用体验，建议优先选择原生支持 Responses API 的服务。当前配置已保存。"
+            : "This service uses Chat Completions. Codexbar will translate requests for Codex through a local gateway. The gateway does not currently support multi-agent tools or web search. Requests may fail when Codex includes these capabilities by default, even for ordinary tasks. Other tool calls and streaming behavior depend on the provider and model.\n\nFor a more complete and consistent experience, we recommend a service with native Responses API support. Your configuration is saved."
+    }
+    static var providerChatCompatibilityDismiss: String {
+        zh ? "知道了" : "Got It"
+    }
+
+    static var providerDeepSeekCompatibilityTitle: String {
+        zh ? "DeepSeek 服务兼容性说明" : "DeepSeek Compatibility"
+    }
+    static var providerDeepSeekCompatibilityMessage: String {
+        zh
+            ? "DeepSeek 官方 Responses 接口目前尚未覆盖 Codex 的全部工具能力。自定义工具仅支持 apply_patch；当 Codex 使用 exec 等其他自定义工具时，请求可能被拒绝，相关任务无法完成。联网搜索等部分内置工具也暂不受支持。\n\n选择 Responses 可以避免本地协议转换，但无法补齐服务商尚未支持的能力。保存成功不代表所有功能可用，建议先进行简单任务验证。"
+            : "DeepSeek's Responses API does not yet support every Codex tool. Only the apply_patch custom tool is supported; requests containing other custom tools, such as exec, may be rejected and the task may not complete. Some built-in tools, including web search, are also unsupported.\n\nResponses avoids local protocol conversion, but cannot add capabilities the provider does not support. Saving does not guarantee full compatibility; we recommend trying a simple task first."
+    }
+    static var providerSaveWithLimitations: String { zh ? "了解限制并保存" : "Understand and Save" }
+    static var providerReturnToEdit: String { zh ? "返回修改" : "Back to Editing" }
+    static var providerChatModeTitle: String { zh ? "Chat 兼容模式" : "Chat Compatibility Mode" }
+    static var providerReviewCompatibility: String { zh ? "查看兼容性" : "Review Compatibility" }
+    static var providerMigrateToResponses: String { zh ? "切换为 Responses" : "Switch to Responses" }
+    static var providerKeepCurrentConfiguration: String { zh ? "保留当前配置" : "Keep Current Configuration" }
+    static var providerMigrationTitle: String { zh ? "更新服务连接方式" : "Update Provider Connection" }
+    static var providerLegacyNoticeTitle: String { zh ? "已保存的服务可检查兼容性" : "Review Saved Provider Compatibility" }
+    static var providerLegacyNoticeMessage: String {
+        zh
+            ? "检测到已保存的 Chat Completions 服务。更新应用会保留原有地址、模型和账号，因此旧模型或工具能力限制可能仍影响使用。\n\n请展开 Providers，点击服务下方的“查看兼容性”。对已确认提供 Responses 的官方服务，可以预览变更并原地切换，账号和密钥会保留；自定义中转服务请先确认服务商支持的协议和模型。"
+            : "Saved Chat Completions services were found. App updates preserve their addresses, models, and accounts, so older models or unsupported tools may still affect requests.\n\nExpand Providers and choose Review Compatibility below a service. For recognized official services with Responses support, you can preview and apply an in-place migration while keeping accounts and keys. For custom gateways, first confirm the provider's supported protocols and models."
+    }
+    static func providerMigrationMessage(_ label: String, _ oldURL: String, _ newURL: String, _ oldModel: String, _ newModel: String) -> String {
+        zh
+            ? "将 \(label) 从 Chat Completions 切换到官方 Responses 接口。\n\n地址：\(oldURL) → \(newURL)\n模型：\(oldModel) → \(newModel)\n\n服务名称、全部账号和密钥会保留。旧模型不在当前预设列表时会建议默认模型，请确认该模型适用于你的账号。切换后建议新开 Codex 会话。"
+            : "Switch \(label) from Chat Completions to the official Responses endpoint.\n\nAddress: \(oldURL) → \(newURL)\nModel: \(oldModel) → \(newModel)\n\nThe provider name, all accounts, and keys will be preserved. A default model is suggested when the old model is absent from the current preset; confirm it is available for your account. Start a new Codex conversation after switching."
+    }
+
+}

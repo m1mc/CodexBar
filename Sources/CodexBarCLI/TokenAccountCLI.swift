@@ -126,6 +126,12 @@ struct TokenAccountCLIContext {
             return [data.accounts[index]]
         }
 
+        // Provider-specific by design: Antigravity automatically displays all registered accounts
+        // when no specific account filter is requested.
+        if provider == .antigravity {
+            return data.accounts
+        }
+
         let clamped = data.clampedActiveIndex()
         return [data.accounts[clamped]]
     }

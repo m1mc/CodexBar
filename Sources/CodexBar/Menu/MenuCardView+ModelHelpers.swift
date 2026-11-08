@@ -9,6 +9,11 @@ extension UsageMenuCardView.Model {
         primary: RateWindow,
         snapshot: UsageSnapshot) -> RateWindowBindingQuotaProjection?
     {
+        // By default, do not override session quota when Claude's weekly quota is exhausted.
+        // Users can opt-in to capping session quota via UserDefaults: "ClaudeCapSessionOnWeeklyExhaustion".
+        if input.provider == .claude, !UserDefaults.standard.bool(forKey: "ClaudeCapSessionOnWeeklyExhaustion") {
+            return nil
+        }
         let lanes = ProviderDescriptorRegistry.descriptor(for: input.provider)
             .presentation.primaryBindingQuotaLanes
         let bindingWindows = lanes.compactMap { lane -> RateWindow? in

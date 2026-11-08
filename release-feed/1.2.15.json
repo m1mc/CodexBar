@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "1.2.15",
+    "publishedAt": "2026-09-26T22:25:31Z",
+    "summary": "修复 GPT Reserve 额度显示拥挤和悬停时账号名被裁剪的问题",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.15",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.15",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.15/codexbar-1.2.15-macOS.dmg",
+        "sha256": "b990171865f76744606642bb2e92d602bfe688512254662d537c9cd6a7208f0a"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.15/codexbar-1.2.15-macOS.zip",
+        "sha256": "b606dedfc901f8be5da131ac19ea0bf668ba26caeb5b205d66f397efcdad4426"
+      }
+    ]
+  }
+}

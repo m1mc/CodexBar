@@ -1,0 +1,240 @@
+import Foundation
+
+nonisolated enum ToolUsageClient: String, CaseIterable, Codable, Identifiable, Sendable {
+    case claudeCode
+    case openCode
+    case cursor
+    case deepSeekHarness
+    case antigravity
+
+    /// Antigravity has its own account store; its Token history uses the shared dashboard.
+    static var connectionClients: [Self] { self.allCases.filter { $0 != .antigravity } }
+
+    var id: String { self.rawValue }
+
+    var displayName: String {
+        switch self {
+        case .claudeCode: "Claude"
+        case .openCode: "OpenCode"
+        case .cursor: "Grok"
+        case .deepSeekHarness: "DeepSeek Harness"
+        case .antigravity: "Antigravity"
+        }
+    }
+}
+
+enum ToolUsageAvailability: String, Codable, Sendable {
+    case ready
+    case partial
+    case noRecords
+    case sourceMissing
+    case needsImport
+    case failed
+}
+
+enum ToolUsageEvidence: String, Codable, Sendable {
+    /// Token counts come from a client transcript or database usage field.
+    case reported
+    /// Token counts come from an account export supplied by the user.
+    case imported
+    /// Token counts come from the client's authenticated usage API.
+    case server
+    /// Token counts were inferred from content rather than reported by the client.
+    case estimated
+}
+
+nonisolated enum ToolCostEvidence: String, Codable, Sendable {
+    case reported, estimated
+}
+
+struct ToolUsageDailyEntry: Codable, Equatable, Identifiable, Sendable {
+    let date: Date
+    let inputTokens: Int
+    let outputTokens: Int
+    let cacheReadTokens: Int
+    let cacheWriteTokens: Int
+    let totalTokens: Int
+    /// Complete usage value, reported by the source or estimated at standard API prices.
+    let costUSD: Double?
+    /// Known portion when some requests cannot be priced. Nil is not a zero-cost day.
+    var knownCostUSD: Double? = nil
+    /// Usage value and money charged are distinct for subscriptions.
+    var costEvidence: ToolCostEvidence? = nil
+    var billedCostUSD: Double? = nil
+
+    var id: Date { self.date }
+
+    nonisolated init(
+        date: Date,
+        inputTokens: Int = 0,
+        outputTokens: Int = 0,
+        cacheReadTokens: Int = 0,
+        cacheWriteTokens: Int = 0,
+        totalTokens: Int,
+        costUSD: Double? = nil,
+        knownCostUSD: Double? = nil,
+        costEvidence: ToolCostEvidence? = nil,
+        billedCostUSD: Double? = nil
+    ) {
+        self.date = date
+        self.inputTokens = inputTokens
+        self.outputTokens = outputTokens
+        self.cacheReadTokens = cacheReadTokens
+        self.cacheWriteTokens = cacheWriteTokens
+        self.totalTokens = totalTokens
+        self.costUSD = costUSD
+        self.knownCostUSD = knownCostUSD
+        self.costEvidence = costEvidence
+        self.billedCostUSD = billedCostUSD
+    }
+}
+
+/// Minimal, dated usage metadata for model/session/project breakdowns. Never stores message content.
+struct ToolUsageRecord: Codable, Equatable, Identifiable, Sendable {
+    let id: String
+    let timestamp: Date
+    let modelID: String?
+    let sessionID: String?
+    let sessionTitle: String?
+    let projectPath: String?
+    /// Nil means no persisted turn state is available; recency is not evidence of running.
+    let sessionIsRunning: Bool?
+    let contextWindowTokens: Int?
+    let contextUsedTokens: Int?
+    let inputTokens: Int
+    let outputTokens: Int
+    let cacheReadTokens: Int
+    let cacheWriteTokens: Int
+    /// Subset of cacheWriteTokens written with a one-hour TTL; nil in older caches.
+    let cacheWriteOneHourTokens: Int?
+    let totalTokens: Int
+    let costUSD: Double?
+    var costEvidence: ToolCostEvidence? = nil
+    var billedCostUSD: Double? = nil
+
+    nonisolated init(
+        id: String, timestamp: Date, modelID: String? = nil, sessionID: String? = nil,
+        sessionTitle: String? = nil, projectPath: String? = nil,
+        sessionIsRunning: Bool? = nil, contextWindowTokens: Int? = nil, contextUsedTokens: Int? = nil,
+        inputTokens: Int = 0, outputTokens: Int = 0, cacheReadTokens: Int = 0,
+        cacheWriteTokens: Int = 0, cacheWriteOneHourTokens: Int? = nil, totalTokens: Int, costUSD: Double? = nil,
+        costEvidence: ToolCostEvidence? = nil, billedCostUSD: Double? = nil
+    ) {
+        self.id = id
+        self.timestamp = timestamp
+        self.modelID = Self.cleaned(modelID)
+        self.sessionID = Self.cleaned(sessionID)
+        self.sessionTitle = Self.cleaned(sessionTitle)
+        self.projectPath = Self.cleaned(projectPath)
+        self.sessionIsRunning = sessionIsRunning
+        self.contextWindowTokens = contextWindowTokens
+        self.contextUsedTokens = contextUsedTokens
+        self.inputTokens = inputTokens
+        self.outputTokens = outputTokens
+        self.cacheReadTokens = cacheReadTokens
+        self.cacheWriteTokens = cacheWriteTokens
+        self.cacheWriteOneHourTokens = cacheWriteOneHourTokens
+        self.totalTokens = totalTokens
+        self.costUSD = costUSD
+        self.costEvidence = costEvidence
+        self.billedCostUSD = billedCostUSD
+    }
+
+    nonisolated private static func cleaned(_ value: String?) -> String? {
+        guard let text = value?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+        return text
+    }
+}
+
+struct ToolUsageSnapshot: Codable, Equatable, Identifiable, Sendable {
+    let client: ToolUsageClient
+    let availability: ToolUsageAvailability
+    let evidence: ToolUsageEvidence
+    let dailyEntries: [ToolUsageDailyEntry]
+    let usageRecords: [ToolUsageRecord]
+    /// Timestamp of the newest usage entry, when known.
+    let latestUsageAt: Date?
+    /// Timestamp at which this source was last scanned or imported.
+    let refreshedAt: Date?
+    /// Short status suitable for the interface; must not contain transcript text or credentials.
+    let statusDetail: String?
+    /// Complete server export interval for this account's v2 billing ledger.
+    /// Used only for incremental synchronization, never as a usage timestamp.
+    let billingHistoryInterval: DateInterval?
+
+    var id: ToolUsageClient { self.client }
+
+    nonisolated init(
+        client: ToolUsageClient,
+        availability: ToolUsageAvailability,
+        evidence: ToolUsageEvidence = .reported,
+        dailyEntries: [ToolUsageDailyEntry] = [],
+        usageRecords: [ToolUsageRecord] = [],
+        latestUsageAt: Date? = nil,
+        refreshedAt: Date? = nil,
+        statusDetail: String? = nil,
+        billingHistoryInterval: DateInterval? = nil
+    ) {
+        self.client = client
+        self.availability = availability
+        self.evidence = evidence
+        self.dailyEntries = dailyEntries
+        self.usageRecords = usageRecords
+        self.latestUsageAt = latestUsageAt
+        self.refreshedAt = refreshedAt
+        self.statusDetail = statusDetail
+        self.billingHistoryInterval = billingHistoryInterval
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case client, availability, evidence, dailyEntries, usageRecords, latestUsageAt, refreshedAt, statusDetail, billingHistoryInterval
+    }
+
+    nonisolated init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self.client = try values.decode(ToolUsageClient.self, forKey: .client)
+        self.availability = try values.decode(ToolUsageAvailability.self, forKey: .availability)
+        self.evidence = try values.decode(ToolUsageEvidence.self, forKey: .evidence)
+        self.dailyEntries = try values.decode([ToolUsageDailyEntry].self, forKey: .dailyEntries)
+        self.usageRecords = try values.decodeIfPresent([ToolUsageRecord].self, forKey: .usageRecords) ?? []
+        self.latestUsageAt = try values.decodeIfPresent(Date.self, forKey: .latestUsageAt)
+        self.refreshedAt = try values.decodeIfPresent(Date.self, forKey: .refreshedAt)
+        self.statusDetail = try values.decodeIfPresent(String.self, forKey: .statusDetail)
+        self.billingHistoryInterval = try values.decodeIfPresent(DateInterval.self, forKey: .billingHistoryInterval)
+    }
+
+    /// The same content stamped with a new scan time, for scans skipped because nothing changed on disk.
+    func refreshed(at date: Date) -> ToolUsageSnapshot {
+        ToolUsageSnapshot(
+            client: self.client, availability: self.availability, evidence: self.evidence,
+            dailyEntries: self.dailyEntries, usageRecords: self.usageRecords, latestUsageAt: self.latestUsageAt,
+            refreshedAt: date, statusDetail: self.statusDetail, billingHistoryInterval: self.billingHistoryInterval
+        )
+    }
+
+    /// Equality that ignores `refreshedAt`: a rescan that found nothing new must not rewrite the disk cache.
+    /// Cheap fields are compared first so a real change usually short-circuits before the record arrays.
+    func hasSameContent(as other: ToolUsageSnapshot) -> Bool {
+        self.client == other.client &&
+            self.availability == other.availability &&
+            self.evidence == other.evidence &&
+            self.latestUsageAt == other.latestUsageAt &&
+            self.statusDetail == other.statusDetail &&
+            self.billingHistoryInterval == other.billingHistoryInterval &&
+            self.dailyEntries.count == other.dailyEntries.count &&
+            self.usageRecords.count == other.usageRecords.count &&
+            self.dailyEntries == other.dailyEntries &&
+            self.usageRecords == other.usageRecords
+    }
+}
+
+protocol ToolUsageCollecting: Sendable {
+    nonisolated var client: ToolUsageClient { get }
+    /// Directories whose file events can change this collector's result; empty means "always rescan".
+    nonisolated var watchedPaths: [URL] { get }
+    nonisolated func collect(now: Date, calendar: Calendar) -> ToolUsageSnapshot
+}
+
+extension ToolUsageCollecting {
+    nonisolated var watchedPaths: [URL] { [] }
+}

@@ -69,6 +69,7 @@ extension UsageStore {
             snapshots.append(cached)
         }
         self.accountSnapshots[provider.instanceID] = snapshots
+        self.saveTokenAccountSnapshotsToDisk()
     }
 
     func pruneTokenAccountSnapshots(provider: UsageProvider, accounts: [ProviderTokenAccount]) {
@@ -581,7 +582,16 @@ extension UsageStore {
         let shouldPreservePriorState =
             !sawAnyNonCancellationOutcome && snapshots.allSatisfy { $0.snapshot == nil }
         if !shouldPreservePriorState {
-            self.accountSnapshots[provider.instanceID] = snapshots
+            var updatedSnapshots: [TokenAccountUsageSnapshot] = []
+            for account in accounts {
+                if let updated = snapshots.first(where: { $0.account.id == account.id }) {
+                    updatedSnapshots.append(updated)
+                } else if let prior = priorByAccountID[account.id] {
+                    updatedSnapshots.append(prior)
+                }
+            }
+            self.accountSnapshots[provider.instanceID] = updatedSnapshots
+            self.saveTokenAccountSnapshotsToDisk()
         }
 
         self.scheduleSupplementalUsageUpdates(

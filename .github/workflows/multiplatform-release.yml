@@ -1,0 +1,166 @@
+name: Multi-Platform Release (macOS, Linux, Windows 11)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag name (e.g. v2.1.0)'
+        required: true
+        default: 'v2.1.0'
+
+permissions:
+  contents: write
+
+jobs:
+  # -------------------------------------------------------------------------
+  # 1. macOS Build (GUI CodexBar.app DMG + CodexBarCLI)
+  # -------------------------------------------------------------------------
+  build-macos:
+    name: Build macOS (Universal App + CLI)
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build CodexBarCLI (Release)
+        run: |
+          swift build -c release --product CodexBarCLI
+          mkdir -p dist/cli-macos
+          cp .build/out/Products/Release/CodexBarCLI dist/cli-macos/
+          cd dist/cli-macos
+          tar -czvf "../CodexBarCLI-macos-arm64.tar.gz" CodexBarCLI
+
+      - name: Build macOS GUI App
+        run: |
+          xcodebuild -project codexbar.xcodeproj -scheme codexbar -configuration Release CODE_SIGNING_ALLOWED=NO -destination 'platform=macOS' build
+          BUILT_APP=$(find ~/Library/Developer/Xcode/DerivedData -name "codexbar.app" -type d | head -n 1)
+          if [ -n "$BUILT_APP" ]; then
+            mkdir -p dist/dmg-staging
+            cp -R "$BUILT_APP" dist/dmg-staging/CodexBar.app
+            hdiutil create -volname "CodexBar" -srcfolder dist/dmg-staging -ov -format UDZO dist/CodexBar-macOS.dmg
+          fi
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          path: dist/*.dmg
+          if-no-files-found: ignore
+
+      - name: Upload macOS CLI Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-cli-artifacts
+          path: dist/*.tar.gz
+          if-no-files-found: ignore
+
+  # -------------------------------------------------------------------------
+  # 2. Linux Build (CLI x86_64 & aarch64)
+  # -------------------------------------------------------------------------
+  build-linux:
+    name: Build Linux CLI
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Swift on Linux
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "6.0"
+
+      - name: Build CodexBarCLI (Linux x86_64)
+        run: |
+          swift build -c release --product CodexBarCLI
+          mkdir -p dist/cli-linux-x86_64
+          cp .build/release/CodexBarCLI dist/cli-linux-x86_64/
+          cd dist/cli-linux-x86_64
+          tar -czvf "../CodexBarCLI-linux-x86_64.tar.gz" CodexBarCLI
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-cli-artifacts
+          path: dist/*.tar.gz
+          if-no-files-found: ignore
+
+  # -------------------------------------------------------------------------
+  # 3. Windows 11 Build (CodexBarCLI.exe x64)
+  # -------------------------------------------------------------------------
+  build-windows:
+    name: Build Windows 11 CLI
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Swift for Windows
+        uses: compnerd/gha-setup-swift@main
+        with:
+          branch: swift-6.0-release
+          tag: 6.0-RELEASE
+
+      - name: Build CodexBarCLI on Windows
+        shell: pwsh
+        run: |
+          swift build -c release --product CodexBarCLI
+          New-Item -ItemType Directory -Force -Path dist\cli-windows-x64
+          Copy-Item .build\release\CodexBarCLI.exe dist\cli-windows-x64\
+          
+          # Create a lightweight PowerShell setup script for Windows
+          @'
+          param([string]$InstallDir = "$env:LOCALAPPDATA\Programs\CodexBar")
+          New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
+          Copy-Item ".\CodexBarCLI.exe" "$InstallDir\codexbar.exe" -Force
+          [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$InstallDir", [EnvironmentVariableTarget]::User)
+          Write-Host "CodexBar successfully installed to $InstallDir\codexbar.exe"
+          '@ | Out-File -Encoding UTF8 dist\cli-windows-x64\setup.ps1
+
+          Compress-Archive -Path dist\cli-windows-x64\* -DestinationPath dist\CodexBarCLI-windows-x64.zip
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-cli-artifacts
+          path: dist/*.zip
+          if-no-files-found: ignore
+
+  # -------------------------------------------------------------------------
+  # 4. Publish Release Assets
+  # -------------------------------------------------------------------------
+  publish-release:
+    name: Publish Release Assets
+    needs: [build-macos, build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Determine Release Tag
+        id: release_tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          name: CodexBar ${{ steps.release_tag.outputs.tag }}
+          files: release-assets/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+

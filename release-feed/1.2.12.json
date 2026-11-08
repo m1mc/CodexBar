@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "1.2.12",
+    "publishedAt": "2026-09-09T08:00:22Z",
+    "summary": "跨账号重置卡管理、聚合生图与长任务修复、菜单栏显示改进及 GPT-6 计价与历史重算",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.12",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.12",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.12/codexbar-1.2.12-macOS.dmg",
+        "sha256": "dab246dc867e50825f835ae46aef89a185d290e0a7c2d177dfe897b4dba0c9dd"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.12/codexbar-1.2.12-macOS.zip",
+        "sha256": "0b75c4ab66b55695c7a1f6220ca64c57912b34bfe51b9472bf5d5fda63f9c2ec"
+      }
+    ]
+  }
+}

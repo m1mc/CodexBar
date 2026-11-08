@@ -9,6 +9,10 @@ final class CLIEntryTests: XCTestCase {
         XCTAssertEqual(CodexBarCLI.effectiveArgv([]), ["usage"])
         XCTAssertEqual(CodexBarCLI.effectiveArgv(["--json"]), ["usage", "--json"])
         XCTAssertEqual(CodexBarCLI.effectiveArgv(["usage", "--json"]), ["usage", "--json"])
+        XCTAssertEqual(CodexBarCLI.effectiveArgv(["antigravity"]), ["usage", "--provider", "antigravity"])
+        XCTAssertEqual(CodexBarCLI.effectiveArgv(["usage", "antigravity"]), ["usage", "--provider", "antigravity"])
+        XCTAssertEqual(CodexBarCLI.effectiveArgv(["usage", "agy"]), ["usage", "--provider", "agy"])
+        XCTAssertEqual(CodexBarCLI.effectiveArgv(["cards", "agy"]), ["cards", "--provider", "agy"])
     }
 
     func test_rootHelpAdvertisesDashboardSnapshotCommand() {

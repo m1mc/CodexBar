@@ -597,6 +597,11 @@ struct CodexConsumerProjection {
     /// When Codex's weekly lane is exhausted, it is the binding cap: session quota cannot be used until
     /// the weekly window resets, even if the API still reports room in the 5-hour bucket.
     private static func weeklyCapsSession(weekly: RateWindow?, evaluationTime: Date) -> Bool {
+        // By default, do not override session quota when weekly quota is exhausted.
+        // Users can opt-in to capping session quota via UserDefaults: "CodexCapSessionOnWeeklyExhaustion".
+        guard UserDefaults.standard.bool(forKey: "CodexCapSessionOnWeeklyExhaustion") else {
+            return false
+        }
         guard let weekly else { return false }
         guard weekly.remainingPercent <= 0 else { return false }
         return weekly.resetsAt.map { $0 > evaluationTime } ?? true

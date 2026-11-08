@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "1.2.10",
+    "publishedAt": "2026-09-02T00:59:29Z",
+    "summary": "大型本地成本历史增量索引、可见进度与断点续扫",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.10",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.10",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.10/codexbar-1.2.10-macOS.dmg",
+        "sha256": "70bc897f70b8fe22d235d83c86635fea7fe2eef7fd620f224a97cd068f3ddd83"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.10/codexbar-1.2.10-macOS.zip",
+        "sha256": "476b4b312f7c6758d183ab46a8f89c1035a514feca953ebfc05ee3383b009714"
+      }
+    ]
+  }
+}

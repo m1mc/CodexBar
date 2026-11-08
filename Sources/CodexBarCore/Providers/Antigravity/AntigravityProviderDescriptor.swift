@@ -104,6 +104,7 @@ public enum AntigravityProviderDescriptor {
                     resolveFallbackError: self.resolveFallbackError)),
             cli: ProviderCLIConfig(
                 name: "antigravity",
+                aliases: ["agy", "anti", "antigavity"],
                 versionDetector: nil,
                 supportsCostCommand: true),
             nativeAppBundleIdentifiers: ["com.google.antigravity"])

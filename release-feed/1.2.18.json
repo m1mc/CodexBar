@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "release": {
+    "version": "1.2.18",
+    "publishedAt": "2026-09-30T05:17:56Z",
+    "summary": "第三方独立 provider 与 Responses 预设；可手动关闭 Codex WebSocket 并使用 HTTP Streaming",
+    "releaseNotesURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.18",
+    "downloadPageURL": "https://github.com/lizhelang/codexbar/releases/tag/v1.2.18",
+    "deliveryMode": "guidedDownload",
+    "minimumAutomaticUpdateVersion": "1.1.6",
+    "artifacts": [
+      {
+        "architecture": "universal",
+        "format": "dmg",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.18/codexbar-1.2.18-macOS.dmg",
+        "sha256": "db717ce9f5db818802eb97f2a4aae51ffa1c9981154a2f330662de3cc9149a6f"
+      },
+      {
+        "architecture": "universal",
+        "format": "zip",
+        "downloadURL": "https://github.com/lizhelang/codexbar/releases/download/v1.2.18/codexbar-1.2.18-macOS.zip",
+        "sha256": "fecf71e77676d31d427bbcaa24e5a8e1f85b7c0952534c5f1020be484e764aeb"
+      }
+    ]
+  }
+}
