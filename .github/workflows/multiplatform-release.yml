@@ -25,13 +25,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build CodexBarCLI (Release)
+      - name: Build CodexBarCLI (Release arm64 and x86_64)
         run: |
-          swift build -c release --product CodexBarCLI
-          mkdir -p dist/cli-macos
-          cp .build/out/Products/Release/CodexBarCLI dist/cli-macos/
-          cd dist/cli-macos
-          tar -czvf "../CodexBarCLI-macos-arm64.tar.gz" CodexBarCLI
+          mkdir -p dist
+          # Build arm64
+          swift build -c release --arch arm64 --product CodexBarCLI
+          mkdir -p dist/cli-macos-arm64
+          CLI_ARM64=$(find .build -name "CodexBarCLI" -type f | grep -i "arm64" | head -n 1 || find .build -name "CodexBarCLI" -type f | head -n 1)
+          cp "$CLI_ARM64" dist/cli-macos-arm64/CodexBarCLI
+          tar -czvf "dist/CodexBarCLI-macos-arm64.tar.gz" -C dist/cli-macos-arm64 CodexBarCLI
+
+          # Build x86_64
+          swift build -c release --arch x86_64 --product CodexBarCLI
+          mkdir -p dist/cli-macos-x86_64
+          CLI_X86=$(find .build -name "CodexBarCLI" -type f | grep -i "x86_64" | head -n 1)
+          if [ -n "$CLI_X86" ]; then
+            cp "$CLI_X86" dist/cli-macos-x86_64/CodexBarCLI
+            tar -czvf "dist/CodexBarCLI-macos-x86_64.tar.gz" -C dist/cli-macos-x86_64 CodexBarCLI
+          fi
 
       - name: Build macOS GUI App
         run: |
@@ -144,6 +155,11 @@ jobs:
         with:
           path: release-assets
           merge-multiple: true
+
+      - name: Generate Checksums
+        run: |
+          cd release-assets
+          sha256sum * > SHA256SUMS.txt || true
 
       - name: Determine Release Tag
         id: release_tag
