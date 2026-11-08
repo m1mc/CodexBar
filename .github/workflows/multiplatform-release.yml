@@ -38,16 +38,21 @@ jobs:
           # Build arm64
           swift build -c release --arch arm64 --product CodexBarCLI
           mkdir -p dist/cli-macos-arm64
-          CLI_ARM64=$(find .build -name "CodexBarCLI" -type f | grep -i "arm64" | head -n 1 || find .build -name "CodexBarCLI" -type f | head -n 1)
-          cp "$CLI_ARM64" dist/cli-macos-arm64/CodexBarCLI
+          BIN_DIR_ARM64=$(swift build -c release --arch arm64 --product CodexBarCLI --show-bin-path)
+          if [ -f "$BIN_DIR_ARM64/CodexBarCLI" ]; then
+            cp "$BIN_DIR_ARM64/CodexBarCLI" dist/cli-macos-arm64/CodexBarCLI
+          else
+            CLI_FOUND=$(find .build -name "CodexBarCLI" -perm +111 -type f | head -n 1)
+            cp "$CLI_FOUND" dist/cli-macos-arm64/CodexBarCLI
+          fi
           tar -czvf "dist/CodexBarCLI-macos-arm64.tar.gz" -C dist/cli-macos-arm64 CodexBarCLI
 
           # Build x86_64
           swift build -c release --arch x86_64 --product CodexBarCLI || true
           mkdir -p dist/cli-macos-x86_64
-          CLI_X86=$(find .build -name "CodexBarCLI" -type f | grep -i "x86_64" | head -n 1)
-          if [ -n "$CLI_X86" ]; then
-            cp "$CLI_X86" dist/cli-macos-x86_64/CodexBarCLI
+          BIN_DIR_X86=$(swift build -c release --arch x86_64 --product CodexBarCLI --show-bin-path 2>/dev/null || true)
+          if [ -n "$BIN_DIR_X86" ] && [ -f "$BIN_DIR_X86/CodexBarCLI" ]; then
+            cp "$BIN_DIR_X86/CodexBarCLI" dist/cli-macos-x86_64/CodexBarCLI
             tar -czvf "dist/CodexBarCLI-macos-x86_64.tar.gz" -C dist/cli-macos-x86_64 CodexBarCLI
           fi
 
