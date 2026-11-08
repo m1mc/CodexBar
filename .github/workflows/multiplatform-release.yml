@@ -20,7 +20,7 @@ jobs:
   # -------------------------------------------------------------------------
   build-macos:
     name: Build macOS (Universal App + CLI)
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
           tar -czvf "dist/CodexBarCLI-macos-arm64.tar.gz" -C dist/cli-macos-arm64 CodexBarCLI
 
           # Build x86_64
-          swift build -c release --arch x86_64 --product CodexBarCLI
+          swift build -c release --arch x86_64 --product CodexBarCLI || true
           mkdir -p dist/cli-macos-x86_64
           CLI_X86=$(find .build -name "CodexBarCLI" -type f | grep -i "x86_64" | head -n 1)
           if [ -n "$CLI_X86" ]; then
@@ -46,11 +46,15 @@ jobs:
 
       - name: Build macOS GUI App
         run: |
-          xcodebuild -project codexbar.xcodeproj -scheme codexbar -configuration Release CODE_SIGNING_ALLOWED=NO -destination 'platform=macOS' build
-          BUILT_APP=$(find ~/Library/Developer/Xcode/DerivedData -name "codexbar.app" -type d | head -n 1)
+          xcodebuild -project codexbar.xcodeproj -scheme codexbar -configuration Release CODE_SIGNING_ALLOWED=NO -destination 'platform=macOS' -derivedDataPath .build/DerivedData build
+          BUILT_APP=$(find .build/DerivedData -name "codexbar.app" -type d | head -n 1)
           if [ -n "$BUILT_APP" ]; then
             mkdir -p dist/dmg-staging
             cp -R "$BUILT_APP" dist/dmg-staging/CodexBar.app
+            mkdir -p dist/dmg-staging/CodexBar.app/Contents/Helpers
+            if [ -f dist/cli-macos-arm64/CodexBarCLI ]; then
+              cp dist/cli-macos-arm64/CodexBarCLI dist/dmg-staging/CodexBar.app/Contents/Helpers/
+            fi
             hdiutil create -volname "CodexBar" -srcfolder dist/dmg-staging -ov -format UDZO dist/CodexBar-macOS.dmg
           fi
 
@@ -77,6 +81,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsqlite3-dev
 
       - name: Install Swift on Linux
         uses: swift-actions/setup-swift@v2
@@ -119,7 +128,13 @@ jobs:
         run: |
           swift build -c release --product CodexBarCLI
           New-Item -ItemType Directory -Force -Path dist\cli-windows-x64
-          Copy-Item .build\release\CodexBarCLI.exe dist\cli-windows-x64\
+          $exe = Get-ChildItem -Path .build -Filter "CodexBarCLI.exe" -Recurse | Select-Object -First 1
+          if ($exe) {
+              Copy-Item $exe.FullName dist\cli-windows-x64\
+          } else {
+              Write-Error "CodexBarCLI.exe not found in .build"
+              exit 1
+          }
           
           # Create a lightweight PowerShell setup script for Windows
           @'
