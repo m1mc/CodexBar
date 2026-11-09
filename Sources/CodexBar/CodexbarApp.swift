@@ -503,6 +503,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             fallbackVerificationRetriesRemaining: Self.settingsMenuFallbackVerificationRetryCount)
         self.cloudSyncCoordinator?.start()
         Task { await self.settings?.httpServer.startSaved() }
+        Task.detached(priority: .utility) {
+            let result = await CodexStaleGatewayMigration.migrate()
+            switch result.outcome {
+            case let .staleGatewayCleaned(previousURL):
+                CodexBarLog.logger(LogCategories.codexAccounts).warning(
+                    "CodexBar migrated stale gateway config from \(previousURL). Existing background Codex sessions may retain the previous route in memory until restarted by the user."
+                )
+            case let .error(message):
+                CodexBarLog.logger(LogCategories.codexAccounts).error(
+                    "CodexBar stale gateway migration encountered an error: \(message)"
+                )
+            case .clean, .activeGatewayPreserved, .preserved, .concurrentModificationDetected:
+                break
+            }
+        }
         Task { @MainActor [weak self] in
             await Task.yield()
             guard let settings = self?.settings else { return }

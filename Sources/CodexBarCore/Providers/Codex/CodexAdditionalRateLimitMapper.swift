@@ -34,18 +34,57 @@ package enum CodexAdditionalRateLimitMapper {
         if self.isSpark(entry) {
             return self.sparkWindows(from: entry, usedIDs: &usedIDs, now: now)
         }
+        return self.genericWindows(from: entry, usedIDs: &usedIDs, now: now)
+    }
 
-        // Model-specific limits report utilization in the primary window; fall back to the secondary
-        // window only when a primary one is not present.
-        guard let snapshot = entry.rateLimit?.primaryWindow ?? entry.rateLimit?.secondaryWindow else {
-            return []
+    private static func genericWindows(
+        from entry: CodexUsageResponse.AdditionalRateLimit,
+        usedIDs: inout Set<String>,
+        now: Date) -> [NamedRateWindow]
+    {
+        guard let baseID = self.windowID(for: entry) else { return [] }
+        let baseTitle = self.windowTitle(for: entry)
+        let primary = entry.rateLimit?.primaryWindow
+        let secondary = entry.rateLimit?.secondaryWindow
+        let hasBoth = primary != nil && secondary != nil
+
+        let candidates: [(CodexUsageResponse.WindowSnapshot?, String)] = [
+            (primary, "primary"),
+            (secondary, "secondary"),
+        ]
+
+        return candidates.compactMap { snapshot, role in
+            guard let snapshot else { return nil }
+            let duration = WindowDurationInfo.resolve(
+                seconds: snapshot.limitWindowSeconds,
+                fallbackRole: role)
+
+            let id: String
+            if duration.slugSuffix == "5h" {
+                id = baseID
+            } else if duration.slugSuffix == "weekly" {
+                id = "\(baseID)-weekly"
+            } else if snapshot.limitWindowSeconds <= 0 {
+                id = "\(baseID)-\(role)"
+            } else {
+                id = "\(baseID)-\(duration.slugSuffix)"
+            }
+
+            guard usedIDs.insert(id).inserted else { return nil }
+
+            let title: String
+            if !hasBoth && (duration.slugSuffix == "5h" || (snapshot.limitWindowSeconds <= 0 && role == "primary")) {
+                title = baseTitle
+            } else {
+                title = "\(baseTitle) \(duration.titleSuffix)"
+            }
+
+            return self.namedWindow(
+                id: id,
+                title: title,
+                snapshot: snapshot,
+                now: now)
         }
-        guard let id = self.windowID(for: entry), usedIDs.insert(id).inserted else { return [] }
-        return [self.namedWindow(
-            id: id,
-            title: self.windowTitle(for: entry),
-            snapshot: snapshot,
-            now: now)]
     }
 
     private static func sparkWindows(
@@ -110,6 +149,35 @@ package enum CodexAdditionalRateLimitMapper {
         if minutes > 0, minutes <= 6 * 60 { return .fiveHour }
         if minutes >= 6 * 24 * 60 { return .weekly }
         return fallback
+    }
+
+    private struct WindowDurationInfo {
+        let slugSuffix: String
+        let titleSuffix: String
+
+        static func resolve(seconds: Int, fallbackRole: String) -> WindowDurationInfo {
+            if seconds > 0 {
+                if seconds == 604800 || (seconds % 86400 == 0 && seconds / 86400 == 7) {
+                    return WindowDurationInfo(slugSuffix: "weekly", titleSuffix: "Weekly")
+                }
+                if seconds % 86400 == 0 {
+                    let d = seconds / 86400
+                    return WindowDurationInfo(slugSuffix: "\(d)d", titleSuffix: "\(d)-day")
+                }
+                if seconds % 3600 == 0 {
+                    let h = seconds / 3600
+                    return WindowDurationInfo(slugSuffix: "\(h)h", titleSuffix: "\(h)-hour")
+                }
+                if seconds % 60 == 0 {
+                    let m = seconds / 60
+                    return WindowDurationInfo(slugSuffix: "\(m)m", titleSuffix: "\(m)-minute")
+                }
+                return WindowDurationInfo(slugSuffix: "\(seconds)s", titleSuffix: "\(seconds)-second")
+            }
+            return WindowDurationInfo(
+                slugSuffix: fallbackRole.lowercased(),
+                titleSuffix: fallbackRole.capitalized)
+        }
     }
 
     private static func windowID(for entry: CodexUsageResponse.AdditionalRateLimit) -> String? {

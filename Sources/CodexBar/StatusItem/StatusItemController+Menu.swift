@@ -1072,8 +1072,14 @@ extension StatusItemController {
                     await ProviderInteractionContext.$current.withValue(.userInitiated) {
                         await self.store.refreshProvider(display.provider)
                     }
-                    guard let menu else { return }
-                    self.deferSwitcherMenuRebuildIfStillVisible(menu, provider: display.provider)
+                    guard let menu else {
+                        self.invalidateMenus(refreshOpenMenus: false)
+                        return
+                    }
+                    self.scheduleOpenRootMenuDataRebuildIfStillVisible(menu, provider: display.provider) { [weak self] in
+                        guard let self else { return false }
+                        return self.settings.effectiveSelectedTokenAccount(for: display.provider)?.id == selectedAccount.id
+                    }
                 }
             })
         let item = NSMenuItem()

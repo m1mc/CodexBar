@@ -29,22 +29,29 @@ enum TokenAccountCLIResolutionScope {
     case ambientAccount
 }
 
-enum TokenAccountCLIError: LocalizedError {
+enum TokenAccountCLIError: LocalizedError, Equatable {
     case noAccounts(UsageProvider)
     case accountNotFound(UsageProvider, String)
     case indexOutOfRange(UsageProvider, Int, Int)
+    case ambiguousAccount(UsageProvider, String, [String])
     case antigravityCLIAccountSelectionUnsupported
 
     var errorDescription: String? {
         switch self {
         case let .noAccounts(provider):
-            "No token accounts configured for \(provider.rawValue)."
+            return "No token accounts configured for \(provider.rawValue)."
         case let .accountNotFound(provider, label):
-            "No token account labeled '\(label)' for \(provider.rawValue)."
+            return "No token account labeled '\(label)' for \(provider.rawValue)."
         case let .indexOutOfRange(provider, index, count):
-            "Token account index \(index) out of range for \(provider.rawValue) (1-\(count))."
+            return "Token account index \(index) out of range for \(provider.rawValue) (1-\(count))."
+        case let .ambiguousAccount(provider, label, candidates):
+            var msg = "Multiple accounts match '\(label)' for \(provider.rawValue)."
+            if !candidates.isEmpty {
+                msg += " Please specify by unique ID or --account-index:\n" + candidates.map { "  - \($0)" }.joined(separator: "\n")
+            }
+            return msg
         case .antigravityCLIAccountSelectionUnsupported:
-            "Antigravity CLI uses its local login and cannot select saved Google accounts. " +
+            return "Antigravity CLI uses its local login and cannot select saved Google accounts. " +
                 "Use --source auto or --source oauth with account selection."
         }
     }
@@ -112,8 +119,18 @@ struct TokenAccountCLIContext {
 
         if let label = self.selection.label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty {
             let normalized = label.lowercased()
-            if let match = data.accounts.first(where: { $0.label.lowercased() == normalized }) {
-                return [match]
+            if let directIDMatch = data.accounts.first(where: { $0.id.uuidString.lowercased() == normalized }) {
+                return [directIDMatch]
+            }
+            let matches = data.accounts.filter { $0.label.lowercased() == normalized }
+            if matches.count == 1 {
+                return [matches[0]]
+            } else if matches.count > 1 {
+                let candidates = matches.map { account -> String in
+                    let idx = (data.accounts.firstIndex(where: { $0.id == account.id }) ?? 0) + 1
+                    return "\(account.label) (ID: \(account.id.uuidString)) -> use '--account \(account.id.uuidString)' or '--account-index \(idx)'"
+                }
+                throw TokenAccountCLIError.ambiguousAccount(provider, label, candidates)
             }
             throw TokenAccountCLIError.accountNotFound(provider, label)
         }
@@ -310,14 +327,40 @@ struct TokenAccountCLIContext {
 
         if let label = self.selection.label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty {
             let normalized = label.lowercased()
-            if let match = accounts.first(where: {
+
+            // 1. Direct unique ID match (exact match on id or storedAccountID.uuidString).
+            // Unique ID takes precedence and is not shadowed by aliases or workspace labels.
+            if let directIDMatch = accounts.first(where: {
+                $0.id.lowercased() == normalized
+                    || $0.storedAccountID?.uuidString.lowercased() == normalized
+            }) {
+                return [directIDMatch]
+            }
+
+            // 2. Non-ID alias matches (email, workspaceLabel, customName)
+            let matches = accounts.filter {
                 $0.email.lowercased() == normalized
                     || $0.workspaceLabel?.lowercased() == normalized
                     || $0.customName?.lowercased() == normalized
-                    || $0.id.lowercased() == normalized
-            }) {
-                return [match]
             }
+
+            if matches.count == 1 {
+                return [matches[0]]
+            } else if matches.count > 1 {
+                let candidates = matches.map { account -> String in
+                    let idx = (accounts.firstIndex(of: account) ?? 0) + 1
+                    var desc = account.email
+                    if let ws = account.workspaceLabel, !ws.isEmpty {
+                        desc += " (workspace: \(ws))"
+                    }
+                    if let custom = account.customName, !custom.isEmpty {
+                        desc += " [\(custom)]"
+                    }
+                    return "\(desc) -> use '--account \(account.id)' or '--account-index \(idx)'"
+                }
+                throw TokenAccountCLIError.ambiguousAccount(.codex, label, candidates)
+            }
+
             throw TokenAccountCLIError.accountNotFound(.codex, label)
         }
 

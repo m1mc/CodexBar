@@ -369,6 +369,104 @@ struct TokenAccountCLISelectionTests {
         #expect(throws: TokenAccountCLIError.self) {
             try oobCtx.resolvedCodexAccounts()
         }
+
+        // 8. Ambiguous workspace label: two accounts with workspaceLabel "Personal"
+        let p1 = ManagedCodexAccount(
+            id: UUID(),
+            email: "user1@example.com",
+            workspaceLabel: "Personal",
+            managedHomePath: storeDir.appendingPathComponent("homeP1").path,
+            createdAt: 0,
+            updatedAt: 0,
+            lastAuthenticatedAt: 0)
+        let p2 = ManagedCodexAccount(
+            id: UUID(),
+            email: "user2@example.com",
+            workspaceLabel: "Personal",
+            managedHomePath: storeDir.appendingPathComponent("homeP2").path,
+            createdAt: 0,
+            updatedAt: 0,
+            lastAuthenticatedAt: 0)
+        let ambiguousStoreURL = storeDir.appendingPathComponent("ambiguous-store.json")
+        let ambiguousStore = FileManagedCodexAccountStore(fileURL: ambiguousStoreURL)
+        try ambiguousStore.storeAccounts(ManagedCodexAccountSet(version: 3, accounts: [p1, p2]))
+
+        let personalAmbiguousCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: "Personal", index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: ambiguousStoreURL)
+        #expect(throws: TokenAccountCLIError.self) {
+            try personalAmbiguousCtx.resolvedCodexAccounts()
+        }
+        do {
+            _ = try personalAmbiguousCtx.resolvedCodexAccounts()
+        } catch let TokenAccountCLIError.ambiguousAccount(provider, label, candidates) {
+            #expect(provider == .codex)
+            #expect(label == "Personal")
+            #expect(candidates.count == 2)
+            #expect(candidates[0].contains("--account-index 1"))
+            #expect(candidates[1].contains("--account-index 2"))
+        } catch {
+            Issue.record("Expected ambiguousAccount error but got \(error)")
+        }
+
+        // 9. Ambiguous email: same email across different workspaces
+        let w1 = ManagedCodexAccount(
+            id: UUID(),
+            email: "same@example.com",
+            workspaceLabel: "Personal",
+            workspaceAccountID: "ws_personal",
+            managedHomePath: storeDir.appendingPathComponent("homeW1").path,
+            createdAt: 0,
+            updatedAt: 0,
+            lastAuthenticatedAt: 0)
+        let w2 = ManagedCodexAccount(
+            id: UUID(),
+            email: "same@example.com",
+            workspaceLabel: "Engineering",
+            workspaceAccountID: "ws_eng",
+            managedHomePath: storeDir.appendingPathComponent("homeW2").path,
+            createdAt: 0,
+            updatedAt: 0,
+            lastAuthenticatedAt: 0)
+        let sameEmailStoreURL = storeDir.appendingPathComponent("same-email-store.json")
+        let sameEmailStore = FileManagedCodexAccountStore(fileURL: sameEmailStoreURL)
+        try sameEmailStore.storeAccounts(ManagedCodexAccountSet(version: 3, accounts: [w1, w2]))
+
+        let sameEmailCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: "same@example.com", index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: sameEmailStoreURL)
+        #expect(throws: TokenAccountCLIError.self) {
+            try sameEmailCtx.resolvedCodexAccounts()
+        }
+
+        // 10. Unique ID is not shadowed by an alias:
+        // Account 1 has id equal to p1.id.uuidString.
+        // Selecting by its unique ID succeeds without ambiguity even if another account's name/label shares characters.
+        let directIDCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: p1.id.uuidString, index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: ambiguousStoreURL)
+        let directResolved = try directIDCtx.resolvedCodexAccounts()
+        #expect(directResolved.count == 1)
+        #expect(directResolved.first?.email == "user1@example.com")
+
+        // 11. Case-insensitivity on unique ID and labels
+        let upperIDCtx = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: p1.id.uuidString.uppercased(), index: nil, allAccounts: false),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:],
+            managedCodexAccountStoreURL: ambiguousStoreURL)
+        let upperResolved = try upperIDCtx.resolvedCodexAccounts()
+        #expect(upperResolved.first?.email == "user1@example.com")
     }
 
     private static func account(id: UUID = UUID(), token: String) -> ProviderTokenAccount {
