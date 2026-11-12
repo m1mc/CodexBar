@@ -35,7 +35,6 @@ enum ProviderImplementationManifest {
         AmpProviderImplementation(),
         PluginCookieProviderImplementation(spec: T3ChatProviderDescriptor.spec),
         PluginCookieProviderImplementation(spec: LangdockProviderDescriptor.spec),
-        OllamaProviderImplementation(),
         PluginAPIKeyProviderImplementation(spec: SyntheticProviderDescriptor.spec),
         OpenRouterProviderImplementation(),
         PluginAPIKeyProviderImplementation(spec: ElevenLabsProviderDescriptor.spec),

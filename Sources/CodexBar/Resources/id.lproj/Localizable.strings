@@ -32,9 +32,6 @@
 "%dh ago" = "%dj yang lalu";
 "%dd ago" = "%d hari yang lalu";
 
-"ollama_safari_cookie_access_hint" = "Cookie Safari memerlukan Akses Disk Penuh untuk CodexBar (Pengaturan Sistem > Privasi & Keamanan).";
-"ollama_browser_cookie_decryption_denied" = "Dekripsi cookie %@ ditolak di Rantai Kunci. Buka kartu penyedia dan klik Segarkan (⌘R) untuk meminta akses Rantai Kunci lagi.";
-"ollama_browser_cookie_decryption_disabled" = "Dekripsi cookie %@ dinonaktifkan di CodexBar; aktifkan akses Rantai Kunci lalu segarkan.";
 
 " providers" = " penyedia";
 "(System)" = "(Sistem)";
@@ -269,7 +266,6 @@
 "Open Dashboard" = "Buka Dasbor";
 "Open Mistral Admin" = "Buka Mistral Admin";
 "Open Menu Bar Settings" = "Buka Pengaturan Menu Bar";
-"Open Ollama Settings" = "Buka Pengaturan Ollama";
 "Open Terminal" = "Buka Terminal";
 "Open Usage Page" = "Buka Halaman Penggunaan";
 "Open Warp API Key Guide" = "Buka Panduan Kunci API Warp";
@@ -355,7 +351,6 @@
 "Store multiple Factory Cookie headers." = "Simpan beberapa header Cookie Factory.";
 "Store multiple MiniMax Cookie headers." = "Simpan beberapa header Cookie MiniMax.";
 "Store multiple Mistral Cookie headers." = "Simpan beberapa header Cookie Mistral.";
-"Store multiple Ollama Cookie headers." = "Simpan beberapa header Cookie Ollama.";
 "Store multiple OpenCode Cookie headers." = "Simpan beberapa header Cookie OpenCode.";
 "Store multiple OpenCode Go Cookie headers." = "Simpan beberapa header Cookie OpenCode Go.";
 "Stored in the CodexBar config file." = "Disimpan dalam file konfigurasi CodexBar.";
@@ -1054,7 +1049,6 @@
 "Hourly Usage" = "Penggunaan Per Jam";
 "Usage remaining" = "Penggunaan tersisa";
 "Usage used" = "Penggunaan terpakai";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "Kunci API terverifikasi. Kuota Cloud memerlukan cookie browser. Masuk ke Ollama.";
 "Last 30 days: %@ tokens" = "30 hari terakhir: %@ token";
 "7d spend" = "Pengeluaran 7 hari";
 "30d spend" = "Pengeluaran 30 hari";
@@ -1147,7 +1141,6 @@
 "4 days" = "4 hari";
 "5 days" = "5 hari";
 "7 days" = "7 hari";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "Kunci API memverifikasi akses Ollama Cloud; cookie masih menampilkan batas kuota.";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "AWS access key ID. Dapat juga diatur dengan AWS_ACCESS_KEY_ID.";
 "AWS region. Can also be set with AWS_REGION." = "Wilayah AWS. Dapat juga diatur dengan AWS_REGION.";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "AWS secret access key. Dapat juga diatur dengan AWS_SECRET_ACCESS_KEY.";
@@ -1222,7 +1215,6 @@
 "Open Manus" = "Buka Manus";
 "Open MiMo Balance" = "Buka Saldo MiMo";
 "Open Moonshot Console" = "Buka Konsol Moonshot";
-"Open Ollama API Keys" = "Buka Kunci API Ollama";
 "Open llmman" = "Buka llmman";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "Disimpan di ~/.codexbar/config.json. Hanya diperlukan jika llmman serve mewajibkan kunci API.";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "Alamat llmman serve. Default: http://127.0.0.1:17434.";
@@ -1280,7 +1272,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "Disimpan di ~/.codexbar/config.json. AZURE_OPENAI_API_KEY juga didukung.";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "Disimpan di ~/.codexbar/config.json. Untuk API Kimi resmi, gunakan Moonshot / Kimi API.";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "Disimpan di ~/.codexbar/config.json. Dapatkan kunci API Anda dari konsol Volcengine Ark.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "Disimpan di ~/.codexbar/config.json. Dapatkan kunci Anda dari pengaturan Ollama.";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "Disimpan di ~/.codexbar/config.json. Dapatkan kunci Anda dari console.deepgram.com.";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "Disimpan di ~/.codexbar/config.json. Dapatkan kunci Anda dari elevenlabs.io/app/settings/api-keys.";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "Disimpan di ~/.codexbar/config.json. Dapatkan kunci Anda dari openrouter.ai/settings/keys dan atur batas pengeluaran kunci di sana untuk mengaktifkan pelacakan kuota kunci API.";
@@ -2071,7 +2062,6 @@
 "kilo_..." = "kilo_...";
 "left" = "tersisa";
 "now" = "sekarang";
-"ollama-..." = "ollama-...";
 "on pace" = "penggunaan pada kecepatan yang direncanakan";
 "org/example-org" = "org/example-org";
 "over pace" = "penggunaan di atas kecepatan yang direncanakan";
@@ -2296,7 +2286,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "Kunci virtual Bifrost digunakan untuk membaca anggaran dan batas frekuensi permintaannya sendiri.";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Basis gateway Bifrost URL, mis. host Bifrost yang dihosting sendiri oleh perusahaan Anda.";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "Simpan beberapa header atau nilai sesi Ollama Cookie.";
 "Cookie header or bare session value" = "Header Cookie atau nilai sesi tanpa header";
 "Antigravity OAuth credentials JSON" = "Antigravity OAuth kredensial JSON";
 "Gemini Models" = "Model Gemini";

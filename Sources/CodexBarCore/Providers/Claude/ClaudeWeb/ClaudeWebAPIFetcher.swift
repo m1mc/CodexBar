@@ -1437,8 +1437,7 @@ extension ClaudeWebAPIFetcher {
         // own no-UI preflight (Safari never needs Keychain decryption, and a Chromium browser with a prior
         // "Always Allow" Keychain grant is also read without a prompt), so a background attempt is not
         // unconditionally denied. Only if that attempt itself comes back empty do we surface the original,
-        // more informative cached-auth error instead of a misleading "no session key found" — mirroring the
-        // equivalent Ollama recovery in `OllamaStatusFetchStrategy.fetchAutomatic`.
+        // more informative cached-auth error instead of a misleading "no session key found".
         let sessionInfo: SessionKeyInfo
         do {
             sessionInfo = try self.extractSessionKeyInfo(browserDetection: browserDetection, logger: log)

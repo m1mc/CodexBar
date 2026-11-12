@@ -32,9 +32,6 @@
 "%dh ago" = "%d sa önce";
 "%dd ago" = "%d gün önce";
 
-"ollama_safari_cookie_access_hint" = "Safari çerezleri için CodexBar'a Tam Disk Erişimi gerekir (Sistem Ayarları > Gizlilik ve Güvenlik).";
-"ollama_browser_cookie_decryption_denied" = "%@ çerezlerinin şifresini çözme işlemi Anahtar Zinciri'nde reddedildi. Sağlayıcı kartını açın ve Anahtar Zinciri erişimini yeniden istemek için Yenile'ye (⌘R) tıklayın.";
-"ollama_browser_cookie_decryption_disabled" = "%@ çerezlerinin şifresi CodexBar'da çözülemiyor; Anahtar Zinciri erişimini etkinleştirip yenileyin.";
 
 " providers" = " sağlayıcı";
 "(System)" = "(Sistem)";
@@ -269,7 +266,6 @@
 "Open Dashboard" = "Gösterge panelini aç";
 "Open Mistral Admin" = "Mistral yönetimini aç";
 "Open Menu Bar Settings" = "Menü çubuğu ayarlarını aç";
-"Open Ollama Settings" = "Ollama ayarlarını aç";
 "Open Terminal" = "Terminali aç";
 "Open Usage Page" = "Kullanım sayfasını aç";
 "Open Warp API Key Guide" = "Warp API anahtarı kılavuzunu aç";
@@ -355,7 +351,6 @@
 "Store multiple Factory Cookie headers." = "Birden fazla Factory çerez başlığı depolayın.";
 "Store multiple MiniMax Cookie headers." = "Birden fazla MiniMax çerez başlığı depolayın.";
 "Store multiple Mistral Cookie headers." = "Birden fazla Mistral çerez başlığı depolayın.";
-"Store multiple Ollama Cookie headers." = "Birden fazla Ollama çerez başlığı depolayın.";
 "Store multiple OpenCode Cookie headers." = "Birden fazla OpenCode çerez başlığı depolayın.";
 "Store multiple OpenCode Go Cookie headers." = "Birden fazla OpenCode Go çerez başlığı depolayın.";
 "Stored in the CodexBar config file." = "CodexBar yapılandırma dosyasında depolandı.";
@@ -1048,7 +1043,6 @@
 "Hourly Usage" = "Saatlik kullanım";
 "Usage remaining" = "Kalan kullanım";
 "Usage used" = "Kullanılan miktar";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "API anahtarı doğrulandı. Cloud kotaları için tarayıcı çerezleri gerekir. Ollama'da oturum açın.";
 "Last 30 days: %@ tokens" = "Son 30 gün: %@ token";
 "7d spend" = "7 günlük harcama";
 "30d spend" = "30 günlük harcama";
@@ -1140,7 +1134,6 @@
 "4 days" = "4 gün";
 "5 days" = "5 gün";
 "7 days" = "7 gün";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "API anahtarı Ollama Cloud erişimini doğrular; çerezler kota limitlerini göstermeye devam eder.";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "AWS erişim anahtarı kimliği. AWS_ACCESS_KEY_ID ile de ayarlanabilir.";
 "AWS region. Can also be set with AWS_REGION." = "AWS bölgesi. AWS_REGION ile de ayarlanabilir.";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "AWS gizli erişim anahtarı. AWS_SECRET_ACCESS_KEY ile de ayarlanabilir.";
@@ -1214,7 +1207,6 @@
 "Open Manus" = "Manus'u aç";
 "Open MiMo Balance" = "MiMo bakiyesini aç";
 "Open Moonshot Console" = "Moonshot konsolunu aç";
-"Open Ollama API Keys" = "Ollama API anahtarlarını aç";
 "Open llmman" = "llmman'ı aç";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "~/.codexbar/config.json dosyasında saklanır. Yalnızca llmman serve API anahtarı gerektirdiğinde gereklidir.";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "llmman serve adresi. Varsayılan: http://127.0.0.1:17434.";
@@ -1271,7 +1263,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "~/.codexbar/config.json dosyasında depolandı. AZURE_OPENAI_API_KEY de desteklenir.";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "~/.codexbar/config.json dosyasında depolandı. Resmi Kimi API'si için Moonshot / Kimi API kullanın.";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "~/.codexbar/config.json dosyasında depolandı. API anahtarınızı Volcengine Ark konsolundan alın.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "~/.codexbar/config.json dosyasında depolandı. Anahtarınızı Ollama ayarlarından alın.";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "~/.codexbar/config.json dosyasında depolandı. Anahtarınızı console.deepgram.com'dan alın.";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "~/.codexbar/config.json dosyasında depolandı. Anahtarınızı elevenlabs.io/app/settings/api-keys adresinden alın.";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "~/.codexbar/config.json dosyasında depolandı. Anahtarınızı openrouter.ai/settings/keys adresinden alın ve API anahtarı kota izlemeyi etkinleştirmek için orada bir anahtar harcama limiti ayarlayın.";
@@ -2070,7 +2061,6 @@
 "kilo_..." = "kilo_...";
 "left" = "kaldı";
 "now" = "şimdi";
-"ollama-..." = "ollama-...";
 "on pace" = "Planlanan hızda kullanım";
 "org/example-org" = "org/example-org";
 "over pace" = "Planlanan hızın üzerinde kullanım";
@@ -2295,7 +2285,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "Kendi bütçelerini ve ücret limitlerini okumak için kullanılan Bifrost sanal anahtarı.";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Bifrost ağ geçidi tabanı URL, ör. şirketinizin kendi kendine barındırılan Bifrost ana bilgisayarı.";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "Birden fazla Ollama Cookie üstbilgisini veya oturum değerini saklayın.";
 "Cookie header or bare session value" = "Cookie üstbilgisi veya çıplak oturum değeri";
 "Antigravity OAuth credentials JSON" = "Antigravity OAuth kimlik bilgileri JSON";
 "Gemini Models" = "Gemini Modelleri";

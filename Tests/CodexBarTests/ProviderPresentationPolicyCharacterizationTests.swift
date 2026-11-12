@@ -104,8 +104,6 @@ struct ProviderPresentationPolicyCharacterizationTests {
             (.codex, 10080, false),
             (.codex, 43200, false),
             (.claude, nil, true),
-            (.ollama, nil, false),
-            (.ollama, 300, true),
             (.antigravity, nil, false),
             (.antigravity, 300, true),
             (.antigravity, 301, false),

@@ -1076,8 +1076,6 @@ extension UsageStore {
         let cursorCookieHeader = self.settings.cursorCookieHeader
         let ampCookieSource = self.settings.ampCookieSource
         let ampCookieHeader = self.settings.ampCookieHeader
-        let ollamaCookieSource = self.settings.ollamaCookieSource
-        let ollamaCookieHeader = self.settings.ollamaCookieHeader
         let notionCookieSource = self.settings.notionCookieSource
         let notionCookieHeader = self.settings.notionCookieHeader
         let notionWorkspaceID = self.settings.notionWorkspaceID
@@ -1148,11 +1146,6 @@ extension UsageStore {
                         browserDetection: browserDetection,
                         ampCookieSource: ampCookieSource,
                         ampCookieHeader: ampCookieHeader)
-                case .ollama:
-                    return await Self.debugOllamaLog(
-                        browserDetection: browserDetection,
-                        ollamaCookieSource: ollamaCookieSource,
-                        ollamaCookieHeader: ollamaCookieHeader)
                 case .notion:
                     return await Self.debugNotionLog(
                         browserDetection: browserDetection,
@@ -1359,22 +1352,6 @@ extension UsageStore {
                 ? CookieHeaderNormalizer.normalize(ampCookieHeader)
                 : nil
             return await fetcher.debugRawProbe(cookieHeaderOverride: manualHeader)
-        }
-    }
-
-    private static func debugOllamaLog(
-        browserDetection: BrowserDetection,
-        ollamaCookieSource: ProviderCookieSource,
-        ollamaCookieHeader: String) async -> String
-    {
-        await runWithTimeout(seconds: 15) {
-            let fetcher = OllamaUsageFetcher(browserDetection: browserDetection)
-            let manualHeader = ollamaCookieSource == .manual
-                ? CookieHeaderNormalizer.normalize(ollamaCookieHeader)
-                : nil
-            return await fetcher.debugRawProbe(
-                cookieHeaderOverride: manualHeader,
-                manualCookieMode: ollamaCookieSource == .manual)
         }
     }
 

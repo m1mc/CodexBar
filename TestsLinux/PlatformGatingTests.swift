@@ -20,26 +20,6 @@ struct PlatformGatingTests {
     }
 
     @Test
-    func `ollama manual cookie allows auto and web sources`() async {
-        let manualCookieSettings = ProviderSettingsSnapshot.make(
-            ollama: .init(cookieSource: .manual, manualCookieHeader: "__Secure-session=manual"))
-
-        #expect(await !CodexBarCLI.sourceModeRequiresWebSupport(
-            .auto,
-            provider: .ollama,
-            settings: manualCookieSettings))
-        #expect(await !CodexBarCLI.sourceModeRequiresWebSupport(
-            .web,
-            provider: .ollama,
-            settings: manualCookieSettings))
-        #expect(await CodexBarCLI.sourceModeRequiresWebSupport(
-            .web,
-            provider: .ollama,
-            settings: ProviderSettingsSnapshot.make(
-                ollama: .init(cookieSource: .manual, manualCookieHeader: "   "))))
-    }
-
-    @Test
     func claudeAutoSource_allowsPlannerToFallBackToCLI() async {
         #expect(await !CodexBarCLI.sourceModeRequiresWebSupport(.auto, provider: .claude))
         #expect(await CodexBarCLI.sourceModeRequiresWebSupport(.web, provider: .claude))

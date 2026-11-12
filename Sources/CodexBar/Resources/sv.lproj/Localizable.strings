@@ -53,9 +53,6 @@
 "hooks_add_argument" = "Lägg till argument";
 "hooks_delete_argument" = "Ta bort argument";
 
-"ollama_safari_cookie_access_hint" = "Safari-cookies kräver full skivåtkomst för CodexBar (Systeminställningar > Integritet och säkerhet).";
-"ollama_browser_cookie_decryption_denied" = "Dekryptering av %@-cookies nekades i Nyckelhanteraren. Öppna leverantörskortet och klicka på Uppdatera (⌘R) för att begära åtkomst till Nyckelhanteraren igen.";
-"ollama_browser_cookie_decryption_disabled" = "Dekryptering av %@-cookies är inaktiverad i CodexBar; aktivera åtkomst till Nyckelhanteraren och uppdatera.";
 
 " providers" = " leverantörer";
 "(System)" = "(System)";
@@ -286,7 +283,6 @@
 "Open Dashboard" = "Öppna instrumentpanel";
 "Open Mistral Admin" = "Öppna Mistral Admin";
 "Open Menu Bar Settings" = "Öppna inställningar för menyraden";
-"Open Ollama Settings" = "Öppna Ollama-inställningar";
 "Open Terminal" = "Öppna Terminal";
 "Open Usage Page" = "Öppna användningssida";
 "Open Warp API Key Guide" = "Öppna guide för Warp API-nyckel";
@@ -371,7 +367,6 @@
 "Store multiple Factory Cookie headers." = "Spara flera Cookie-headers för Factory.";
 "Store multiple MiniMax Cookie headers." = "Spara flera Cookie-headers för MiniMax.";
 "Store multiple Mistral Cookie headers." = "Spara flera Cookie-headers för Mistral.";
-"Store multiple Ollama Cookie headers." = "Spara flera Cookie-headers för Ollama.";
 "Store multiple OpenCode Cookie headers." = "Spara flera Cookie-headers för OpenCode.";
 "Store multiple OpenCode Go Cookie headers." = "Spara flera Cookie-headers för OpenCode Go.";
 "Stored in the CodexBar config file." = "Sparas i CodexBars konfigurationsfil.";
@@ -1071,7 +1066,6 @@
 "%d percent remaining" = "%d procent kvar";
 "Open Manus" = "Öppna Manus";
 "Unknown" = "Okänt";
-"Open Ollama API Keys" = "Öppna Ollama-API-nycklar";
 "Open llmman" = "Öppna llmman";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "Lagras i ~/.codexbar/config.json. Behövs bara när llmman serve kräver API-nycklar.";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "Adress till llmman serve. Standard är http://127.0.0.1:17434.";
@@ -1188,7 +1182,6 @@
 "Overage cost" = "Kostnad för överförbrukning";
 "CodexBar can't replace a system account that is signed in with an API key only setup." = "CodexBar kan inte ersätta ett systemkonto som är inloggat med en konfiguration som bara använder API-nyckel.";
 "Utilization Start" = "Användningsstart";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "API-nyckeln verifierar åtkomst till Ollama Cloud. Cookies visar fortfarande kvotgränser.";
 "Credits remaining" = "Krediter kvar";
 "Activity" = "Aktivitet";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "Sparas i ~/.codexbar/config.json. Hämta nyckeln från console.deepgram.com.";
@@ -1246,7 +1239,6 @@
 "Personal account" = "Personligt konto";
 "Automatically imports browser session cookies." = "Importerar webbläsarens sessionscookies automatiskt.";
 "Label" = "Etikett";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "Sparas i ~/.codexbar/config.json. Hämta nyckeln från Ollama-inställningarna.";
 "Open Augment (Log Out & Back In)" = "Öppna Augment (logga ut och in igen)";
 "Overages" = "Överförbrukning";
 "Overage" = "Överförbrukning";
@@ -1259,7 +1251,6 @@
 "keychain_prompt_privacy_note" = "Inmatningen av Mac-inloggningslösenordet hanteras av macOS, inte CodexBar. Du kan när som helst inaktivera åtkomst till Nyckelring under Inställningar → Avancerat.";
 "Username" = "Användarnamn";
 "30d spend" = "30 d kostnad";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "API-nyckeln har verifierats. Cloud-kvoter kräver webbläsarcookies. Logga in på Ollama.";
 "Series" = "Serie";
 "Total (30d): %@ credits" = "Totalt (30 d): %@ krediter";
 "Paste a Cookie header or full cURL capture from T3 Chat settings." = "Klistra in en Cookie-header eller fullständig cURL-fångst från T3 Chat-inställningarna.";
@@ -2066,7 +2057,6 @@
 "kilo_..." = "kilo_...";
 "left" = "kvar";
 "now" = "nu";
-"ollama-..." = "ollama-...";
 "on pace" = "användning i planerad takt";
 "org/example-org" = "org/example-org";
 "over pace" = "användning över planerat tempo";
@@ -2291,7 +2281,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "Bifrost virtuell nyckel som används för att läsa sina egna budgetar och gränser för anropsfrekvens.";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Bifrost gatewaybas URL, t.ex. ditt företags självvärdade Bifrost-värd.";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "Lagra flera Ollama Cookie rubriker eller sessionsvärden.";
 "Cookie header or bare session value" = "Cookie rubrik eller obegränsat sessionsvärde";
 "Antigravity OAuth credentials JSON" = "Antigravity OAuth referenser JSON";
 "Gemini Models" = "Gemini-modeller";

@@ -828,7 +828,6 @@ struct LocalizationLanguageCatalogTests {
             "language_thai",
             "link_github",
             "menu_bar_layout_separator_tilde",
-            "ollama-...",
             "org/example-org",
             "ory_session_…=…; csrftoken=…",
             "proj_...",

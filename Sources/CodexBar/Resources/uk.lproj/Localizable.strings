@@ -53,9 +53,6 @@
 "hooks_add_argument" = "Додати аргумент";
 "hooks_delete_argument" = "Видалити аргумент";
 
-"ollama_safari_cookie_access_hint" = "Для файлів cookie Safari програмі CodexBar потрібен повний доступ до диска (Системні параметри > Конфіденційність і безпека).";
-"ollama_browser_cookie_decryption_denied" = "Розшифрування файлів cookie %@ було відхилено у В’язці ключів. Відкрийте картку провайдера й натисніть «Оновити» (⌘R), щоб знову запитати доступ до В’язки ключів.";
-"ollama_browser_cookie_decryption_disabled" = "Розшифрування файлів cookie %@ вимкнено в CodexBar; увімкніть доступ до В’язки ключів і оновіть.";
 
 " providers" = " постачальників";
 "(System)" = "(Система)";
@@ -285,7 +282,6 @@
 "Open Dashboard" = "Відкрити інформаційну панель";
 "Open Mistral Admin" = "Відкрити Mistral Admin";
 "Open Menu Bar Settings" = "Відкрити налаштування рядка меню";
-"Open Ollama Settings" = "Відкрити налаштування Ollama";
 "Open Terminal" = "Відкрити термінал";
 "Open Usage Page" = "Відкрити сторінку використання";
 "Open Warp API Key Guide" = "Відкрити посібник з ключів API Warp";
@@ -370,7 +366,6 @@
 "Store multiple Factory Cookie headers." = "Зберігати кілька заголовків Cookie для Factory.";
 "Store multiple MiniMax Cookie headers." = "Зберігати кілька заголовків Cookie для MiniMax.";
 "Store multiple Mistral Cookie headers." = "Зберігати кілька заголовків Cookie для Mistral.";
-"Store multiple Ollama Cookie headers." = "Зберігайте кілька заголовків файлів cookie Ollama.";
 "Store multiple OpenCode Cookie headers." = "Зберігайте кілька заголовків файлів cookie OpenCode.";
 "Store multiple OpenCode Go Cookie headers." = "Зберігати кілька заголовків Cookie для OpenCode Go.";
 "Stored in the CodexBar config file." = "Зберігається у конфігураційному файлі CodexBar.";
@@ -1045,7 +1040,6 @@
 "Hourly Usage" = "Погодинне використання";
 "Usage remaining" = "Залишок ліміту";
 "Usage used" = "Використано";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "Ключ API перевірено. Для квот Cloud потрібні файли cookie браузера. Увійдіть в Ollama.";
 "Last 30 days: %@ tokens" = "Останні 30 днів: %@ токенів";
 "7d spend" = "Витрати за 7 дн.";
 "30d spend" = "Витрати за 30 дн.";
@@ -1131,7 +1125,6 @@
 "4 days" = "4 дні";
 "5 days" = "5 днів";
 "7 days" = "7 днів";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "Ключ API перевіряє доступ до Ollama Cloud; файли cookie все ще розкривають обмеження квоти.";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "Ідентифікатор ключа доступу до AWS. Також можна встановити за допомогою AWS_ACCESS_KEY_ID.";
 "AWS region. Can also be set with AWS_REGION." = "Регіон AWS. Також можна встановити за допомогою AWS_REGION.";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "Секретний ключ доступу до AWS. Також можна встановити за допомогою AWS_SECRET_ACCESS_KEY.";
@@ -1205,7 +1198,6 @@
 "Open Manus" = "Відкрити Manus";
 "Open MiMo Balance" = "Відкрити MiMo Balance";
 "Open Moonshot Console" = "Відкрити консоль Moonshot";
-"Open Ollama API Keys" = "Відкрити ключі API Ollama";
 "Open llmman" = "Відкрити llmman";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "Зберігається в ~/.codexbar/config.json. Потрібен лише тоді, коли llmman serve вимагає API-ключі.";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "Адреса llmman serve. За замовчуванням http://127.0.0.1:17434.";
@@ -1263,7 +1255,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "Зберігається в ~/.codexbar/config.json. Також підтримується AZURE_OPENAI_API_KEY.";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "Зберігається в ~/.codexbar/config.json. Для офіційного Kimi API використовуйте Moonshot / Kimi API.";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "Зберігається в ~/.codexbar/config.json. Отримайте ключ API з консолі Volcengine Ark.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "Зберігається в ~/.codexbar/config.json. Отримайте ключ із налаштувань Ollama.";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "Зберігається в ~/.codexbar/config.json. Отримайте ключ на console.deepgram.com.";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "Зберігається в ~/.codexbar/config.json. Отримайте свій ключ на сайті elevenlabs.io/app/settings/api-keys.";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "Зберігається в ~/.codexbar/config.json. Отримайте свій ключ із openrouter.ai/settings/keys і встановіть там ліміт витрат на ключ, щоб увімкнути відстеження квоти ключів API.";
@@ -2068,7 +2059,6 @@
 "kilo_..." = "kilo_...";
 "left" = "залишилося";
 "now" = "зараз";
-"ollama-..." = "ollama-...";
 "on pace" = "використання в запланованому темпі";
 "org/example-org" = "org/example-org";
 "over pace" = "використання вище запланованого темпу";
@@ -2293,7 +2283,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "Віртуальний ключ Bifrost, який використовується для читання власних бюджетів і обмежень ставок.";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Базова URL-адреса шлюзу Bifrost, наприклад власного сервера Bifrost вашої компанії.";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "Зберігайте кілька заголовків Ollama Cookie або значень сеансу.";
 "Cookie header or bare session value" = "Заголовок Cookie або чисте значення сеансу";
 "Antigravity OAuth credentials JSON" = "Облікові дані OAuth Antigravity (JSON)";
 "Gemini Models" = "Моделі Gemini";

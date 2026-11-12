@@ -79,13 +79,6 @@ struct CLIUnificationGoldenTests {
         Pace: On pace | Expected 29% used | Runs out in 4d 16h
         Resets in 5d
         ---
-        == ollama ==
-        Session: 90% left [==========--]
-        Resets in 4h
-        Weekly: 80% left [=========---]
-        Pace: 9% in reserve | Expected 29% used | Lasts until reset
-        Resets in 5d
-        ---
         == kimi ==
         7-day usage: 70% left [========----]
         Pace: 13% in reserve | Expected 43% used | Lasts until reset
@@ -319,36 +312,6 @@ struct CLIUnificationGoldenTests {
           },
           {
             "pace" : {
-              "secondary" : {
-                "deltaPercent" : -9,
-                "expectedUsedPercent" : 29,
-                "stage" : "behind",
-                "summary" : "9% in reserve | Expected 29% used | Lasts until reset",
-                "willLastToReset" : true
-              }
-            },
-            "provider" : "ollama",
-            "rateWindowLabels" : {
-              "primary" : "Session",
-              "secondary" : "Weekly"
-            },
-            "source" : "fixture",
-            "usage" : {
-              "primary" : {
-                "resetsAt" : 1700014400,
-                "usedPercent" : 10
-              },
-              "secondary" : {
-                "resetsAt" : 1700432000,
-                "usedPercent" : 20,
-                "windowMinutes" : 10080
-              },
-              "tertiary" : null,
-              "updatedAt" : 1700000000
-            }
-          },
-          {
-            "pace" : {
               "primary" : {
                 "deltaPercent" : -13,
                 "expectedUsedPercent" : 43,
@@ -485,9 +448,6 @@ struct CLIUnificationGoldenTests {
                 secondary: window(used: 50, minutes: 10080, resetAfter: 5 * 24 * 60 * 60))),
             Fixture(provider: .opencode, snapshot: snapshot(
                 secondary: window(used: 30, minutes: 10080, resetAfter: 5 * 24 * 60 * 60))),
-            Fixture(provider: .ollama, snapshot: snapshot(
-                primary: window(used: 10, minutes: nil, resetAfter: 4 * 60 * 60),
-                secondary: window(used: 20, minutes: 10080, resetAfter: 5 * 24 * 60 * 60))),
             Fixture(provider: .kimi, snapshot: snapshot(
                 primary: window(
                     used: 30,

@@ -771,19 +771,6 @@ final class CLIEntryTests: XCTestCase {
                     workspaceID: nil))))
         await self.expectWebSupport(await !CodexBarCLI.sourceModeRequiresWebSupport(
             .auto,
-            provider: .ollama,
-            environment: ["OLLAMA_API_KEY": "ollama-test"]))
-        await self.expectWebSupport(await !CodexBarCLI.sourceModeRequiresWebSupport(
-            .auto,
-            provider: .codex,
-            environment: ["OLLAMA_API_KEY": "ollama-test"]))
-        await self.expectWebSupport(await !CodexBarCLI.sourceModeRequiresWebSupport(
-            .auto,
-            provider: .ollama,
-            settings: ProviderSettingsSnapshot.make(
-                ollama: .init(cookieSource: .off, manualCookieHeader: nil))))
-        await self.expectWebSupport(await !CodexBarCLI.sourceModeRequiresWebSupport(
-            .auto,
             provider: .kimi,
             environment: ["KIMI_CODE_API_KEY": "kimi-test"]))
         try await self.assertKimiCodeCredentialSourceMode(in: directory)
@@ -803,24 +790,6 @@ final class CLIEntryTests: XCTestCase {
             .auto,
             provider: .mimo,
             environment: ["MIMO_LOCAL_USAGE_PATH": directory.appendingPathComponent("missing.json").path]))
-    }
-
-    func test_sourceModeRequiresWebSupportAllowsOllamaManualCookieOnLinuxGate() async {
-        await self.expectWebSupport(await !CodexBarCLI.sourceModeRequiresWebSupport(
-            .auto,
-            provider: .ollama,
-            settings: ProviderSettingsSnapshot.make(
-                ollama: .init(cookieSource: .manual, manualCookieHeader: "__Secure-session=manual"))))
-        await self.expectWebSupport(await !CodexBarCLI.sourceModeRequiresWebSupport(
-            .web,
-            provider: .ollama,
-            settings: ProviderSettingsSnapshot.make(
-                ollama: .init(cookieSource: .manual, manualCookieHeader: "__Secure-session=manual"))))
-        await self.expectWebSupport(await CodexBarCLI.sourceModeRequiresWebSupport(
-            .web,
-            provider: .ollama,
-            settings: ProviderSettingsSnapshot.make(
-                ollama: .init(cookieSource: .manual, manualCookieHeader: "   "))))
     }
 
     func test_sourceModeRequiresWebSupportAllowsQwenCookiesOnLinuxGate() async {

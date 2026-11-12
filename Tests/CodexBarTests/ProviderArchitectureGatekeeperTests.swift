@@ -156,9 +156,9 @@ struct ProviderArchitectureGatekeeperTests {
             Self.hash(descriptor.branding.burnDownWidgetColor, into: &burnDownFingerprint)
         }
 
-        // Tripo extends the audited palette without changing existing provider colors.
-        #expect(widgetFingerprint == 8_165_290_587_712_788_196)
-        #expect(burnDownFingerprint == 4_518_705_644_902_934_406)
+        // Ollama's removal drops its palette entry without changing the remaining provider colors.
+        #expect(widgetFingerprint == 8_782_307_956_676_615_459)
+        #expect(burnDownFingerprint == 595_498_235_227_880_620)
     }
 
     @Test
@@ -186,10 +186,10 @@ struct ProviderArchitectureGatekeeperTests {
             .map(\.0)
         }
 
-        #expect(ordered { $0.probeLogOrder } == [.codex, .claude, .cursor, .augment, .amp, .ollama])
+        #expect(ordered { $0.probeLogOrder } == [.codex, .claude, .cursor, .augment, .amp])
         #expect(ordered { $0.notificationSimulationOrder } == [.codex, .claude])
         #expect(ordered { $0.errorSimulationOrder } == [
-            .codex, .claude, .gemini, .antigravity, .augment, .amp, .t3chat, .zoommate, .ollama,
+            .codex, .claude, .gemini, .antigravity, .augment, .amp, .t3chat, .zoommate,
         ])
     }
 
@@ -1754,10 +1754,9 @@ struct ProviderArchitectureGatekeeperTests {
                 "doubao",
                 "factory",
                 "grok",
-                "ollama",
                 "sub2api",
             ],
-            expectedReferenceCount: 12,
+            expectedReferenceCount: 11,
             expectedReferenceFingerprint: [
                 "factory@0",
                 "cursor@4",
@@ -1766,11 +1765,10 @@ struct ProviderArchitectureGatekeeperTests {
                 "sub2api@10",
                 "amp@12",
                 "alibabatokenplan@14",
-                "ollama@16",
-                "amp@21",
-                "alibabatokenplan@23",
-                "sub2api@25",
-                "sub2api@30",
+                "amp@19",
+                "alibabatokenplan@21",
+                "sub2api@23",
+                "sub2api@28",
             ],
             reason: "This exact shared renderer maps provider-owned presentation data into the generic UI model."),
         AllowedProviderConstruct(
@@ -2477,9 +2475,9 @@ struct ProviderArchitectureGatekeeperTests {
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore/UsageStore+Accessors.swift",
             anchor: "case .codex:",
-            expectedProviderIDs: ["claude", "codex", "ollama"],
-            expectedReferenceCount: 3,
-            expectedReferenceFingerprint: ["codex@0", "claude@2", "ollama@6"],
+            expectedProviderIDs: ["claude", "codex"],
+            expectedReferenceCount: 2,
+            expectedReferenceFingerprint: ["codex@0", "claude@2"],
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore/UsageStore+HighestUsage.swift",
@@ -3035,8 +3033,8 @@ struct ProviderArchitectureGatekeeperTests {
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore/UsageStore+WidgetSnapshot.swift",
             anchor: "case .cursor where snapshot.detailRow(label: \"Request quota\") != nil: \"Requests\"",
-            expectedProviderIDs: ["alibabatokenplan", "amp", "cursor", "doubao", "grok", "ollama"],
-            expectedReferenceCount: 7,
+            expectedProviderIDs: ["alibabatokenplan", "amp", "cursor", "doubao", "grok"],
+            expectedReferenceCount: 6,
             expectedReferenceFingerprint: [
                 "cursor@0",
                 "cursor@1",
@@ -3044,7 +3042,6 @@ struct ProviderArchitectureGatekeeperTests {
                 "doubao@3",
                 "amp@4",
                 "alibabatokenplan@5",
-                "ollama@6",
             ],
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
@@ -3099,16 +3096,15 @@ struct ProviderArchitectureGatekeeperTests {
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore/UsageStore.swift",
             anchor: "case .amp:",
-            expectedProviderIDs: ["amp", "deepseek", "notion", "ollama", "warp"],
-            expectedReferenceCount: 7,
+            expectedProviderIDs: ["amp", "deepseek", "notion", "warp"],
+            expectedReferenceCount: 6,
             expectedReferenceFingerprint: [
                 "amp@0",
-                "ollama@5",
-                "notion@10",
-                "warp@16",
-                "warp@17",
-                "deepseek@21",
-                "deepseek@24",
+                "notion@5",
+                "warp@11",
+                "warp@12",
+                "deepseek@16",
+                "deepseek@19",
             ],
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(

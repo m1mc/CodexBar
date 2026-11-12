@@ -32,9 +32,6 @@
 "%dh ago" = "%dس پیش";
 "%dd ago" = "%dروز پیش";
 
-"ollama_safari_cookie_access_hint" = "کوکی‌های Safari برای CodexBar به دسترسی کامل دیسک نیاز دارند (تنظیمات سیستم > حریم خصوصی و امنیت).";
-"ollama_browser_cookie_decryption_denied" = "رمزگشایی کوکی‌های %@ در Keychain رد شد. کارت ارائه‌دهنده را باز کنید و روی تازه‌سازی (⌘R) کلیک کنید تا دوباره دسترسی به Keychain درخواست شود.";
-"ollama_browser_cookie_decryption_disabled" = "رمزگشایی کوکی‌های %@ در CodexBar غیرفعال است؛ دسترسی Keychain را فعال و تازه‌سازی کنید.";
 
 " providers" = " ارائه دهندگان";
 "(System)" = "(سیستم)";
@@ -269,7 +266,6 @@
 "Open Dashboard" = "داشبورد باز";
 "Open Mistral Admin" = "Mistral Admin را باز کنید";
 "Open Menu Bar Settings" = "تنظیمات نوار منو را باز کنید";
-"Open Ollama Settings" = "تنظیمات باز Ollama";
 "Open Terminal" = "ترمینال باز";
 "Open Usage Page" = "صفحه استفاده باز";
 "Open Warp API Key Guide" = "راهنمای کلید باز Warp API";
@@ -355,7 +351,6 @@
 "Store multiple Factory Cookie headers." = "چندین هدر Factory کوکی را ذخیره کنید.";
 "Store multiple MiniMax Cookie headers." = "چندین هدر MiniMax کوکی را ذخیره کنید.";
 "Store multiple Mistral Cookie headers." = "چندین هدر Mistral کوکی را ذخیره کنید.";
-"Store multiple Ollama Cookie headers." = "چندین هدر Ollama کوکی را ذخیره کنید.";
 "Store multiple OpenCode Cookie headers." = "چندین هدر OpenCode کوکی را ذخیره کنید.";
 "Store multiple OpenCode Go Cookie headers." = "چندین هدر OpenCode Go Cookie را ذخیره کنید.";
 "Stored in the CodexBar config file." = "در فایل پیکربندی CodexBar ذخیره شده است.";
@@ -1052,7 +1047,6 @@
 "Hourly Usage" = "استفاده ساعتی";
 "Usage remaining" = "کاربرد باقی مانده";
 "Usage used" = "کاربرد مورد استفاده";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "کلید API تأیید شد. سهمیه‌های Cloud به کوکی‌های مرورگر نیاز دارند. وارد Ollama شوید.";
 "Last 30 days: %@ tokens" = "۳۰ روز آخر: توکن های %@";
 "7d spend" = "7d خرج می کنم";
 "30d spend" = "30d خرج می کنم";
@@ -1145,7 +1139,6 @@
 "4 days" = "۴ روز";
 "5 days" = "۵ روز";
 "7 days" = "۷ روز";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "API کلید دسترسی Ollama ابری را تأیید می کند؛ کوکی ها هنوز محدودیت سهمیه را نشان می دهند.";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "AWS شناسه کلید دسترسی داشته باشید. همچنین می توان آن را با AWS_ACCESS_KEY_ID تنظیم کرد.";
 "AWS region. Can also be set with AWS_REGION." = "AWS منطقه. همچنین می توان آن را با AWS_REGION تنظیم کرد.";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "AWS کلید دسترسی مخفی. همچنین می توان آن را با AWS_SECRET_ACCESS_KEY تنظیم کرد.";
@@ -1219,7 +1212,6 @@
 "Open Manus" = "Manus باز";
 "Open MiMo Balance" = "باز کردن موجودی MiMo";
 "Open Moonshot Console" = "کنسول Moonshot باز";
-"Open Ollama API Keys" = "کلیدهای باز Ollama API";
 "Open llmman" = "باز کردن llmman";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "در ~/.codexbar/config.json ذخیره می‌شود. فقط زمانی لازم است که llmman serve به کلید API نیاز داشته باشد.";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "نشانی llmman serve. پیش‌فرض: http://127.0.0.1:17434.";
@@ -1277,7 +1269,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "ذخیره سازی در ~/.codexbar/config.json. AZURE_OPENAI_API_KEY نیز پشتیبانی می شود.";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "ذخیره شده در ~/.codexbar/config.json. برای Kimi API رسمی، از Moonshot / Kimi API استفاده کنید.";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "ذخیره شده در ~/.codexbar/config.json. کلید API خود را از کنسول Volcengine Ark دریافت کنید.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "ذخیره شده در ~/.codexbar/config.json. کلید خود را از تنظیمات Ollama بگیرید.";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "ذخیره شده در ~/.codexbar/config.json. کلیدت را از console.deepgram.com بگیر.";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "ذخیره شده در ~/.codexbar/config.json. کلید خود را از elevenlabs.io/app/settings/api-keys. دریافت کنید";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "ذخیره شده در ~/.codexbar/config.json. کلید خود را از openrouter.ai/settings/keys بگیرید و یک محدودیت هزینه کلید آنجا تعیین کنید تا ردیابی سهمیه کلید فعال API.";
@@ -2071,7 +2062,6 @@
 "kilo_..." = "kilo_...";
 "left" = "باقی‌مانده";
 "now" = "اکنون";
-"ollama-..." = "ollama-...";
 "on pace" = "استفاده با سرعت برنامه ریزی شده";
 "org/example-org" = "org/example-org";
 "over pace" = "استفاده بالاتر از سرعت برنامه ریزی شده";
@@ -2296,7 +2286,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "کلید مجازی Bifrost برای خواندن بودجه و محدودیت‌های نرخ خود استفاده می‌شود.";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "پایه دروازه Bifrost URL، به عنوان مثال. میزبان Bifrost خود میزبان شرکت شما.";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "چندین سرصفحه یا مقادیر جلسه Ollama Cookie را ذخیره کنید.";
 "Cookie header or bare session value" = "سرآیند Cookie یا مقدار نشست بدون سرآیند";
 "Antigravity OAuth credentials JSON" = "Antigravity OAuth اعتبارنامه JSON";
 "Gemini Models" = "مدل های Gemini";

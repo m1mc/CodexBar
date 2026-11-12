@@ -32,9 +32,6 @@
 "%dh ago" = "%dgodz temu";
 "%dd ago" = "%dd temu";
 
-"ollama_safari_cookie_access_hint" = "Pliki cookie Safari wymagają pełnego dostępu do dysku dla CodexBar (Ustawienia systemowe > Prywatność i ochrona).";
-"ollama_browser_cookie_decryption_denied" = "Odszyfrowanie plików cookie %@ zostało odrzucone w Pęku kluczy. Otwórz kartę dostawcy i kliknij Odśwież (⌘R), aby ponownie poprosić o dostęp do Pęku kluczy.";
-"ollama_browser_cookie_decryption_disabled" = "Odszyfrowanie plików cookie %@ jest wyłączone w CodexBar; włącz dostęp do Pęku kluczy i odśwież.";
 
 " providers" = " dostawcy";
 "(System)" = "(System)";
@@ -269,7 +266,6 @@
 "Open Dashboard" = "Otwórz panel";
 "Open Mistral Admin" = "Otwórz Mistral Admin";
 "Open Menu Bar Settings" = "Otwórz ustawienia paska menu";
-"Open Ollama Settings" = "Otwórz ustawienia Ollama";
 "Open Terminal" = "Otwórz Terminal";
 "Open Usage Page" = "Otwórz stronę użycia";
 "Open Warp API Key Guide" = "Otwórz przewodnik po kluczu API Warp";
@@ -355,7 +351,6 @@
 "Store multiple Factory Cookie headers." = "Przechowuj wiele nagłówków Cookie dla Factory.";
 "Store multiple MiniMax Cookie headers." = "Przechowuj wiele nagłówków Cookie dla MiniMax.";
 "Store multiple Mistral Cookie headers." = "Przechowuj wiele nagłówków Cookie dla Mistral.";
-"Store multiple Ollama Cookie headers." = "Przechowuj wiele nagłówków Cookie dla Ollama.";
 "Store multiple OpenCode Cookie headers." = "Przechowuj wiele nagłówków Cookie dla OpenCode.";
 "Store multiple OpenCode Go Cookie headers." = "Przechowuj wiele nagłówków Cookie dla OpenCode Go.";
 "Stored in the CodexBar config file." = "Przechowywane w pliku konfiguracyjnym CodexBar.";
@@ -1054,7 +1049,6 @@
 "Hourly Usage" = "Użycie godzinowe";
 "Usage remaining" = "Pozostałe użycie";
 "Usage used" = "Wykorzystane użycie";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "Klucz API został zweryfikowany. Limity Cloud wymagają plików cookie przeglądarki. Zaloguj się do Ollama.";
 "Last 30 days: %@ tokens" = "Ostatnie 30 dni: %@ tokenów";
 "7d spend" = "Wydatki 7 dni";
 "30d spend" = "Wydatki 30 dni";
@@ -1147,7 +1141,6 @@
 "4 days" = "4 dni";
 "5 days" = "5 dni";
 "7 days" = "7 dni";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "Klucz API potwierdza dostęp do Ollama Cloud; limity nadal są widoczne przez pliki cookie.";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "Identyfikator klucza dostępu AWS. Można też ustawić przez AWS_ACCESS_KEY_ID.";
 "AWS region. Can also be set with AWS_REGION." = "Region AWS. Można też ustawić przez AWS_REGION.";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "Tajny klucz dostępu AWS. Można też ustawić przez AWS_SECRET_ACCESS_KEY.";
@@ -1221,7 +1214,6 @@
 "Open Manus" = "Otwórz Manus";
 "Open MiMo Balance" = "Otwórz saldo MiMo";
 "Open Moonshot Console" = "Otwórz konsolę Moonshot";
-"Open Ollama API Keys" = "Otwórz klucze API Ollama";
 "Open llmman" = "Otwórz llmman";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "Zapisany w ~/.codexbar/config.json. Potrzebny tylko wtedy, gdy llmman serve wymaga kluczy API.";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "Adres llmman serve. Domyślnie http://127.0.0.1:17434.";
@@ -1279,7 +1271,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "Przechowywane w ~/.codexbar/config.json. Obsługiwane jest także AZURE_OPENAI_API_KEY.";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "Przechowywane w ~/.codexbar/config.json. Dla oficjalnego API Kimi użyj Moonshot / Kimi API.";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "Przechowywane w ~/.codexbar/config.json. Pobierz klucz API z konsoli Volcengine Ark.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "Przechowywane w ~/.codexbar/config.json. Pobierz klucz z ustawień Ollama.";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "Przechowywane w ~/.codexbar/config.json. Pobierz klucz z console.deepgram.com.";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "Przechowywane w ~/.codexbar/config.json. Pobierz klucz z elevenlabs.io/app/settings/api-keys.";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "Przechowywane w ~/.codexbar/config.json. Pobierz klucz z openrouter.ai/settings/keys i ustaw tam limit wydatków klucza, aby włączyć śledzenie limitu klucza API.";
@@ -2070,7 +2061,6 @@
 "kilo_..." = "kilo_...";
 "left" = "pozostało";
 "now" = "teraz";
-"ollama-..." = "ollama-...";
 "on pace" = "wykorzystanie w zaplanowanym tempie";
 "org/example-org" = "org/example-org";
 "over pace" = "wykorzystanie powyżej planowanego tempa";
@@ -2295,7 +2285,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "Klucz wirtualny Bifrost służący do odczytu własnych budżetów i limitów stawek.";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Podstawa bramki Bifrost URL, np. Hostowany samodzielnie host Bifrost Twojej firmy.";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "Przechowuj wiele nagłówków Ollama Cookie lub wartości sesji.";
 "Cookie header or bare session value" = "Nagłówek Cookie lub sama wartość sesji";
 "Antigravity OAuth credentials JSON" = "Antigravity OAuth dane uwierzytelniające JSON";
 "Gemini Models" = "Modele Gemini";

@@ -109,7 +109,6 @@ extension SettingsStore {
         _ = self.t3ChatCookieSource
         _ = self.museCookieSource
         _ = self.zoomMateCookieSource
-        _ = self.ollamaCookieSource
         _ = self.mergeIcons
         _ = self.mergedOverviewLayout
         _ = self.mergedOverviewAllAccounts
@@ -137,7 +136,6 @@ extension SettingsStore {
         _ = self.t3ChatCookieHeader
         _ = self.museCookieHeader
         _ = self.zoomMateCookieHeader
-        _ = self.ollamaCookieHeader
         _ = self.copilotAPIToken
         _ = self[providerConfig: .warp, field: .apiKey]
         _ = self.tokenAccountsByProvider

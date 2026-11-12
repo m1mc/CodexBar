@@ -55,7 +55,7 @@ struct ProviderIconResourcesTests {
         #expect(first.isTemplate)
     }
 
-    @Test(arguments: [UsageProvider.ollama, .llmman, .replicate, .workbuddy])
+    @Test(arguments: [UsageProvider.llmman, .replicate, .workbuddy])
     func `provider icons use template rendering`(provider: UsageProvider) throws {
         ProviderBrandIcon.resetCacheForTesting()
         defer { ProviderBrandIcon.resetCacheForTesting() }

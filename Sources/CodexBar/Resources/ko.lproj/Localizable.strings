@@ -53,9 +53,6 @@
 "hooks_add_argument" = "인수 추가";
 "hooks_delete_argument" = "인수 삭제";
 
-"ollama_safari_cookie_access_hint" = "Safari 쿠키를 읽으려면 CodexBar에 전체 디스크 접근 권한이 필요합니다(시스템 설정 > 개인정보 보호 및 보안).";
-"ollama_browser_cookie_decryption_denied" = "%@ 쿠키 복호화가 키체인에서 거부되었습니다. 제공자 카드를 열고 새로 고침(⌘R)을 클릭하여 키체인 접근을 다시 요청하세요.";
-"ollama_browser_cookie_decryption_disabled" = "%@ 쿠키 복호화가 CodexBar에서 비활성화되어 있습니다. 키체인 접근을 활성화하고 새로 고침하세요.";
 
 " providers" = " 공급자";
 "(System)" = "(시스템)";
@@ -286,7 +283,6 @@
 "Open Dashboard" = "대시보드 열기";
 "Open Mistral Admin" = "Mistral 관리 열기";
 "Open Menu Bar Settings" = "메뉴 막대 설정 열기";
-"Open Ollama Settings" = "Ollama 설정 열기";
 "Open Terminal" = "터미널 열기";
 "Open Usage Page" = "사용량 페이지 열기";
 "Open Warp API Key Guide" = "Warp API 키 가이드 열기";
@@ -371,7 +367,6 @@
 "Store multiple Factory Cookie headers." = "여러 Factory 쿠키 헤더를 저장합니다.";
 "Store multiple MiniMax Cookie headers." = "여러 MiniMax 쿠키 헤더를 저장합니다.";
 "Store multiple Mistral Cookie headers." = "여러 Mistral 쿠키 헤더를 저장합니다.";
-"Store multiple Ollama Cookie headers." = "여러 Ollama 쿠키 헤더를 저장합니다.";
 "Store multiple OpenCode Cookie headers." = "여러 OpenCode 쿠키 헤더를 저장합니다.";
 "Store multiple OpenCode Go Cookie headers." = "여러 OpenCode Go 쿠키 헤더를 저장합니다.";
 "Stored in the CodexBar config file." = "CodexBar 설정 파일에 저장됩니다.";
@@ -1014,7 +1009,6 @@
 "Hourly Usage" = "시간별 사용량";
 "Usage remaining" = "남은 사용량";
 "Usage used" = "사용한 사용량";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "API 키가 확인되었습니다. Cloud 할당량에는 브라우저 쿠키가 필요합니다. Ollama에 로그인하세요.";
 "Last 30 days: %@ tokens" = "지난 30일: %@ 토큰";
 "7d spend" = "7일 지출";
 "30d spend" = "30일 지출";
@@ -1097,7 +1091,6 @@
 "4 days" = "4일";
 "5 days" = "5일";
 "7 days" = "7일";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "API 키는 Ollama Cloud 접근을 확인하며, 쿠키는 여전히 할당량 한도를 노출합니다.";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "AWS 액세스 키 ID. AWS_ACCESS_KEY_ID로도 설정할 수 있습니다.";
 "AWS region. Can also be set with AWS_REGION." = "AWS 리전. AWS_REGION으로도 설정할 수 있습니다.";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "AWS 시크릿 액세스 키. AWS_SECRET_ACCESS_KEY로도 설정할 수 있습니다.";
@@ -1171,7 +1164,6 @@
 "Open Manus" = "Manus 열기";
 "Open MiMo Balance" = "MiMo 잔액 열기";
 "Open Moonshot Console" = "Moonshot 콘솔 열기";
-"Open Ollama API Keys" = "Ollama API 키 열기";
 "Open llmman" = "llmman 열기";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "~/.codexbar/config.json에 저장됩니다. llmman serve에 API 키가 필요한 경우에만 필요합니다.";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "llmman serve 주소입니다. 기본값은 http://127.0.0.1:17434입니다.";
@@ -1229,7 +1221,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "~/.codexbar/config.json에 저장됩니다. AZURE_OPENAI_API_KEY도 지원됩니다.";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "~/.codexbar/config.json에 저장됩니다. 공식 Kimi API의 경우 Moonshot / Kimi API를 사용하세요.";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "~/.codexbar/config.json에 저장됩니다. Volcengine Ark 콘솔에서 API 키를 받으세요.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "~/.codexbar/config.json에 저장됩니다. Ollama 설정에서 키를 받으세요.";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "~/.codexbar/config.json에 저장됩니다. console.deepgram.com에서 키를 받으세요.";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "~/.codexbar/config.json에 저장됩니다. elevenlabs.io/app/settings/api-keys에서 키를 받으세요.";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "~/.codexbar/config.json에 저장됩니다. openrouter.ai/settings/keys에서 키를 받고, API 키 할당량 추적을 사용하려면 그곳에서 키 지출 한도를 설정하세요.";
@@ -2035,7 +2026,6 @@
 "kilo_..." = "kilo_...";
 "left" = "남음";
 "now" = "지금";
-"ollama-..." = "ollama-...";
 "on pace" = "계획된 속도로 사용량";
 "org/example-org" = "org/example-org";
 "over pace" = "계획된 속도를 초과하는 사용량";
@@ -2260,7 +2250,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "자체 예산 및 속도 제한을 읽는 데 사용되는 Bifrost 가상 키입니다.";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Bifrost 게이트웨이 베이스 URL, 예: 회사의 자체 호스팅 Bifrost 호스트.";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "여러 Ollama Cookie 헤더 또는 세션 값을 저장합니다.";
 "Cookie header or bare session value" = "Cookie 헤더 또는 베어 세션 값";
 "Antigravity OAuth credentials JSON" = "Antigravity OAuth 자격 증명 JSON";
 "Gemini Models" = "Gemini 모델";

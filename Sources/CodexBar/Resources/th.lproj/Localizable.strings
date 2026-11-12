@@ -32,9 +32,6 @@
 "%dh ago" = "%dชม. มาแล้ว";
 "%dd ago" = "%dวัน มาแล้ว";
 
-"ollama_safari_cookie_access_hint" = "คุกกี้ Safari ต้องใช้สิทธิ์เข้าถึงดิสก์แบบเต็มสำหรับ CodexBar (การตั้งค่าระบบ > ความเป็นส่วนตัวและความปลอดภัย)";
-"ollama_browser_cookie_decryption_denied" = "การถอดรหัสคุกกี้ %@ ถูกปฏิเสธในพวงกุญแจ เปิดการ์ดผู้ให้บริการแล้วคลิก รีเฟรช (⌘R) เพื่อขอสิทธิ์เข้าถึงพวงกุญแจอีกครั้ง";
-"ollama_browser_cookie_decryption_disabled" = "การถอดรหัสคุกกี้ %@ ถูกปิดใช้งานใน CodexBar ให้เปิดการเข้าถึงพวงกุญแจแล้วรีเฟรช";
 
 " providers" = "ผู้ให้บริการ  ";
 "(System)" = "(ระบบ)";
@@ -269,7 +266,6 @@
 "Open Dashboard" = "เปิดแดชบอร์ด";
 "Open Mistral Admin" = "เปิดผู้ดูแลระบบ Mistral";
 "Open Menu Bar Settings" = "เปิดการตั้งค่าแถบเมนู";
-"Open Ollama Settings" = "เปิดการตั้งค่า Ollama";
 "Open Terminal" = "เปิดเทอร์มินัล";
 "Open Usage Page" = "เปิดหน้าการใช้งาน";
 "Open Warp API Key Guide" = "เปิดคู่มือคีย์ Warp API";
@@ -355,7 +351,6 @@
 "Store multiple Factory Cookie headers." = "จัดเก็บส่วนหัว Factory Cookie หลายรายการ";
 "Store multiple MiniMax Cookie headers." = "จัดเก็บส่วนหัว MiniMax Cookie หลายรายการ";
 "Store multiple Mistral Cookie headers." = "จัดเก็บส่วนหัว Mistral Cookie หลายรายการ";
-"Store multiple Ollama Cookie headers." = "จัดเก็บส่วนหัว Ollama Cookie หลายรายการ";
 "Store multiple OpenCode Cookie headers." = "จัดเก็บส่วนหัว OpenCode Cookie หลายรายการ";
 "Store multiple OpenCode Go Cookie headers." = "จัดเก็บส่วนหัวคุกกี้ OpenCode Go หลายรายการ";
 "Stored in the CodexBar config file." = "เก็บไว้ในไฟล์กําหนดค่า CodexBar";
@@ -1052,7 +1047,6 @@
 "Hourly Usage" = "การใช้งานรายชั่วโมง";
 "Usage remaining" = "การใช้งานที่เหลืออยู่";
 "Usage used" = "การใช้งานที่ใช้";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "ยืนยันคีย์ API แล้ว โควตา Cloud ต้องใช้คุกกี้ของเบราว์เซอร์ ลงชื่อเข้าใช้ Ollama";
 "Last 30 days: %@ tokens" = "30 วันที่ผ่านมา: %@ โทเค็น";
 "7d spend" = "7d ใช้จ่าย";
 "30d spend" = "30d ใช้จ่าย";
@@ -1145,7 +1139,6 @@
 "4 days" = "4 วัน";
 "5 days" = "5 วัน";
 "7 days" = "7 วัน";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "คีย์ API จะยืนยันการเข้าถึงระบบคลาวด์ Ollama คุกกี้ยังคงเปิดเผยขีดจํากัดโควต้า";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "AWS รหัสคีย์การเข้าถึง สามารถตั้งค่าด้วย AWS_ACCESS_KEY_ID";
 "AWS region. Can also be set with AWS_REGION." = "AWS ภูมิภาค สามารถตั้งค่าด้วย AWS_REGION";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "AWS คีย์การเข้าถึงลับ สามารถตั้งค่าด้วย AWS_SECRET_ACCESS_KEY";
@@ -1219,7 +1212,6 @@
 "Open Manus" = "เปิด Manus";
 "Open MiMo Balance" = "เปิดยอดคงเหลือ MiMo";
 "Open Moonshot Console" = "เปิดคอนโซล Moonshot";
-"Open Ollama API Keys" = "เปิดปุ่ม Ollama API";
 "Open llmman" = "เปิด llmman";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "จัดเก็บใน ~/.codexbar/config.json จำเป็นเฉพาะเมื่อ llmman serve ต้องใช้คีย์ API";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "ที่อยู่ของ llmman serve ค่าเริ่มต้นคือ http://127.0.0.1:17434";
@@ -1277,7 +1269,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "รองรับการจัดเก็บไว้ใน ~/.codexbar/config.json. AZURE_OPENAI_API_KEY";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "เก็บไว้ใน ~/.codexbar/config.json. สําหรับ Kimi API อย่างเป็นทางการ ให้ใช้ Moonshot / Kimi API";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "เก็บไว้ใน ~/.codexbar/config.json. รับคีย์ API ของคุณจากคอนโซล Volcengine Ark";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "เก็บไว้ใน ~/.codexbar/config.json. รับคีย์จากการตั้งค่า Ollama";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "เก็บไว้ใน ~/.codexbar/config.json. รับคีย์ของคุณจาก console.deepgram.com";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "เก็บไว้ใน ~/.codexbar/config.json. รับกุญแจของคุณจาก elevenlabs.io/app/settings/api-keys.";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "เก็บไว้ใน ~/.codexbar/config.json. รับคีย์ของคุณจาก openrouter.ai/settings/keys และตั้งค่าขีดจํากัดการใช้จ่ายคีย์ที่นั่นเพื่อเปิดใช้งานการติดตามโควต้าคีย์ API";
@@ -2071,7 +2062,6 @@
 "kilo_..." = "kilo_...";
 "left" = "เหลือ";
 "now" = "ตอนนี้";
-"ollama-..." = "ollama-...";
 "on pace" = "การใช้งานตามจังหวะที่วางแผนไว้";
 "org/example-org" = "org/example-org";
 "over pace" = "การใช้งานเกินกว่าก้าวที่วางแผนไว้";
@@ -2296,7 +2286,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "คีย์เสมือน Bifrost ใช้เพื่ออ่านงบประมาณและขีดจำกัดอัตราของตัวเอง";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "ฐานเกตเวย์ Bifrost URL เช่น โฮสต์ Bifrost ที่บริษัทของคุณโฮสต์เอง";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "เก็บส่วนหัวหรือค่าเซสชัน Ollama Cookie หลายรายการ";
 "Cookie header or bare session value" = "ส่วนหัว Cookie หรือค่าเซสชันเปล่า";
 "Antigravity OAuth credentials JSON" = "ข้อมูลประจำตัว Antigravity OAuth JSON";
 "Gemini Models" = "รุ่น Gemini";

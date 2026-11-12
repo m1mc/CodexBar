@@ -91,48 +91,6 @@ struct MenuCardProviderRegressionTests {
     }
 
     @Test
-    func `ollama API balance card shares monthly and credit presentation`() throws {
-        let now = Date()
-        let metadata = try #require(ProviderDefaults.metadata[.ollama])
-        let snapshot = try UsageSnapshot(
-            primary: .init(
-                usedPercent: 12.5,
-                windowMinutes: ProviderPaceCapability.monthlyWindowSentinelMinutes,
-                resetsAt: now.addingTimeInterval(86400),
-                resetDescription: nil),
-            secondary: nil,
-            details: [.init(title: "Credits", rows: [.init(label: "Credit balance", value: "$18.25")])],
-            updatedAt: now,
-            identity: .init(providerID: .ollama, accountEmail: nil, accountOrganization: nil, loginMethod: "API key"))
-
-        let model = UsageMenuCardView.Model.make(.init(
-            provider: .ollama,
-            metadata: metadata,
-            snapshot: snapshot,
-            credits: nil,
-            creditsError: nil,
-            dashboardError: nil,
-            tokenSnapshot: nil,
-            tokenError: nil,
-            account: AccountInfo(email: nil, plan: nil),
-            isRefreshing: false,
-            lastError: nil,
-            usageBarsShowUsed: false,
-            resetTimeDisplayStyle: .countdown,
-            tokenCostUsageEnabled: false,
-            showOptionalCreditsAndExtraUsage: true,
-            sourceLabel: "api",
-            hidePersonalInfo: false,
-            now: now))
-
-        #expect(model.metrics.map(\.title) == ["Monthly"])
-        #expect(model.providerDetails.first?.rows.first?.value == "$18.25")
-        #expect(model.placeholder == nil)
-        #expect(model.planText == "API key")
-        #expect(model.usageNotes.isEmpty)
-    }
-
-    @Test
     func `wayfinder model shows gateway routing savings and latency`() throws {
         let now = Date()
         let metadata = try #require(ProviderDefaults.metadata[.wayfinder])

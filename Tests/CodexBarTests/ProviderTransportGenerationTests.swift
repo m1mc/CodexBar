@@ -6,7 +6,7 @@ import Testing
 @Suite(.serialized, ClaudeOAuthDefaultsFixtures(), ProviderTransportRegressionFixtures())
 @MainActor
 struct ProviderTransportGenerationTests {
-    @Test(arguments: [UsageProvider.claude, .cursor, .vertexai, .ollama])
+    @Test(arguments: [UsageProvider.claude, .cursor, .vertexai])
     func `a retired refresh cannot clear or relabel newer provider data`(provider: UsageProvider) async throws {
         try await ProviderTransportRegressionSupport.withStore(provider: provider) { store, prior in
             let fresh = UsageSnapshot(

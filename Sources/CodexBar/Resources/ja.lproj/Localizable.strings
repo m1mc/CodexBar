@@ -53,9 +53,6 @@
 "hooks_add_argument" = "引数を追加";
 "hooks_delete_argument" = "引数を削除";
 
-"ollama_safari_cookie_access_hint" = "Safari Cookie を読み込むには、CodexBar にフルディスクアクセスが必要です（システム設定 > プライバシーとセキュリティ）。";
-"ollama_browser_cookie_decryption_denied" = "%@ Cookie の復号がキーチェーンで拒否されました。プロバイダーカードを開き、更新（⌘R）をクリックしてキーチェーンへのアクセスを再度要求してください。";
-"ollama_browser_cookie_decryption_disabled" = "%@ Cookie の復号が CodexBar で無効です。キーチェーンへのアクセスを有効にして更新してください。";
 
 " providers" = " 件のプロバイダ";
 "(System)" = "（システム）";
@@ -285,7 +282,6 @@
 "Open Dashboard" = "ダッシュボードを開く";
 "Open Mistral Admin" = "Mistral 管理画面を開く";
 "Open Menu Bar Settings" = "メニューバー設定を開く";
-"Open Ollama Settings" = "Ollama の設定を開く";
 "Open Terminal" = "ターミナルを開く";
 "Open Usage Page" = "使用状況ページを開く";
 "Open Warp API Key Guide" = "Warp API キーガイドを開く";
@@ -370,7 +366,6 @@
 "Store multiple Factory Cookie headers." = "複数の Factory Cookie ヘッダーを保存します。";
 "Store multiple MiniMax Cookie headers." = "複数の MiniMax Cookie ヘッダーを保存します。";
 "Store multiple Mistral Cookie headers." = "複数の Mistral Cookie ヘッダーを保存します。";
-"Store multiple Ollama Cookie headers." = "複数の Ollama Cookie ヘッダーを保存します。";
 "Store multiple OpenCode Cookie headers." = "複数の OpenCode Cookie ヘッダーを保存します。";
 "Store multiple OpenCode Go Cookie headers." = "複数の OpenCode Go Cookie ヘッダーを保存します。";
 "Stored in the CodexBar config file." = "CodexBar の設定ファイルに保存されます。";
@@ -1042,7 +1037,6 @@
 "Hourly Usage" = "時間別使用量";
 "Usage remaining" = "残りの使用量";
 "Usage used" = "使用済みの使用量";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "APIキーを確認しました。CloudクォータにはブラウザCookieが必要です。Ollamaにサインインしてください。";
 "Last 30 days: %@ tokens" = "過去30日間: %@ トークン";
 "7d spend" = "7日間の支出";
 "30d spend" = "過去30日間の支出";
@@ -1128,7 +1122,6 @@
 "4 days" = "4日間";
 "5 days" = "5日間";
 "7 days" = "7日間";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "API キーで Ollama Cloud へのアクセスを確認できますが、クォータ上限の取得には引き続き Cookie が必要です。";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "AWS アクセスキー ID。AWS_ACCESS_KEY_ID でも設定できます。";
 "AWS region. Can also be set with AWS_REGION." = "AWS リージョン。AWS_REGION でも設定できます。";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "AWS シークレットアクセスキー。AWS_SECRET_ACCESS_KEY でも設定できます。";
@@ -1202,7 +1195,6 @@
 "Open Manus" = "Manus を開く";
 "Open MiMo Balance" = "MiMo 残高を開く";
 "Open Moonshot Console" = "Moonshot コンソールを開く";
-"Open Ollama API Keys" = "Ollama API キーを開く";
 "Open llmman" = "llmman を開く";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "~/.codexbar/config.json に保存されます。llmman serve が API キーを要求する場合のみ必要です。";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "llmman serve のアドレス。既定値は http://127.0.0.1:17434 です。";
@@ -1260,7 +1252,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "~/.codexbar/config.json に保存されます。AZURE_OPENAI_API_KEY もサポートされています。";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "~/.codexbar/config.json に保存されます。公式の Kimi API には Moonshot / Kimi API を使用してください。";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "~/.codexbar/config.json に保存されます。API キーは Volcengine Ark コンソールから取得してください。";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "~/.codexbar/config.json に保存されます。キーは Ollama の設定から取得してください。";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "~/.codexbar/config.json に保存されます。キーは console.deepgram.com から取得してください。";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "~/.codexbar/config.json に保存されます。キーは elevenlabs.io/app/settings/api-keys から取得してください。";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "~/.codexbar/config.json に保存されます。キーは openrouter.ai/settings/keys から取得し、そこでキーの支出上限を設定すると API キーのクォータ追跡が有効になります。";
@@ -2067,7 +2058,6 @@
 "kilo_..." = "kilo_...";
 "left" = "残り";
 "now" = "今";
-"ollama-..." = "ollama-...";
 "on pace" = "計画されたペースでの使用";
 "org/example-org" = "org/example-org";
 "over pace" = "計画ペースを超えた使用量";
@@ -2292,7 +2282,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "Bifrost 仮想キーは、独自の予算とレート制限を読み取るために使用されます。";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Bifrost ゲートウェイ ベース URL、例:会社のセルフホスト型 Bifrost ホスト。";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "複数の Ollama Cookie ヘッダーまたはセッション値を保存します。";
 "Cookie header or bare session value" = "Cookie ヘッダーまたは裸のセッション値";
 "Antigravity OAuth credentials JSON" = "Antigravity OAuth 認証情報 JSON";
 "Gemini Models" = "Geminiモデル";

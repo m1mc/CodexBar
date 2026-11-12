@@ -53,9 +53,6 @@
 "hooks_add_argument" = "添加参数";
 "hooks_delete_argument" = "删除参数";
 
-"ollama_safari_cookie_access_hint" = "CodexBar 需要“完全磁盘访问权限”才能读取 Safari Cookie（系统设置 > 隐私与安全性）。";
-"ollama_browser_cookie_decryption_denied" = "钥匙串拒绝解密 %@ Cookie。打开提供商卡片并点按“刷新”(⌘R)，再次请求钥匙串访问权限。";
-"ollama_browser_cookie_decryption_disabled" = "CodexBar 中已停用 %@ Cookie 解密；请启用钥匙串访问权限并刷新。";
 
 " providers" = " 提供商";
 "(System)" = "（System）";
@@ -292,7 +289,6 @@
 "Open Console" = "打开控制台";
 "Open Dashboard" = "打开仪表盘";
 "Open Mistral Admin" = "打开 Mistral 管理后台";
-"Open Ollama Settings" = "打开 Ollama 设置";
 "Open Terminal" = "打开终端";
 "Open Usage Page" = "打开用量页面";
 "Open Warp API Key Guide" = "打开 Warp API 密钥指南";
@@ -383,7 +379,6 @@
 "Store multiple Factory Cookie headers." = "存储多个 Factory Cookie 标头。";
 "Store multiple MiniMax Cookie headers." = "存储多个 MiniMax Cookie 标头。";
 "Store multiple Mistral Cookie headers." = "存储多个 Mistral Cookie 标头。";
-"Store multiple Ollama Cookie headers." = "存储多个 Ollama Cookie 标头。";
 "Store multiple OpenCode Cookie headers." = "存储多个 OpenCode Cookie 标头。";
 "Store multiple OpenCode Go Cookie headers." = "存储多个 OpenCode Go Cookie 标头。";
 "Stored in the CodexBar config file." = "存储在 CodexBar 配置文件中。";
@@ -1008,7 +1003,6 @@
 "Hourly Usage" = "每小时用量";
 "Usage remaining" = "剩余用量";
 "Usage used" = "已使用用量";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "API 密钥已验证。Cloud 配额需要浏览器 Cookie。请登录 Ollama。";
 "Last 30 days: %@ tokens" = "近 30 天：%@ token";
 "7d spend" = "7 天支出";
 "30d spend" = "30 天支出";
@@ -1109,7 +1103,6 @@
 "4 days" = "4 天";
 "5 days" = "5 天";
 "7 days" = "7 天";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "API 密钥会验证 Ollama Cloud 访问权限；Cookie 仍会提供配额限制。";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "AWS 访问密钥 ID。也可以用 AWS_ACCESS_KEY_ID 设置。";
 "AWS region. Can also be set with AWS_REGION." = "AWS 区域。也可以用 AWS_REGION 设置。";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "AWS 秘密访问密钥。也可以用 AWS_SECRET_ACCESS_KEY 设置。";
@@ -1183,7 +1176,6 @@
 "Open Manus" = "打开 Manus";
 "Open MiMo Balance" = "打开 MiMo 余额";
 "Open Moonshot Console" = "打开 Moonshot 控制台";
-"Open Ollama API Keys" = "打开 Ollama API 密钥";
 "Open llmman" = "打开 llmman";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "存储在 ~/.codexbar/config.json 中。仅当 llmman serve 要求 API 密钥时才需要。";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "llmman serve 的地址。默认为 http://127.0.0.1:17434。";
@@ -1241,7 +1233,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "存储在 ~/.codexbar/config.json 中。也支持 AZURE_OPENAI_API_KEY。";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "存储在 ~/.codexbar/config.json 中。官方 Kimi API 请使用 Moonshot / Kimi API。";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "存储在 ~/.codexbar/config.json 中。请从 Volcengine Ark 控制台获取 API 密钥。";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "存储在 ~/.codexbar/config.json 中。请从 Ollama 设置获取密钥。";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "存储在 ~/.codexbar/config.json 中。请从 console.deepgram.com 获取密钥。";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "存储在 ~/.codexbar/config.json 中。请从 elevenlabs.io/app/settings/api-keys 获取密钥。";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "存储在 ~/.codexbar/config.json 中。请从 openrouter.ai/settings/keys 获取密钥，并在那里设置密钥支出上限以启用 API 密钥配额跟踪。";
@@ -2064,7 +2055,6 @@
 "https://resource.openai.azure.com" = "https://resource.openai.azure.com";
 "kilo_..." = "kilo_...";
 "left" = "剩余";
-"ollama-..." = "ollama-...";
 "on pace" = "符合预期速度";
 "org/example-org" = "org/example-org";
 "over pace" = "使用速度较快";
@@ -2287,7 +2277,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "用于读取自身预算和速率限制的 Bifrost 虚拟密钥。";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Bifrost 网关的基础 URL，例如公司自行部署的 Bifrost 地址。";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "存储多个 Ollama Cookie 标头或会话值。";
 "Cookie header or bare session value" = "Cookie 请求头或会话值";
 "Antigravity OAuth credentials JSON" = "Antigravity OAuth 凭证 JSON";
 "Gemini Models" = "Gemini 模型";

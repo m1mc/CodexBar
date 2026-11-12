@@ -29,28 +29,6 @@ struct SettingsReaderQuoteUnwrapTrapTests {
     }
 
     @Test
-    func `Ollama API key rejects a lone double quote`() {
-        for key in OllamaAPISettingsReader.apiKeyEnvironmentKeys {
-            let env = [key: "\""]
-            #expect(OllamaAPISettingsReader.apiKey(environment: env) == nil)
-        }
-    }
-
-    @Test
-    func `Ollama API key rejects a lone apostrophe`() {
-        for key in OllamaAPISettingsReader.apiKeyEnvironmentKeys {
-            let env = [key: "'"]
-            #expect(OllamaAPISettingsReader.apiKey(environment: env) == nil)
-        }
-    }
-
-    @Test
-    func `Ollama API key unwraps quotes`() {
-        let env = [OllamaAPISettingsReader.apiKeyEnvironmentKeys[0]: "\"sk-token\""]
-        #expect(OllamaAPISettingsReader.apiKey(environment: env) == "sk-token")
-    }
-
-    @Test
     func `llmman API key rejects lone quotes and unwraps quotes`() {
         for value in ["\"", "'"] {
             #expect(LLMManSettingsReader.apiKey(environment: [LLMManSettingsReader.apiKeyEnvironmentKey: value]) == nil)

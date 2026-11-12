@@ -31,7 +31,6 @@ struct ProviderCredentialCharacterizationTests {
             .init(provider: .openrouter, environmentKey: "OPENROUTER_API_KEY"),
             .init(provider: .elevenlabs, environmentKey: "ELEVENLABS_API_KEY"),
             .init(provider: .kimi, environmentKey: "KIMI_CODE_API_KEY"),
-            .init(provider: .ollama, environmentKey: "OLLAMA_API_KEY"),
             .init(provider: .llmman, environmentKey: "LLMMAN_API_KEY"),
             .init(provider: .venice, environmentKey: "VENICE_API_KEY"),
             .init(provider: .deepgram, environmentKey: "DEEPGRAM_API_KEY"),
@@ -225,7 +224,7 @@ struct ProviderCredentialCharacterizationTests {
         ]
         let cookieProviders: [UsageProvider] = [
             .claude, .cursor, .opencode, .opencodego, .factory, .minimax, .manus,
-            .augment, .ollama, .abacus, .mistral, .qoder, .stepfun, .replicate, .typesafe, .kimi,
+            .augment, .abacus, .mistral, .qoder, .stepfun, .replicate, .typesafe, .kimi,
             .commandcode,
         ]
 
@@ -258,7 +257,6 @@ struct ProviderCredentialCharacterizationTests {
             .minimax: "account-token",
             .manus: "session_id=account-token",
             .augment: "account-token",
-            .ollama: "__Secure-session=account-token",
             .abacus: "account-token",
             .mistral: "account-token",
             .qoder: "account-token",
@@ -392,7 +390,6 @@ struct ProviderCredentialCharacterizationTests {
             .init(provider: .clawrouter, environment: ["CLAWROUTER_API_KEY": "token"], mode: "api"),
             .init(provider: .sub2api, environment: ["SUB2API_API_KEY": "token"], mode: "api"),
             .init(provider: .moonshot, environment: ["MOONSHOT_API_KEY": "token"], mode: "api"),
-            .init(provider: .ollama, environment: ["OLLAMA_API_KEY": "token"], mode: "api"),
             .init(provider: .llmman, environment: ["LLMMAN_API_KEY": "token"], mode: "api"),
             .init(provider: .openai, environment: ["OPENAI_ADMIN_KEY": "token"], mode: "api"),
             .init(provider: .openrouter, environment: ["OPENROUTER_API_KEY": "token"], mode: "api"),

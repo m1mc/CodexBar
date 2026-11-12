@@ -256,18 +256,6 @@ struct ConfigValidationTests {
     }
 
     @Test
-    func `allows ollama token accounts`() {
-        let accounts = ProviderTokenAccountData(
-            version: 1,
-            accounts: [ProviderTokenAccount(id: UUID(), label: "a", token: "t", addedAt: 0, lastUsed: nil)],
-            activeIndex: 0)
-        var config = CodexBarConfig.makeDefault()
-        config.setProviderConfig(ProviderConfig(id: .ollama, tokenAccounts: accounts))
-        let issues = CodexBarConfigValidator.validate(config)
-        #expect(!issues.contains(where: { $0.code == "token_accounts_unused" && $0.provider == .ollama }))
-    }
-
-    @Test
     func `accepts kilo extras config field`() {
         var config = CodexBarConfig.makeDefault()
         config.setProviderConfig(ProviderConfig(id: .kilo, extrasEnabled: true))

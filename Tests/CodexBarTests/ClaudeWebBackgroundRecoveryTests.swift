@@ -2,11 +2,10 @@ import Foundation
 import Testing
 @testable import CodexBarCore
 
-/// Covers the same background-refresh recovery shape as `OllamaUsageFetcherRetryMappingTests`, applied to
-/// `ClaudeWebAPIFetcher.fetchUsageSerialized`: a background refresh must still attempt browser-cookie recovery
-/// after a stale cached cookie is invalidated (the gate itself decides whether that read needs an interactive
-/// prompt), but must surface the original, more informative cached-auth error — not a generic "no session key
-/// found" — when that recovery attempt comes back empty.
+/// Covers the background-refresh recovery shape of `ClaudeWebAPIFetcher.fetchUsageSerialized`: a background
+/// refresh must still attempt browser-cookie recovery after a stale cached cookie is invalidated (the gate itself
+/// decides whether that read needs an interactive prompt), but must surface the original, more informative
+/// cached-auth error — not a generic "no session key found" — when that recovery attempt comes back empty.
 @Suite(.serialized)
 struct ClaudeWebBackgroundRecoveryTests {
     private static let challengeMessage =
@@ -85,7 +84,7 @@ struct ClaudeWebBackgroundRecoveryTests {
                 }
             }
 
-            // The stale cache was cleared by the invalidation attempt (matches the Ollama behavior); only the
+            // The stale cache was cleared by the invalidation attempt; only the
             // *error surfaced to the caller* is what this test guards.
             #expect(CookieHeaderCache.load(provider: .claude) == nil)
         }

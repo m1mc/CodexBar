@@ -35,7 +35,6 @@ enum BurnProviderChoice: String, AppEnum {
     case moonshot
     case amp
     case t3chat
-    case ollama
     case synthetic
     case openrouter
     case elevenlabs
@@ -153,7 +152,6 @@ enum BurnProviderChoice: String, AppEnum {
         .moonshot: DisplayRepresentation(title: "Moonshot / Kimi Open Platform"),
         .amp: DisplayRepresentation(title: "Amp"),
         .t3chat: DisplayRepresentation(title: "T3 Chat"),
-        .ollama: DisplayRepresentation(title: "Ollama"),
         .synthetic: DisplayRepresentation(title: "Synthetic"),
         .openrouter: DisplayRepresentation(title: "OpenRouter"),
         .elevenlabs: DisplayRepresentation(title: "ElevenLabs"),

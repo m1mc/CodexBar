@@ -93,7 +93,6 @@ enum ProviderTransportRegressionSupport {
             "XDG_CONFIG_HOME": root.appendingPathComponent("config").path,
             "CLOUDSDK_CONFIG": root.appendingPathComponent("gcloud").path,
             "GOOGLE_APPLICATION_CREDENTIALS": root.appendingPathComponent("missing-google.json").path,
-            "OLLAMA_API_KEY": "fixture-ollama-key",
         ]
     }
 
@@ -155,9 +154,8 @@ enum ProviderTransportRegressionSupport {
         settings.statusChecksEnabled = false
         settings.openAIWebAccessEnabled = false
         settings.claudeUsageDataSource = .oauth
-        settings.ollamaUsageDataSource = .api
         settings.updateProviderConfig(provider: provider) { config in
-            config.source = provider == .cursor ? .web : provider == .ollama ? .api : .oauth
+            config.source = provider == .cursor ? .web : .oauth
         }
         enableTestProviders([provider], settings: settings)
         let environment = Self.environment
@@ -188,9 +186,9 @@ enum ProviderTransportRegressionSupport {
             updatedAt: Self.capturedAt,
             identity: ProviderIdentitySnapshot(
                 providerID: provider.instanceID,
-                accountEmail: provider == .ollama ? nil : "fixture@example.test",
+                accountEmail: "fixture@example.test",
                 accountOrganization: nil,
-                loginMethod: provider == .ollama ? "API key" : "Pro"))
+                loginMethod: "Pro"))
         if hasPriorData { store._setSnapshotForTesting(prior, provider: provider) }
         do {
             try await operation(store, prior)

@@ -8,7 +8,7 @@ read_when:
 
 # Providers
 
-CodexBar currently registers 113 provider IDs. Some companies expose multiple surfaces, such as Codex vs OpenAI API or
+CodexBar currently registers 112 provider IDs. Some companies expose multiple surfaces, such as Codex vs OpenAI API or
 OpenCode vs OpenCode Go, because the auth source and quota shape differ.
 
 ## Fetch strategies (current)
@@ -117,7 +117,6 @@ complete when the available scan window covers fewer days.
 | [Atlas Cloud](atlascloud.md) | Standard API key → account-wide available USD balance (`api`). |
 | [Vercel AI Gateway](vercel.md) | AI Gateway API key → team-wide USD balance and lifetime spend; optional Vercel access token and Team ID → personal budget instead (`api`). |
 | Windsurf | Web session bundle from browser localStorage (`web`) → local SQLite cache (`local`). |
-| Ollama | API key verifies Cloud API access (`api`); browser cookies expose current credit balance/details or legacy quota windows (`web`). |
 | [llmman](llmman.md) | Local `llmman serve` node report, optional API key → bundled plugin for loaded-model memory and store summary (`api`). |
 | [xKiro](xkiro.md) | API key → bundled plugin for account-wide daily free tokens and the midnight UTC reset (`api`). |
 | Synthetic | API key from config/env → quota API (`api`). |
@@ -483,12 +482,6 @@ provider-specific cookie validation, endpoints, login detection, and error trans
   Platform", "Zoom Support", "Zoom Website") rather than showing Zoom's full ~300-component status
   page.
 - Details: `docs/zoommate.md`.
-
-## Ollama
-- Authenticated settings page (`https://ollama.com/settings`) via browser cookies.
-- Current credit-wallet page: shows balance, monthly credits used, and refill target as details without inventing a quota percentage; older pages still support Included/Cloud Usage, session, and weekly meters.
-- Status: none yet.
-- Details: `docs/ollama.md`.
 
 ## llmman
 - Local `llmman serve` daemon (default `http://127.0.0.1:17434`; Base URL or `LLMMAN_HOST` overrides it).

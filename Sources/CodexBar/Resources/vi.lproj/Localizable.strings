@@ -53,9 +53,6 @@
 "hooks_add_argument" = "Thêm đối số";
 "hooks_delete_argument" = "Xóa đối số";
 
-"ollama_safari_cookie_access_hint" = "Cookie Safari cần Quyền truy cập toàn bộ ổ đĩa cho CodexBar (Cài đặt hệ thống > Quyền riêng tư & Bảo mật).";
-"ollama_browser_cookie_decryption_denied" = "Việc giải mã cookie %@ đã bị từ chối trong Chuỗi khóa. Mở thẻ nhà cung cấp và bấm Làm mới (⌘R) để yêu cầu lại quyền truy cập Chuỗi khóa.";
-"ollama_browser_cookie_decryption_disabled" = "Việc giải mã cookie %@ bị tắt trong CodexBar; hãy bật quyền truy cập Chuỗi khóa rồi làm mới.";
 
 " providers" = "nhà cung cấp";
 "(System)" = "(Hệ thống)";
@@ -285,7 +282,6 @@
 "Open Dashboard" = "Mở bảng điều khiển";
 "Open Mistral Admin" = "Mở quản trị viên Mistral";
 "Open Menu Bar Settings" = "Mở thanh menu Cài đặt";
-"Open Ollama Settings" = "Mở Ollama Cài đặt";
 "Open Terminal" = "Mở Terminal";
 "Open Usage Page" = "Mở Mức sử dụng Trang";
 "Open Warp API Key Guide" = "Hướng dẫn chính về Open Warp API";
@@ -370,7 +366,6 @@
 "Store multiple Factory Cookie headers." = "Lưu trữ nhiều tiêu đề Cookie gốc.";
 "Store multiple MiniMax Cookie headers." = "Lưu trữ nhiều tiêu đề cookie MiniMax.";
 "Store multiple Mistral Cookie headers." = "Lưu trữ nhiều tiêu đề Mistral Cookie.";
-"Store multiple Ollama Cookie headers." = "Lưu trữ nhiều tiêu đề Cookie Ollama.";
 "Store multiple OpenCode Cookie headers." = "Lưu trữ nhiều tiêu đề Cookie OpenCode.";
 "Store multiple OpenCode Go Cookie headers." = "Lưu trữ nhiều tiêu đề Cookie OpenCode Go.";
 "Stored in the CodexBar config file." = "Được lưu trữ trong tệp cấu hình CodexBar.";
@@ -1041,7 +1036,6 @@
 "Hourly Usage" = "Hàng giờ Mức sử dụng";
 "Usage remaining" = "Mức sử dụng";
 "Usage used" = "Mức sử dụng đã sử dụng khóa";
-"API key verified. Cloud quotas need browser cookies. Sign in to Ollama." = "Đã xác minh khóa API. Hạn mức Cloud yêu cầu cookie trình duyệt. Hãy đăng nhập vào Ollama.";
 "Last 30 days: %@ tokens" = "30 ngày qua: %@ mã thông báo";
 "7d spend" = "chi tiêu 7 ngày";
 "30d spend" = "chi tiêu 30 ngày";
@@ -1127,7 +1121,6 @@
 "4 days" = "4 ngày";
 "5 days" = "5 ngày";
 "7 days" = "7 ngày";
-"API key verifies Ollama Cloud access; cookies still expose quota limits." = "API khóa xác minh quyền truy cập vào Đám mây Ollama; cookie vẫn hiển thị giới hạn Hạn mức.";
 "AWS access key ID. Can also be set with AWS_ACCESS_KEY_ID." = "ID khóa truy cập AWS. Cũng có thể được đặt bằng AWS_ACCESS_KEY_ID.";
 "AWS region. Can also be set with AWS_REGION." = "Khu vực AWS. Cũng có thể được đặt bằng AWS_REGION.";
 "AWS secret access key. Can also be set with AWS_SECRET_ACCESS_KEY." = "Khóa truy cập bí mật AWS. Cũng có thể được đặt bằng AWS_SECRET_ACCESS_KEY.";
@@ -1201,7 +1194,6 @@
 "Open Manus" = "Mở Manus";
 "Open MiMo Balance" = "Mở MiMo Balance";
 "Open Moonshot Console" = "Mở Bảng điều khiển Moonshot";
-"Open Ollama API Keys" = "Mở Ollama API Phím";
 "Open llmman" = "Mở llmman";
 "Stored in ~/.codexbar/config.json. Only needed when llmman serve requires API keys." = "Được lưu trong ~/.codexbar/config.json. Chỉ cần khi llmman serve yêu cầu khóa API.";
 "Address of llmman serve. Defaults to http://127.0.0.1:17434." = "Địa chỉ của llmman serve. Mặc định là http://127.0.0.1:17434.";
@@ -1259,7 +1251,6 @@
 "Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "Được lưu trữ trong ~/.codexbar/config.json. AZURE_OPENAI_API_KEY cũng được hỗ trợ.";
 "Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "Được lưu trữ trong ~/.codexbar/config.json. Đối với Kimi API chính thức, hãy sử dụng Moonshot / Kimi API .";
 "Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận khóa API của bạn từ bảng điều khiển Volcengine Ark.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận chìa khóa của bạn từ Ollama Cài đặt .";
 "Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận chìa khóa của bạn từ console.deepgram.com.";
 "Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận khóa của bạn từ Elevenlabs.io/app/ Cài đặt /api-keys.";
 "Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận khóa của bạn từ openrouter.ai/ Cài đặt /keys và đặt giới hạn chi tiêu cho khóa ở đó để cho phép theo dõi API khóa Hạn mức.";
@@ -2068,7 +2059,6 @@
 "kilo_..." = "kilo_...";
 "left" = "còn lại";
 "now" = "bây giờ";
-"ollama-..." = "ollama-...";
 "on pace" = "sử dụng theo tiến độ dự kiến";
 "org/example-org" = "org/example-org";
 "over pace" = "sử dụng vượt quá tốc độ dự kiến";
@@ -2293,7 +2283,6 @@
 "Bifrost virtual key used to read its own budgets and rate limits." = "Khóa ảo Bifrost được sử dụng để đọc ngân sách và giới hạn tỷ lệ của chính nó.";
 "Bifrost gateway base URL, e.g. your company's self-hosted Bifrost host." = "Cơ sở cổng Bifrost URL, ví dụ: máy chủ Bifrost tự lưu trữ của công ty bạn.";
 "https://bifrost.example.com" = "https://bifrost.example.com";
-"Store multiple Ollama Cookie headers or session values." = "Lưu trữ nhiều tiêu đề hoặc giá trị phiên Ollama Cookie.";
 "Cookie header or bare session value" = "Tiêu đề Cookie hoặc giá trị phiên trần";
 "Antigravity OAuth credentials JSON" = "Thông tin xác thực Antigravity OAuth JSON";
 "Gemini Models" = "Model Gemini";

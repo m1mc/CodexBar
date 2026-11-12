@@ -452,7 +452,6 @@ extension UsageStore {
         case .doubao: DoubaoProviderDescriptor.primaryLabel(window: snapshot.primary)
         case .amp: AmpProviderDescriptor.primaryLabel(snapshot: snapshot)
         case .alibabatokenplan: AlibabaTokenPlanProviderDescriptor.primaryLabel(window: snapshot.primary)
-        case .ollama: OllamaProviderDescriptor.primaryLabel(window: snapshot.primary)
         default: nil
         }
         if let dynamicTitle {
