@@ -152,6 +152,28 @@ struct TokenAccountCLISelectionTests {
     }
 
     @Test
+    func `all accounts falls back to ambient login when no token accounts are saved`() throws {
+        let config = CodexBarConfig(providers: [ProviderConfig(id: UsageProvider.claude.instanceID)])
+        let all = try TokenAccountCLIContext(
+            selection: TokenAccountCLISelection(label: nil, index: nil, allAccounts: true),
+            config: config,
+            verbose: false,
+            baseEnvironment: [:])
+        #expect(try all.resolvedAccounts(for: .claude).isEmpty)
+
+        for selection in [
+            TokenAccountCLISelection(label: "Primary", index: nil, allAccounts: false),
+            TokenAccountCLISelection(label: nil, index: 0, allAccounts: false),
+        ] {
+            let context = try TokenAccountCLIContext(
+                selection: selection, config: config, verbose: false, baseEnvironment: [:])
+            #expect(throws: TokenAccountCLIError.noAccounts(.claude)) {
+                try context.resolvedAccounts(for: .claude)
+            }
+        }
+    }
+
+    @Test
     func `cli token updater writes refreshed credential when stored token is unchanged`() async throws {
         let account = Self.account(token: "original-token")
         let config = Self.config(with: account)

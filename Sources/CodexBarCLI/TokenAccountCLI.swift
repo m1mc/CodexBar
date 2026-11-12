@@ -107,7 +107,8 @@ struct TokenAccountCLIContext {
             return []
         }
         guard let data = self.accountsByProvider[provider], !data.accounts.isEmpty else {
-            if self.selection.usesOverride {
+            // --all-accounts with no saved accounts falls back to the ambient local login.
+            if self.selection.usesOverride, !self.selection.allAccounts {
                 throw TokenAccountCLIError.noAccounts(provider)
             }
             return []
@@ -315,7 +316,7 @@ struct TokenAccountCLIContext {
         let projection = self.visibleCodexAccounts()
         let accounts = projection.visibleAccounts
         guard !accounts.isEmpty else {
-            if self.selection.usesOverride {
+            if self.selection.usesOverride, !self.selection.allAccounts {
                 throw TokenAccountCLIError.noAccounts(.codex)
             }
             return []
