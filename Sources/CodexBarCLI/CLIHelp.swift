@@ -508,6 +508,27 @@ extension CodexBarCLI {
         """
     }
 
+    static func updateHelp(version: String) -> String {
+        """
+        CodexBar \(version)
+
+        Usage:
+          codexbar update [--check] [--install] [--json] [--pretty] [--yes]
+
+        Description:
+          Check the latest stable release of m1mc/CodexBar. With --install, download the release,
+          verify its SHA-256 checksum, and update the running installation.
+          A CLI inside CodexBar.app updates the whole app; a standalone CLI replaces its binary.
+          Automatic notices are printed to stderr at most once per day on interactive usage commands.
+          Set CODEXBAR_UPDATE_CHECK=0 to disable automatic notices.
+
+        Examples:
+          codexbar update --check
+          codexbar update --install
+          codexbar update --install --json --pretty
+        """
+    }
+
     static func rootHelp(version: String) -> String {
         """
         CodexBar \(version)
@@ -554,6 +575,7 @@ extension CodexBarCLI {
           codexbar hooks <list|enable|disable> [--format text|json] [--pretty]
           codexbar hooks test <event> --provider <name>
           codexbar plugins <list|fetch <id>> [--json] [--pretty]
+          codexbar update [--check] [--install] [--json] [--pretty] [--yes]
           codexbar cache clear <--cookies|--cost|--all> [--provider <name>]
           codexbar cookie refresh <--provider <name>|--all> [--allow-keychain-prompt]
           codexbar diagnose --provider <name|all> --format json [--redact] [--output <path>] [--pretty]
@@ -584,6 +606,7 @@ extension CodexBarCLI {
           codexbar config set-api-key --provider elevenlabs --stdin
           codexbar hooks test quota_reached --provider codex
           codexbar plugins list
+          codexbar update --check
           codexbar cache clear --cookies
           codexbar cookie refresh --provider opencodego --allow-keychain-prompt
           codexbar diagnose --provider minimax --format json --redact --output diagnostic.json

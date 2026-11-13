@@ -29,11 +29,15 @@ Also available as a [Linux desktop app](Integrations/Linux/README.md) with usage
 
 ### macOS app
 
-Requires macOS 14+ (Sonoma). Download from [GitHub Releases](https://github.com/steipete/CodexBar/releases), or install with Homebrew:
+Requires macOS 14+ (Sonoma). Download from [GitHub Releases](https://github.com/m1mc/CodexBar/releases), or install with Homebrew:
 
 ```bash
-brew install --cask codexbar
+brew tap m1mc/codexbar https://github.com/m1mc/CodexBar
+brew install --cask m1mc/codexbar/codexbar
 ```
+
+Homebrew installs update in-app from this tap only; casks from `homebrew/cask` or `steipete/tap` ship upstream builds.
+Manual DMG installs keep the same daily update check against `m1mc/CodexBar` releases and update in one click.
 
 ### Linux desktop and Omarchy
 
@@ -52,14 +56,15 @@ See the [macOS feature comparison](Integrations/Linux/MAC_COMPARISON.md) for
 supported features and remaining gaps.
 
 ### CLI Tarballs (macOS/Linux)
-Homebrew formula (Linux today):
+Homebrew formula (after tapping `m1mc/codexbar` as above):
 ```bash
-brew install steipete/tap/codexbar
+brew install m1mc/codexbar/codexbar
 ```
 Arch Linux AUR package:
 ```bash
 yay -S codexbar-cli
 ```
+Update the CLI with `codexbar update --check` or `codexbar update --install`.
 Or download release tarballs from GitHub Releases:
 - macOS: `CodexBarCLI-v<tag>-macos-arm64.tar.gz`, `CodexBarCLI-v<tag>-macos-x86_64.tar.gz`
 - Linux (glibc): `CodexBarCLI-v<tag>-linux-aarch64.tar.gz`, `CodexBarCLI-v<tag>-linux-x86_64.tar.gz`

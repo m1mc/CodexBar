@@ -160,6 +160,26 @@ struct CLICommonOptions: CommanderParsable {
     var pretty: Bool = false
 }
 
+struct UpdateOptions: CommanderParsable {
+    @OptionGroup
+    var logging: CLILoggingOptions
+
+    @Flag(name: .long("check"), help: "Check for a newer m1mc/CodexBar release (default)")
+    var check: Bool = false
+
+    @Flag(name: .long("install"), help: "Install the latest m1mc/CodexBar release")
+    var install: Bool = false
+
+    @Flag(name: .long("json"), help: "")
+    var json: Bool = false
+
+    @Flag(name: .long("pretty"), help: "Pretty-print JSON output")
+    var pretty: Bool = false
+
+    @Flag(name: .long("yes"), help: "Install without prompting")
+    var yes: Bool = false
+}
+
 struct CLIUsageFetchOptions: CommanderParsable {
     private static let sourceHelp: String = {
         #if os(macOS)

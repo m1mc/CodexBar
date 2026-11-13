@@ -82,6 +82,8 @@ enum CodexBarCLI {
                 await self.runGuard(invocation.parsedValues)
             case let path where path.first == "plugins":
                 await self.runPlugins(path: path, values: invocation.parsedValues)
+            case ["update"]:
+                await self.runUpdate(invocation.parsedValues)
             default:
                 Self.exit(
                     code: .failure,
@@ -106,6 +108,8 @@ enum CodexBarCLI {
             CLITerminationSignalMonitor.terminateActiveHelpersAndReraise(signalNumber)
         }
         defer { signalMonitor.cancel() }
+        let outputPreferences = CLIOutputPreferences.from(values: values, allowsToon: path.first == "usage")
+        await self.maybeNotifyUpdate(outputPreferences)
         switch path {
         case ["cards"]:
             await self.runCards(values)
@@ -247,6 +251,13 @@ enum CodexBarCLI {
                     signature: CommandSignature.describe(DiagnoseOptions()).flattened())
             }),
             ("plugins", Self.pluginsCommandDescriptor),
+            ("update", {
+                CommandDescriptor(
+                    name: "update",
+                    abstract: "Check for or install the latest m1mc/CodexBar release",
+                    discussion: nil,
+                    signature: CommandSignature.describe(UpdateOptions()).flattened())
+            }),
         ]
         // Build option signatures only for the command being invoked.
         if let factory = factories.first(where: { $0.name == command }) {
@@ -467,7 +478,7 @@ enum CodexBarCLI {
     private static let knownCommands: Set<String> = [
         "codex-accounts", "cards", "usage", "guard", "cost",
         "sessions", "serve", "dashboard", "config", "hooks",
-        "cache", "cookie", "diagnose", "plugins"
+        "cache", "cookie", "diagnose", "plugins", "update"
     ]
 
     private static let providerOptionCommands: Set<String> = [

@@ -75,6 +75,10 @@ else
 fi
 
 chmod +x "$INSTALL_DIR/codexbar"
+VERSION="${TAG#v}"
+if [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+  printf '%s\n' "$VERSION" > "$INSTALL_DIR/VERSION"
+fi
 _log "Successfully installed codexbar to $INSTALL_DIR/codexbar"
 
 if ! echo ":$PATH:" | grep -q ":$INSTALL_DIR:"; then

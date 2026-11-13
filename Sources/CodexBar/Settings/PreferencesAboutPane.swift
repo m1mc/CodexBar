@@ -47,7 +47,7 @@ struct AboutPane: View {
                 AboutLinkRow(
                     icon: "chevron.left.slash.chevron.right",
                     title: L("link_github"),
-                    url: "https://github.com/steipete/CodexBar")
+                    url: "https://github.com/m1mc/CodexBar")
                 AboutLinkRow(icon: "globe", title: L("link_website"), url: "https://codexbar.app")
                 AboutLinkRow(icon: "bird", title: L("link_twitter"), url: "https://twitter.com/steipete")
                 AboutLinkRow(icon: "envelope", title: L("link_email"), url: "mailto:peter@steipete.me")
@@ -94,9 +94,27 @@ struct AboutPane: View {
         self.updater as? HomebrewUpdaterController
     }
 
+    private var releaseUpdater: GitHubReleaseUpdaterController? {
+        self.updater as? GitHubReleaseUpdaterController
+    }
+
+    private var hasManagedUpdater: Bool {
+        self.updater.isAvailable || self.homebrewUpdater != nil || self.releaseUpdater != nil
+    }
+
+    private var updaterIsBusy: Bool {
+        if let homebrewUpdater = self.homebrewUpdater {
+            return homebrewUpdater.phase == .checking || homebrewUpdater.phase == .installing
+        }
+        if let releaseUpdater = self.releaseUpdater {
+            return releaseUpdater.phase == .checking || releaseUpdater.phase == .installing
+        }
+        return false
+    }
+
     private var updatesSection: some View {
         Section {
-            if self.updater.isAvailable || self.homebrewUpdater != nil {
+            if self.hasManagedUpdater {
                 Toggle(L("check_updates_auto"), isOn: self.$autoUpdateEnabled)
             }
             if self.updater.isAvailable {
@@ -121,14 +139,15 @@ struct AboutPane: View {
             }
 
             LabeledContent(String(format: L("version_format"), AppVersion.displayString)) {
-                if self.updater.isAvailable || self.homebrewUpdater != nil {
+                if self.hasManagedUpdater {
                     Button(L("check_for_updates")) { self.updater.checkForUpdates(nil) }
-                        .disabled(self.homebrewUpdater?.phase == .checking || self.homebrewUpdater?
-                            .phase == .installing)
+                        .disabled(self.updaterIsBusy)
                 }
             }
             if let homebrewUpdater = self.homebrewUpdater {
                 AboutHomebrewUpdateStatusView(updater: homebrewUpdater)
+            } else if let releaseUpdater = self.releaseUpdater {
+                AboutReleaseUpdateStatusView(updater: releaseUpdater)
             } else if !self.updater.isAvailable {
                 AboutUpdatesUnavailableView(
                     reason: self.updater.unavailableReason ?? L("updates_unavailable"))
@@ -190,7 +209,7 @@ struct AboutPane: View {
     }
 
     private func openProjectHome() {
-        guard let url = URL(string: "https://github.com/steipete/CodexBar") else { return }
+        guard let url = URL(string: "https://github.com/m1mc/CodexBar") else { return }
         NSWorkspace.shared.open(url)
     }
 }
@@ -224,6 +243,41 @@ struct AboutHomebrewUpdateStatusView: View {
             AboutUpdatesUnavailableView(
                 reason: L("Managed by Homebrew") + "\n" + message,
                 command: self.updater.manualUpdateCommand)
+        }
+    }
+
+    private static func progressRow(_ title: String) -> some View {
+        HStack(spacing: 8) {
+            ProgressView().controlSize(.small)
+            Text(title).foregroundStyle(.secondary)
+        }
+    }
+}
+
+@MainActor
+struct AboutReleaseUpdateStatusView: View {
+    let updater: GitHubReleaseUpdaterController
+
+    var body: some View {
+        switch self.updater.phase {
+        case .idle:
+            EmptyView()
+        case .checking:
+            Self.progressRow(L("Checking for updates…"))
+        case .upToDate:
+            Label(L("CodexBar is up to date"), systemImage: "checkmark.circle.fill")
+                .foregroundStyle(.secondary)
+        case let .available(version):
+            LabeledContent(String(format: L("CodexBar %@ is available"), version)) {
+                Button(String(format: L("Update to %@"), version)) { self.updater.installUpdate() }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("about-release-install-update")
+            }
+        case .installing:
+            Self.progressRow(L("Checking for updates…"))
+        case let .failed(message):
+            AboutUpdatesUnavailableView(
+                reason: message + "\n" + "https://github.com/m1mc/CodexBar/releases/latest")
         }
     }
 

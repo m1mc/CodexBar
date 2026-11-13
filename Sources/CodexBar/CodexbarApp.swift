@@ -358,6 +358,13 @@ private func isDeveloperIDSigned(bundleURL: URL) -> Bool {
     return (SecCertificateCopySubjectSummary(leaf) as String?)?.hasPrefix("Developer ID Application:") == true
 }
 
+private func isInstalledApplication(bundleURL: URL) -> Bool {
+    let resolved = bundleURL.resolvingSymlinksInPath().standardizedFileURL.path
+    let homeApplications = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Applications").path
+    return resolved.hasPrefix("/Applications/") || resolved.hasPrefix(homeApplications + "/")
+}
+
 @MainActor
 private func makeUpdaterController() -> UpdaterProviding {
     let bundleURL = Bundle.main.bundleURL
@@ -366,18 +373,31 @@ private func makeUpdaterController() -> UpdaterProviding {
     }
 
     if InstallOrigin.isHomebrewCask(appBundleURL: bundleURL) {
-        return HomebrewUpdaterController(
+        if let prefix = InstallOrigin.homebrewPrefix(appBundleURL: bundleURL),
+           (try? HomebrewCask.installed(prefix: prefix)) != nil
+        {
+            return HomebrewUpdaterController(
+                savedAutoCheck: (UserDefaults.standard.object(forKey: "autoUpdateEnabled") as? Bool) ?? true,
+                notifier: HomebrewUpdateNotifier(dependencies: .live))
+        }
+        return DisabledUpdaterController(
+            unavailableReason: "This copy is managed by an upstream Homebrew cask. Reinstall from m1mc/codexbar.")
+    }
+
+    let feedURL = Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") as? String
+    if isDeveloperIDSigned(bundleURL: bundleURL), let feedURL, !feedURL.isEmpty {
+        // Both choices default to on for first launch; Sparkle preserves the saved automatic-install choice.
+        return SparkleUpdaterController(
+            savedAutoCheck: (UserDefaults.standard.object(forKey: "autoUpdateEnabled") as? Bool) ?? true)
+    }
+
+    if isInstalledApplication(bundleURL: bundleURL) {
+        return GitHubReleaseUpdaterController(
             savedAutoCheck: (UserDefaults.standard.object(forKey: "autoUpdateEnabled") as? Bool) ?? true,
-            notifier: HomebrewUpdateNotifier(dependencies: .live))
+            notifier: HomebrewUpdateNotifier(dependencies: .liveForRelease))
     }
 
-    guard isDeveloperIDSigned(bundleURL: bundleURL) else {
-        return DisabledUpdaterController(unavailableReason: "Updates unavailable in this build.")
-    }
-
-    // Both choices default to on for first launch; Sparkle preserves the saved automatic-install choice.
-    return SparkleUpdaterController(
-        savedAutoCheck: (UserDefaults.standard.object(forKey: "autoUpdateEnabled") as? Bool) ?? true)
+    return DisabledUpdaterController(unavailableReason: "Updates unavailable in this build.")
 }
 #else
 private func makeUpdaterController() -> UpdaterProviding {
