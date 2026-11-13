@@ -6,7 +6,7 @@ import XCTest
 @MainActor
 final class AboutUpdateCommandTests: XCTestCase {
     func test_homebrewButtonCopiesOnlyCommandThroughDeferredWriter() throws {
-        for command in ["brew upgrade --cask homebrew/cask/codexbar", "brew upgrade --cask steipete/tap/codexbar"] {
+        for command in ["brew upgrade --cask m1mc/codexbar/codexbar"] {
             try self.assertCopy(command: command)
         }
     }
@@ -41,7 +41,7 @@ final class AboutUpdateCommandTests: XCTestCase {
     }
 
     func test_genericUnavailableMessageDoesNotInventHomebrewAction() throws {
-        let updater = DisabledUpdaterController(unavailableReason: "Run: brew upgrade --cask steipete/tap/codexbar")
+        let updater = DisabledUpdaterController(unavailableReason: "Run: brew upgrade --cask m1mc/codexbar/codexbar")
         let probe = AboutCopyTriggerProbe()
         defer { probe.press = nil }
         let row = try AboutUpdatesUnavailableView(

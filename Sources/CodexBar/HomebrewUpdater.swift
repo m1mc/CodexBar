@@ -3,9 +3,9 @@ import CodexBarCore
 import Foundation
 import Sparkle
 
+/// The only cask this fork upgrades through. Upstream casks ship upstream builds, so their receipts are rejected.
 enum HomebrewCask: String, Sendable {
-    case official = "homebrew/cask"
-    case tap = "steipete/tap"
+    case tap = "m1mc/codexbar"
 
     static func installed(prefix: URL?) throws -> Self {
         guard let prefix else { throw HomebrewUpdateError.brewNotFound }
@@ -23,11 +23,7 @@ enum HomebrewCask: String, Sendable {
     }
 
     var sourceURL: URL {
-        let path = switch self {
-        case .official: "Homebrew/homebrew-cask/master/Casks/c/codexbar.rb"
-        case .tap: "steipete/homebrew-tap/main/Casks/codexbar.rb"
-        }
-        return URL(string: "https://raw.githubusercontent.com/\(path)")!
+        URL(string: "https://raw.githubusercontent.com/m1mc/CodexBar/main/Casks/codexbar.rb")!
     }
 }
 

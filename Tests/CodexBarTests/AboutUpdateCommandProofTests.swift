@@ -33,7 +33,7 @@ final class AboutUpdateCommandProofTests: XCTestCase {
                     fetchCaskSource: { "" },
                     runUpgrade: { _ in },
                     relaunch: {},
-                    cask: { .official }),
+                    cask: { .tap }),
                 startScheduledChecks: false)
             let reason = try XCTUnwrap(updater.unavailableReason)
             let view = Form {

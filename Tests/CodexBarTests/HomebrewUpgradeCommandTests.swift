@@ -5,7 +5,7 @@ import Testing
 
 @MainActor
 struct HomebrewUpgradeCommandTests {
-    @Test(arguments: ["homebrew/cask", "steipete/tap"])
+    @Test(arguments: ["m1mc/codexbar"])
     func `upgrade uses the owning prefix and fixed noninteractive arguments`(tap: String) async throws {
         let fixture = try Fixture(tap: tap)
         defer { fixture.remove() }
@@ -43,7 +43,7 @@ struct HomebrewUpgradeCommandTests {
             fromPropertyList: ["CFBundleShortVersionString": "0.77.0"], format: .xml, options: 0)
         try plist.write(to: contents.appendingPathComponent("Info.plist"))
         let receiptVersion = scenario == "upgrade" ? "0.77.0" : "0.80.0"
-        try "{\"source\":{\"tap\":\"steipete/tap\",\"version\":\"\(receiptVersion)\"}}"
+        try "{\"source\":{\"tap\":\"m1mc/codexbar\",\"version\":\"\(receiptVersion)\"}}"
             .write(to: fixture.receiptURL, atomically: true, encoding: .utf8)
         try FileManager.default.createSymbolicLink(
             at: fixture.owner.appendingPathComponent("bin/brew.app"), withDestinationURL: fixture.app)
@@ -54,11 +54,11 @@ struct HomebrewUpgradeCommandTests {
         [ "$1" = update ] && exit 0
         [ "$HOMEBREW_NO_AUTO_UPDATE" = 1 ] || exit 90
         if [ "$1" = info ]; then
-            printf '%s' '{"casks":[{"token":"codexbar","tap":"steipete/tap",'
+            printf '%s' '{"casks":[{"token":"codexbar","tap":"m1mc/codexbar",'
             printf '%s' '"version":"\(availableVersion)","installed":"\(receiptVersion)","disabled":false}]}'
             exit 0
         fi
-        [ "$#" = 3 ] && [ "$2" = --cask ] && [ "$3" = steipete/tap/codexbar ] || exit 91
+        [ "$#" = 3 ] && [ "$2" = --cask ] && [ "$3" = m1mc/codexbar/codexbar ] || exit 91
         [ "$1" = upgrade ] && [ "\(scenario)" != upgrade ] && exit 0
         [ "\(scenario)" = failed-reinstall ] && { printf 'reinstall failed' >&2; exit 7; }
         [ "\(scenario)" = unchanged-reinstall ] && exit 0
@@ -157,7 +157,7 @@ struct HomebrewUpgradeCommandTests {
         }
     }
 
-    @Test(arguments: ["homebrew/cask", "steipete/tap"])
+    @Test(arguments: ["m1mc/codexbar"])
     func `active receipt selects the matching feed and ignores nested historical receipts`(tap: String) throws {
         let fixture = try Fixture(tap: tap)
         defer { fixture.remove() }
@@ -171,10 +171,8 @@ struct HomebrewUpgradeCommandTests {
         let cask = try HomebrewCask.installed(prefix: prefix)
         #expect(cask.rawValue == tap)
         #expect(cask.qualifiedName == "\(tap)/codexbar")
-        let expected = tap == "homebrew/cask"
-            ? "https://raw.githubusercontent.com/Homebrew/homebrew-cask/master/Casks/c/codexbar.rb"
-            : "https://raw.githubusercontent.com/steipete/homebrew-tap/main/Casks/codexbar.rb"
-        #expect(cask.sourceURL.absoluteString == expected)
+        #expect(cask.sourceURL.absoluteString
+            == "https://raw.githubusercontent.com/m1mc/CodexBar/main/Casks/codexbar.rb")
     }
 
     @Test(arguments: [
@@ -183,6 +181,8 @@ struct HomebrewUpgradeCommandTests {
         #"{"source":null}"#,
         #"{"source":{"tap":""}}"#,
         #"{"source":{"tap":"unrelated/tap"}}"#,
+        #"{"source":{"tap":"homebrew/cask"}}"#,
+        #"{"source":{"tap":"steipete/tap"}}"#,
     ])
     func `invalid or unsupported receipts cannot start brew`(receipt: String) async throws {
         let fixture = try Fixture()
@@ -211,7 +211,7 @@ struct HomebrewUpgradeCommandTests {
         }
     }
 
-    @Test(arguments: ["homebrew/cask", "steipete/tap"], ["0.66.0", "0.67.0"])
+    @Test(arguments: ["m1mc/codexbar"], ["0.66.0", "0.67.0"])
     func `partial refresh can upgrade only a verified owning cask`(tap: String, version: String) async throws {
         let fixture = try Fixture(tap: tap)
         defer { fixture.remove() }
@@ -228,17 +228,17 @@ struct HomebrewUpgradeCommandTests {
         "invalid", "{}", #"{"casks":[]}"#,
         """
         {"casks":[
-        {"token":"codexbar","tap":"steipete/tap","version":"0.66.0","disabled":false},
-        {"token":"codexbar","tap":"steipete/tap","version":"0.66.0","disabled":false}
+        {"token":"codexbar","tap":"m1mc/codexbar","version":"0.66.0","disabled":false},
+        {"token":"codexbar","tap":"m1mc/codexbar","version":"0.66.0","disabled":false}
         ]}
         """,
-        #"{"casks":[{"token":"codexbar","tap":"steipete/tap","version":"0.65.0","disabled":false}]}"#,
-        #"{"casks":[{"token":"codexbar","tap":"steipete/tap","version":"0.66.0-beta.1","disabled":false}]}"#,
+        #"{"casks":[{"token":"codexbar","tap":"m1mc/codexbar","version":"0.65.0","disabled":false}]}"#,
+        #"{"casks":[{"token":"codexbar","tap":"m1mc/codexbar","version":"0.66.0-beta.1","disabled":false}]}"#,
         #"{"casks":[{"token":"codexbar","tap":"homebrew/cask","version":"0.66.0","disabled":false}]}"#,
-        #"{"casks":[{"token":"other-app","tap":"steipete/tap","version":"0.66.0","disabled":false}]}"#,
-        #"{"casks":[{"token":"codexbar","tap":"steipete/tap","version":"0.66.0","disabled":true}]}"#,
-        #"{"casks":[{"token":"codexbar","tap":"steipete/tap","version":"latest","disabled":false}]}"#,
-        #"{"casks":[{"token":"codexbar","tap":"steipete/tap","version":"0.66.0"}]}"#,
+        #"{"casks":[{"token":"other-app","tap":"m1mc/codexbar","version":"0.66.0","disabled":false}]}"#,
+        #"{"casks":[{"token":"codexbar","tap":"m1mc/codexbar","version":"0.66.0","disabled":true}]}"#,
+        #"{"casks":[{"token":"codexbar","tap":"m1mc/codexbar","version":"latest","disabled":false}]}"#,
+        #"{"casks":[{"token":"codexbar","tap":"m1mc/codexbar","version":"0.66.0"}]}"#,
     ])
     func `unverified availability never starts an upgrade`(info: String) async throws {
         let fixture = try Fixture()
@@ -259,7 +259,7 @@ struct HomebrewUpgradeCommandTests {
         let fixture = try Fixture()
         defer { fixture.remove() }
         try fixture.writeRecoveryBrew(
-            info: #"{"casks":[{"token":"codexbar","tap":"steipete/tap","version":"0.66.0","disabled":false}]}"#,
+            info: #"{"casks":[{"token":"codexbar","tap":"m1mc/codexbar","version":"0.66.0","disabled":false}]}"#,
             infoExit: failInfo ? 5 : 0,
             upgradeExit: 6)
         do {
@@ -280,7 +280,7 @@ struct HomebrewUpgradeCommandTests {
         let owner: URL
         let caskrooms: [URL]
 
-        init(tap: String = "steipete/tap") throws {
+        init(tap: String = "m1mc/codexbar") throws {
             let manager = FileManager.default
             self.root = manager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             self.app = self.root.appendingPathComponent("Applications/CodexBar.app")

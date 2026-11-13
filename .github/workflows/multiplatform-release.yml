@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Select Xcode 27
         run: |
@@ -56,11 +58,26 @@ jobs:
             tar -czvf "dist/CodexBarCLI-macos-x86_64.tar.gz" -C dist/cli-macos-x86_64 CodexBarCLI
           fi
 
-      - name: Build macOS GUI App
+      - name: Resolve release version
+        id: version
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          CODEXBAR_SIGNING=adhoc ./Scripts/package_app.sh release
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)*([-.][A-Za-z0-9]+)*$ ]] || { echo "Invalid release tag: $TAG" >&2; exit 1; }
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build macOS GUI App
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          # The bundle version must equal the cask version, or the in-app Homebrew updater never settles.
+          CODEXBAR_SIGNING=adhoc CODEXBAR_MARKETING_VERSION="$VERSION" ./Scripts/package_app.sh release
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' CodexBar.app/Contents/Info.plist)" = "$VERSION"
           mkdir -p dist
-          ./scripts/package_dmg.sh --app CodexBar.app --version "${GITHUB_REF#refs/tags/v}" --output dist/CodexBar-macOS.dmg
+          ./Scripts/package_dmg.sh --app CodexBar.app --version "$VERSION" --output dist/CodexBar-macOS.dmg
 
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4
@@ -85,6 +102,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Install dependencies & Swift via swiftly
         shell: bash
@@ -138,6 +157,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Install Swift for Windows
         uses: compnerd/gha-setup-swift@main
@@ -217,3 +238,31 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+
+      # The GUI updater reads Casks/codexbar.rb from main, so publishing it closes the update loop.
+      - name: Checkout main for distribution manifests
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: distribution
+
+      - name: Point Homebrew cask and formula at this release
+        env:
+          TAG: ${{ steps.release_tag.outputs.tag }}
+        working-directory: distribution
+        run: |
+          set -euo pipefail
+          python3 Scripts/update_distribution_manifests.py "$TAG" ../release-assets .
+          if git diff --quiet -- Casks/codexbar.rb Formula/codexbar.rb; then
+            echo "Distribution manifests already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(distribution): update formula and cask checksums for release $TAG" \
+            -- Casks/codexbar.rb Formula/codexbar.rb
+          for attempt in 1 2 3; do
+            git push origin HEAD:main && exit 0
+            git pull --rebase origin main
+          done
+          exit 1

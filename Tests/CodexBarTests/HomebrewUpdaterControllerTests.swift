@@ -163,13 +163,10 @@ struct HomebrewUpdaterControllerTests {
         #expect(HomebrewCaskVersion.parse(caskSource: "version \"unterminated") == nil)
     }
 
-    @Test(arguments: [HomebrewCask.official, .tap])
-    func `recovery command follows the selected cask`(cask: HomebrewCask) {
-        let controller = Fixture().makeController(cask: cask)
-        let expected = cask == .official
-            ? "brew upgrade --cask homebrew/cask/codexbar"
-            : "brew upgrade --cask steipete/tap/codexbar"
-        #expect(controller.manualUpdateCommand == expected)
+    @Test
+    func `recovery command targets the fork cask`() {
+        let controller = Fixture().makeController(cask: .tap)
+        #expect(controller.manualUpdateCommand == "brew upgrade --cask m1mc/codexbar/codexbar")
     }
 
     @Test

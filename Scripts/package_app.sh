@@ -94,6 +94,9 @@ esac
 
 # Load version info
 source "$ROOT/version.env"
+# Fork releases pin the bundle version to the tag so the Homebrew updater compares it with the cask version.
+MARKETING_VERSION="${CODEXBAR_MARKETING_VERSION:-$MARKETING_VERSION}"
+BUILD_NUMBER="${CODEXBAR_BUILD_NUMBER:-$BUILD_NUMBER}"
 source "$ROOT/Scripts/package_product_paths.sh"
 source "$ROOT/Scripts/sparkle_signing_paths.sh"
 
@@ -276,8 +279,10 @@ if [[ -f "$ICON_SOURCE" ]]; then
 fi
 
 BUNDLE_ID="com.steipete.codexbar"
-FEED_URL="https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml"
+# No default Sparkle feed: the upstream appcast ships upstream builds. Fork installs update via the m1mc cask.
+FEED_URL="${CODEXBAR_FEED_URL:-}"
 AUTO_CHECKS=true
+[[ -n "$FEED_URL" ]] || AUTO_CHECKS=false
 if [[ -n "${CODEXBAR_BUNDLE_ID:-}" ]]; then
   BUNDLE_ID="$CODEXBAR_BUNDLE_ID"
 elif [[ "$LOWER_CONF" == "debug" ]]; then
