@@ -1,4 +1,4 @@
-name: Multi-Platform Release (macOS, Linux, Windows 11)
+name: Multi-Platform Release (macOS, Linux)
 
 on:
   push:
@@ -148,61 +148,11 @@ jobs:
           if-no-files-found: ignore
 
   # -------------------------------------------------------------------------
-  # 3. Windows 11 Build (CodexBarCLI.exe x64)
-  # -------------------------------------------------------------------------
-  build-windows:
-    name: Build Windows 11 CLI
-    runs-on: windows-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.tag || github.ref }}
-
-      - name: Install Swift for Windows
-        uses: compnerd/gha-setup-swift@main
-        with:
-          branch: swift-6.0-release
-          tag: 6.0-RELEASE
-
-      - name: Build CodexBarCLI on Windows
-        shell: pwsh
-        run: |
-          swift build -c release --product CodexBarCLI
-          New-Item -ItemType Directory -Force -Path dist\cli-windows-x64
-          $exe = Get-ChildItem -Path .build -Filter "CodexBarCLI.exe" -Recurse | Select-Object -First 1
-          if ($exe) {
-              Copy-Item $exe.FullName dist\cli-windows-x64\
-          } else {
-              Write-Error "CodexBarCLI.exe not found in .build"
-              exit 1
-          }
-          
-          # Create a lightweight PowerShell setup script for Windows
-          @'
-          param([string]$InstallDir = "$env:LOCALAPPDATA\Programs\CodexBar")
-          New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-          Copy-Item ".\CodexBarCLI.exe" "$InstallDir\codexbar.exe" -Force
-          [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$InstallDir", [EnvironmentVariableTarget]::User)
-          Write-Host "CodexBar successfully installed to $InstallDir\codexbar.exe"
-          '@ | Out-File -Encoding UTF8 dist\cli-windows-x64\setup.ps1
-
-          Compress-Archive -Path dist\cli-windows-x64\* -DestinationPath dist\CodexBarCLI-windows-x64.zip
-
-      - name: Upload Windows Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-cli-artifacts
-          path: dist/*.zip
-          if-no-files-found: ignore
-
-  # -------------------------------------------------------------------------
-  # 4. Publish Release Assets
+  # 3. Publish Release Assets
   # -------------------------------------------------------------------------
   publish-release:
     name: Publish Release Assets
-    needs: [build-macos, build-linux, build-windows]
+    needs: [build-macos, build-linux]
     if: always() && !cancelled() && needs.build-macos.result == 'success'
     runs-on: ubuntu-latest
     steps:
