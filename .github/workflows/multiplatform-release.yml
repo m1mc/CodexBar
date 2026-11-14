@@ -21,6 +21,8 @@ jobs:
   build-macos:
     name: Build macOS (Universal App + CLI)
     runs-on: xcode-27
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,6 +37,8 @@ jobs:
           /usr/bin/xcodebuild -version
 
       - name: Build CodexBarCLI (Release arm64 and x86_64)
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           mkdir -p dist
           # Build arm64
@@ -47,7 +51,8 @@ jobs:
             CLI_FOUND=$(find .build -name "CodexBarCLI" -perm +111 -type f | head -n 1)
             cp "$CLI_FOUND" dist/cli-macos-arm64/CodexBarCLI
           fi
-          tar -czvf "dist/CodexBarCLI-macos-arm64.tar.gz" -C dist/cli-macos-arm64 CodexBarCLI
+          printf '%s\n' "${TAG#v}" > dist/cli-macos-arm64/VERSION
+          tar -czvf "dist/CodexBarCLI-macos-arm64.tar.gz" -C dist/cli-macos-arm64 CodexBarCLI VERSION
 
           # Build x86_64
           swift build -c release --arch x86_64 --product CodexBarCLI || true
@@ -55,7 +60,8 @@ jobs:
           BIN_DIR_X86=$(swift build -c release --arch x86_64 --product CodexBarCLI --show-bin-path 2>/dev/null || true)
           if [ -n "$BIN_DIR_X86" ] && [ -f "$BIN_DIR_X86/CodexBarCLI" ]; then
             cp "$BIN_DIR_X86/CodexBarCLI" dist/cli-macos-x86_64/CodexBarCLI
-            tar -czvf "dist/CodexBarCLI-macos-x86_64.tar.gz" -C dist/cli-macos-x86_64 CodexBarCLI
+            printf '%s\n' "${TAG#v}" > dist/cli-macos-x86_64/VERSION
+            tar -czvf "dist/CodexBarCLI-macos-x86_64.tar.gz" -C dist/cli-macos-x86_64 CodexBarCLI VERSION
           fi
 
       - name: Resolve release version
@@ -97,8 +103,16 @@ jobs:
   # 2. Linux Build (CLI x86_64 & aarch64)
   # -------------------------------------------------------------------------
   build-linux:
-    name: Build Linux CLI
-    runs-on: ubuntu-24.04
+    name: Build Linux CLI (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: aarch64
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -132,28 +146,42 @@ jobs:
           hash -r
           swift --version
 
-      - name: Build CodexBarCLI (Linux x86_64)
+      - name: Build CodexBarCLI (Linux ${{ matrix.arch }})
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           swift build -c release --product CodexBarCLI
-          mkdir -p dist/cli-linux-x86_64
-          cp .build/release/CodexBarCLI dist/cli-linux-x86_64/
-          cd dist/cli-linux-x86_64
-          tar -czvf "../CodexBarCLI-linux-x86_64.tar.gz" CodexBarCLI
+          mkdir -p "dist/cli-linux-${{ matrix.arch }}"
+          cp .build/release/CodexBarCLI "dist/cli-linux-${{ matrix.arch }}/"
+          printf '%s\n' "${TAG#v}" > "dist/cli-linux-${{ matrix.arch }}/VERSION"
+          cd "dist/cli-linux-${{ matrix.arch }}"
+          tar -czvf "../CodexBarCLI-linux-${{ matrix.arch }}.tar.gz" CodexBarCLI VERSION
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-cli-artifacts
+          name: linux-cli-${{ matrix.arch }}
           path: dist/*.tar.gz
           if-no-files-found: ignore
 
   # -------------------------------------------------------------------------
-  # 3. Publish Release Assets
+  # 3. Linux Desktop (archive + Debian package)
+  # -------------------------------------------------------------------------
+  build-linux-desktop:
+    name: Build Linux Desktop (archive + deb)
+    needs: [build-macos]
+    uses: ./.github/workflows/release-linux-desktop.yml
+    with:
+      ref: ${{ inputs.tag || github.ref }}
+      version: ${{ needs.build-macos.outputs.version }}
+
+  # -------------------------------------------------------------------------
+  # 4. Publish Release Assets
   # -------------------------------------------------------------------------
   publish-release:
     name: Publish Release Assets
-    needs: [build-macos, build-linux]
-    if: always() && !cancelled() && needs.build-macos.result == 'success'
+    needs: [build-macos, build-linux, build-linux-desktop]
+    if: always() && !cancelled() && needs.build-macos.result == 'success' && needs.build-linux.result == 'success' && needs.build-linux-desktop.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

@@ -18,11 +18,16 @@ class Codexbar < Formula
     if Hardware::CPU.intel?
       url "https://github.com/m1mc/CodexBar/releases/download/v#{version}/CodexBarCLI-linux-x86_64.tar.gz"
       sha256 "6d41cf9c1b7b9b940940381c4a9515b7d805a9e8e8ed9221400d2458f7a2cb47"
+    else
+      url "https://github.com/m1mc/CodexBar/releases/download/v#{version}/CodexBarCLI-linux-aarch64.tar.gz"
+      sha256 "0000000000000000000000000000000000000000000000000000000000000000"
     end
   end
 
   def install
-    bin.install "CodexBarCLI" => "codexbar"
+    libexec.install "CodexBarCLI"
+    (libexec/"VERSION").write "#{version}\n"
+    bin.install_symlink libexec/"CodexBarCLI" => "codexbar"
   end
 
   test do

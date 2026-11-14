@@ -47,7 +47,9 @@ Qt 6.4+, and a separately installed CodexBar CLI. Python 3 runs the per-user ins
 
 Follow the [Linux installation guide](Integrations/Linux/README.md#install-release-archives)
 for Arch/Omarchy, Fedora, and Debian/Ubuntu runtime packages, verified release
-downloads, and upgrades. It keeps the CLI's resource bundle beside its executable
+downloads, and upgrades. Debian/Ubuntu can install the release `.deb` directly;
+Arch and Omarchy use pacman plus the release archive because `.deb` is not native to Arch.
+It keeps the CLI's resource bundle beside its executable
 and installs a launcher and optional login startup. Open Settings to choose
 providers, then authenticate through the provider's CLI or configure its API key.
 GNOME may need a tray extension; the app's windows work without a tray.
@@ -58,7 +60,15 @@ supported features and remaining gaps.
 ### CLI Tarballs (macOS/Linux)
 Homebrew formula (after tapping `m1mc/codexbar` as above):
 ```bash
-brew install m1mc/codexbar/codexbar
+brew install --formula m1mc/codexbar/codexbar
+brew upgrade --formula m1mc/codexbar/codexbar
+```
+Mise (macOS/Linux):
+```bash
+mise use -g 'ubi:m1mc/CodexBar[exe=CodexBarCLI]'
+mise upgrade 'ubi:m1mc/CodexBar'
+# mise installs a codexbarcli shim; symlink it if you want the codexbar name
+ln -sfn "$(mise which codexbarcli)" ~/.local/bin/codexbar
 ```
 Arch Linux AUR package:
 ```bash
@@ -66,9 +76,9 @@ yay -S codexbar-cli
 ```
 Update the CLI with `codexbar update --check` or `codexbar update --install`.
 Or download release tarballs from GitHub Releases:
-- macOS: `CodexBarCLI-v<tag>-macos-arm64.tar.gz`, `CodexBarCLI-v<tag>-macos-x86_64.tar.gz`
-- Linux (glibc): `CodexBarCLI-v<tag>-linux-aarch64.tar.gz`, `CodexBarCLI-v<tag>-linux-x86_64.tar.gz`
-- Linux (static musl): `CodexBarCLI-v<tag>-linux-musl-aarch64.tar.gz`, `CodexBarCLI-v<tag>-linux-musl-x86_64.tar.gz`
+- macOS: `CodexBarCLI-macos-arm64.tar.gz`, `CodexBarCLI-macos-x86_64.tar.gz`
+- Linux (glibc): `CodexBarCLI-linux-aarch64.tar.gz`, `CodexBarCLI-linux-x86_64.tar.gz`
+- Linux (static musl): `CodexBarCLI-linux-musl-aarch64.tar.gz`, `CodexBarCLI-linux-musl-x86_64.tar.gz`
 
 ### macOS first run
 - Open Settings → Providers and enable what you use.

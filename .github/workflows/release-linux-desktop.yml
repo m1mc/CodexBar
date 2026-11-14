@@ -42,3 +42,5 @@ jobs:
           path: |
             ${{ steps.desktop.outputs.archive }}
             ${{ steps.desktop.outputs.archive }}.sha256
+            ${{ steps.desktop.outputs.deb }}
+            ${{ steps.desktop.outputs.deb }}.sha256

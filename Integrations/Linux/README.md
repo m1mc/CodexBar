@@ -8,7 +8,9 @@ and a private local socket for desktop adapters. No HTTP server is needed.
 ## Install release archives
 
 Desktop archives are published for x86_64 and ARM64 alongside the separate
-CodexBarCLI archives, each with a `.sha256` file. The desktop uses system Qt;
+CodexBarCLI archives, each with a `.sha256` file. Debian and Ubuntu also get a
+`.deb` package built for amd64 and arm64; Arch-based systems including Omarchy
+use pacman and the archive because `.deb` is not native to Arch. The desktop uses system Qt;
 release binaries require glibc 2.39+ and Qt 6.4+. Ubuntu 24.04 and Debian 13 meet
 these floors. Older systems need a source build. The musl CLI archives are for
 CLI-only use on distributions such as Alpine; they do not make the glibc desktop
@@ -54,6 +56,17 @@ sudo apt install curl python3 qml6-module-qtquick qml6-module-qtquick-controls \
   qml6-module-qtqml-workerscript libqt6widgets6 libqt6svg6 qt6-wayland
 ```
 
+### Debian/Ubuntu package
+
+```sh
+gh release download --repo m1mc/CodexBar --pattern 'CodexBarDesktop-*-linux-amd64.deb'
+sudo apt install ./CodexBarDesktop-*-linux-amd64.deb
+```
+
+Use `arm64` instead of `amd64` on ARM64. The desktop package requires a separate
+`codexbar` CLI; install it with the Homebrew formula, mise, or the CLI archive.
+On Arch/Omarchy, use the release archive and pacman runtime packages below instead.
+
 ### Download, verify, and install
 
 Run this block in `sh` or `bash` (from fish, enter `bash` first). It selects the
@@ -70,11 +83,11 @@ case "$arch" in x86_64|aarch64) ;; *) echo "Unsupported architecture: $arch" >&2
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 cd "$work"
-api=https://api.github.com/repos/steipete/CodexBar/releases/latest
+api=https://api.github.com/repos/m1mc/CodexBar/releases/latest
 curl -fsSL "$api" -o release.json
 version=$(python3 -c 'import json; print(json.load(open("release.json"))["tag_name"])')
-base="https://github.com/steipete/CodexBar/releases/download/$version"
-cli="CodexBarCLI-$version-linux-$arch.tar.gz"
+base="https://github.com/m1mc/CodexBar/releases/download/$version"
+cli="CodexBarCLI-linux-$arch.tar.gz"
 desktop="CodexBarDesktop-$version-linux-$arch.tar.gz"
 for archive in "$cli" "$desktop"; do
   curl -fSL "$base/$archive" -o "$archive"
@@ -85,7 +98,7 @@ done
 cli_dir="$HOME/.local/lib/codexbar-cli"
 mkdir -p "$cli_dir" "$HOME/.local/bin"
 tar -xzf "$cli" -C "$cli_dir"
-ln -sfn "$cli_dir/codexbar" "$HOME/.local/bin/codexbar"
+ln -sfn "$cli_dir/CodexBarCLI" "$HOME/.local/bin/codexbar"
 "$HOME/.local/bin/codexbar" --version
 tar -xzf "$desktop"
 cd "${desktop%.tar.gz}"
@@ -108,7 +121,7 @@ CLI, pass its absolute path to the desktop installer instead.
 
 If the unauthenticated GitHub API is rate-limited, download the four matching
 files from [GitHub Releases](https://github.com/steipete/CodexBar/releases/latest),
-or use `gh release download --repo steipete/CodexBar --pattern 'CodexBar*-linux-x86_64.tar.gz*'`
+or use `gh release download --repo m1mc/CodexBar --pattern 'CodexBar*-linux-x86_64*'`
 (substitute `aarch64` for ARM64). In a fresh directory, verify both `.sha256`
 files successfully before extracting either archive, then use the installation
 commands above with the downloaded filenames.

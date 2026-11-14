@@ -8,6 +8,9 @@ outputs:
   archive:
     description: Packaged archive path
     value: ${{ steps.package.outputs.archive }}
+  deb:
+    description: Packaged Debian package path
+    value: ${{ steps.package.outputs.deb }}
 runs:
   using: composite
   steps:
@@ -60,6 +63,7 @@ runs:
           QT_QPA_PLATFORM=offscreen ./tst_icons
         )
         python3 Integrations/Linux/tests/test_package.py
+        python3 Integrations/Linux/tests/test_deb.py
         bash Scripts/test_release_checksum.sh
     - name: Package and checksum
       id: package
@@ -70,4 +74,7 @@ runs:
         set -euo pipefail
         archive=$(python3 Integrations/Linux/package.py --version "$DESKTOP_VERSION")
         Scripts/generate_release_checksum.sh "$archive"
+        deb=$(python3 Integrations/Linux/package_deb.py --version "$DESKTOP_VERSION")
+        Scripts/generate_release_checksum.sh "$deb"
         echo "archive=$archive" >> "$GITHUB_OUTPUT"
+        echo "deb=$deb" >> "$GITHUB_OUTPUT"

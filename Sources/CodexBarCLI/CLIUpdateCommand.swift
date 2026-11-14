@@ -148,21 +148,82 @@ extension CodexBarCLI {
         }
     }
 
+    private enum UpdateInstallOrigin {
+        case brewCask(prefix: String)
+        case brewFormula(prefix: String)
+        case mise(tool: String)
+        case appBundle(URL)
+        case standalone(URL)
+    }
+
     private static func installRelease(_ release: ReleaseInfo) async throws -> String {
-        if let appBundle = self.containingAppBundle(self.runningExecutablePath(bundle: .main)) {
+        let executablePath = self.runningExecutablePath(bundle: .main)
+        let origin = self.updateInstallOrigin(executablePath: executablePath)
+
+        switch origin {
+        case let .brewCask(prefix):
+            try await self.runBrewUpgrade(prefix: prefix, cask: true)
+            return self.containingAppBundle(executablePath)?.path ?? executablePath ?? "brew"
+        case let .brewFormula(prefix):
+            try await self.runBrewUpgrade(prefix: prefix, cask: false)
+            return executablePath ?? "brew"
+        case let .mise(tool):
+            try await self.runMiseUpgrade(tool: tool)
+            return executablePath ?? "mise"
+        case let .appBundle(appBundle):
             #if os(macOS)
             try await ReleaseAppInstaller.install(release: release, appBundleURL: appBundle)
             return appBundle.path
             #else
             throw ReleaseUpdateError.installFailed("The GUI app can only be updated on macOS.")
             #endif
+        case let .standalone(target):
+            return try await self.installStandaloneCLI(release: release, target: target)
+        }
+    }
+
+    private static func updateInstallOrigin(executablePath: String?) -> UpdateInstallOrigin {
+        let appBundle = self.containingAppBundle(executablePath)
+        if let appBundle {
+            if let prefix = self.homebrewPrefix(),
+               self.homebrewReceiptTap(prefix: prefix) == "m1mc/codexbar"
+            {
+                return .brewCask(prefix: prefix)
+            }
+            return .appBundle(appBundle)
         }
 
-        guard let executablePath = Self.runningExecutablePath(bundle: .main) else {
-            throw ReleaseUpdateError.installFailed("Could not locate the running codexbar binary.")
+        guard let executablePath else {
+            return .standalone(URL(fileURLWithPath: "/usr/bin/codexbar"))
         }
-        let target = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath()
-        guard let assetName = Self.cliArchiveName() else {
+        let resolved = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath()
+        let resolvedPath = resolved.path
+
+        if resolvedPath.contains("/Cellar/codexbar/"),
+           let prefix = self.homebrewPrefix()
+        {
+            return .brewFormula(prefix: prefix)
+        }
+        if resolvedPath.contains("/mise/installs/") {
+            let components = resolved.pathComponents
+            let tool = components.firstIndex(of: "installs").flatMap { index in
+                index + 1 < components.count ? components[index + 1] : nil
+            }
+            let spec = if let tool, tool.hasPrefix("github-") {
+                "github:m1mc/CodexBar"
+            } else {
+                "ubi:m1mc/CodexBar"
+            }
+            return .mise(tool: spec)
+        }
+        return .standalone(resolved)
+    }
+
+    private static func installStandaloneCLI(
+        release: ReleaseInfo,
+        target: URL) async throws -> String
+    {
+        guard let assetName = self.cliArchiveName() else {
             throw ReleaseUpdateError.installFailed("No CLI archive is published for this platform.")
         }
         guard let archiveAsset = release.asset(named: assetName) else {
@@ -184,8 +245,11 @@ extension CodexBarCLI {
 
         let extracted = work.appendingPathComponent("extracted")
         try FileManager.default.createDirectory(at: extracted, withIntermediateDirectories: true)
+        let tarBinary = FileManager.default.isExecutableFile(atPath: "/usr/bin/tar")
+            ? "/usr/bin/tar"
+            : "/bin/tar"
         _ = try await SubprocessRunner.runToCompletion(
-            binary: "/usr/bin/tar",
+            binary: tarBinary,
             arguments: ["-xzf", archiveURL.path, "-C", extracted.path],
             environment: [:],
             label: "codexbar-cli-extract")
@@ -214,6 +278,68 @@ extension CodexBarCLI {
         return target.path
     }
 
+    private static func homebrewPrefix() -> String? {
+        if let prefix = ProcessInfo.processInfo.environment["HOMEBREW_PREFIX"],
+           FileManager.default.isExecutableFile(atPath: prefix + "/bin/brew")
+        {
+            return prefix
+        }
+        for prefix in ["/opt/homebrew", "/usr/local"]
+            where FileManager.default.isExecutableFile(atPath: prefix + "/bin/brew")
+        {
+            return prefix
+        }
+        return nil
+    }
+
+    private static func homebrewReceiptTap(prefix: String) -> String? {
+        let receipt = URL(fileURLWithPath: prefix)
+            .appendingPathComponent("Caskroom/codexbar/.metadata/INSTALL_RECEIPT.json")
+        guard let data = try? Data(contentsOf: receipt),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let source = json["source"] as? [String: Any]
+        else { return nil }
+        return source["tap"] as? String
+    }
+
+    private static func runBrewUpgrade(prefix: String, cask: Bool) async throws {
+        let brew = prefix + "/bin/brew"
+        var environment = ProcessInfo.processInfo.environment
+        environment["HOMEBREW_NO_AUTO_UPDATE"] = "1"
+        environment["HOMEBREW_NO_UPGRADE_QUIT_CASKS"] = "1"
+        _ = try await SubprocessRunner.runToCompletion(
+            binary: brew,
+            arguments: ["update"],
+            environment: environment,
+            acceptsNonZeroExit: true,
+            label: "codexbar-brew-update")
+        _ = try await SubprocessRunner.runToCompletion(
+            binary: brew,
+            arguments: ["upgrade", cask ? "--cask" : "--formula", "m1mc/codexbar/codexbar"],
+            environment: environment,
+            label: "codexbar-brew-upgrade")
+    }
+
+    private static func runMiseUpgrade(tool: String) async throws {
+        guard let mise = self.executable(named: "mise") else {
+            throw ReleaseUpdateError.installFailed("mise is not on PATH; run `mise upgrade \(tool)` manually.")
+        }
+        _ = try await SubprocessRunner.runToCompletion(
+            binary: mise,
+            arguments: ["upgrade", tool, "--yes"],
+            environment: ProcessInfo.processInfo.environment,
+            label: "codexbar-mise-upgrade")
+    }
+
+    private static func executable(named name: String) -> String? {
+        let path = ProcessInfo.processInfo.environment["PATH"] ?? ""
+        var directories = path.split(separator: ":").map(String.init)
+        directories.append(contentsOf: ["/opt/homebrew/bin", "/usr/local/bin"])
+        return directories
+            .map { URL(fileURLWithPath: $0).appendingPathComponent(name).path }
+            .first { FileManager.default.isExecutableFile(atPath: $0) }
+    }
+
     private static func cliArchiveName() -> String? {
         #if os(macOS)
         #if arch(arm64)
@@ -224,6 +350,8 @@ extension CodexBarCLI {
         #elseif os(Linux)
         #if arch(x86_64)
         return "CodexBarCLI-linux-x86_64.tar.gz"
+        #elseif arch(aarch64)
+        return "CodexBarCLI-linux-aarch64.tar.gz"
         #else
         return nil
         #endif
