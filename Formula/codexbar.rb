@@ -7,20 +7,20 @@ class Codexbar < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/m1mc/CodexBar/releases/download/v#{version}/CodexBarCLI-macos-arm64.tar.gz"
-      sha256 "32326fb1d4edc658990084c3975280d74583d3167c40d5a30415e0194948b80b"
+      sha256 "f27be97570a7f3f0d6d9625457be29c11246c67c911163453c43f5478b80f09a"
     else
       url "https://github.com/m1mc/CodexBar/releases/download/v#{version}/CodexBarCLI-macos-x86_64.tar.gz"
-      sha256 "b5164a454ee7ddc04fbb65af7dec1e8684de3c4174f81002b4c1034e5bd14592"
+      sha256 "b2287b98399d908ca5eb4db6c2aad96ee0a79db8fc3f8dc1d87dd415967d9de6"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
       url "https://github.com/m1mc/CodexBar/releases/download/v#{version}/CodexBarCLI-linux-x86_64.tar.gz"
-      sha256 "6d41cf9c1b7b9b940940381c4a9515b7d805a9e8e8ed9221400d2458f7a2cb47"
+      sha256 "df0c0a41114e2dfe175f14d86a59e9bf22895508e154609361116beb3aa51b09"
     else
       url "https://github.com/m1mc/CodexBar/releases/download/v#{version}/CodexBarCLI-linux-aarch64.tar.gz"
-      sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+      sha256 "c8badc6c29dd8f19b73bedead4e5f42642d888400860853c5443a17a0c70d172"
     end
   end
 

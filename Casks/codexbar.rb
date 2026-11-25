@@ -1,6 +1,6 @@
 cask "codexbar" do
   version "2.2.2"
-  sha256 "bae8b0451fdc396e42fe7f6490c79fc91d78b495582a2f3c18571168a37233f2"
+  sha256 "0f5fd57c4d54d5d8ac2d9d09ea5d769e5a4ffe34e1c303fa95c4b0d7424ea45f"
 
   url "https://github.com/m1mc/CodexBar/releases/download/v#{version}/CodexBar-macOS.dmg"
   name "CodexBar"
