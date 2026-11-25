@@ -57,17 +57,19 @@ def update_cask(path: Path, version: str, assets: Path) -> None:
 
 def update_formula(path: Path, version: str, assets: Path) -> bool:
     source = path.read_text()
-    archives = re.findall(r'url "[^"]*/(CodexBarCLI-[A-Za-z0-9_.-]+\.tar\.gz)"', source)
+    # Formula URLs use the official CodexBarCLI-v#{version}-<target>.tar.gz names.
+    templates = re.findall(r'url "[^"]*/(CodexBarCLI-[A-Za-z0-9_.#{}-]+\.tar\.gz)"', source)
+    archives = [name.replace("#{version}", version) for name in templates]
     missing = [name for name in archives if not (assets / name).is_file()]
     if not archives or missing:
         print(f"skipping formula; missing CLI archives: {', '.join(missing) or 'none referenced'}", file=sys.stderr)
         return False
     source = set_version(source, version)
-    for name in archives:
-        pattern = rf'(url "[^"]*/{re.escape(name)}"\s*\n\s*sha256\s+)"[0-9a-f]{{64}}"'
+    for template, name in zip(templates, archives):
+        pattern = rf'(url "[^"]*/{re.escape(template)}"\s*\n\s*sha256\s+)"[0-9a-f]{{64}}"'
         source, count = re.subn(pattern, rf'\g<1>"{sha256(assets / name)}"', source)
         if count != 1:
-            raise SystemExit(f"expected one sha256 line after {name}")
+            raise SystemExit(f"expected one sha256 line after {template}")
     path.write_text(source)
     return True
 
