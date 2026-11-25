@@ -150,9 +150,9 @@ jobs:
         env:
           TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          swift build -c release --product CodexBarCLI
+          swift build -c release --product CodexBarCLI --static-swift-stdlib
           mkdir -p "dist/cli-linux-${{ matrix.arch }}"
-          cp .build/release/CodexBarCLI "dist/cli-linux-${{ matrix.arch }}/"
+          cp "$(swift build -c release --product CodexBarCLI --static-swift-stdlib --show-bin-path)/CodexBarCLI" "dist/cli-linux-${{ matrix.arch }}/"
           printf '%s\n' "${TAG#v}" > "dist/cli-linux-${{ matrix.arch }}/VERSION"
           cd "dist/cli-linux-${{ matrix.arch }}"
           tar -czvf "../CodexBarCLI-linux-${{ matrix.arch }}.tar.gz" CodexBarCLI VERSION
